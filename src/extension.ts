@@ -5,8 +5,6 @@ const cfg_enableDefinitions = "enableDefinitions";
 const cfg_luaRuntimeVersion = "runtime.version";
 const cfg_luaWorkspaceLibrary = "workspace.library";
 
-const cmd_openDocs = "openDocs";
-
 let isPromptActive = false;
 let isInitialized = false;
 
@@ -91,14 +89,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 luaConfig.update(cfg_luaWorkspaceLibrary, libs.filter(i => typeof (i) === "string" && !i.match("mililua")));
                 vscode.window.showInformationMessage("MiliLua has been disabled for this workspace.");
             }
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(cfg_id + "." + cmd_openDocs, async () => {
-            const success = await vscode.env.openExternal(vscode.Uri.joinPath(context.extensionUri, "out", "docs", "index.html"));
-            if (success) { return; }
-            vscode.window.showErrorMessage("Failed to open documentation in browser.");
         })
     );
 }

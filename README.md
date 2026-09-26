@@ -18,7 +18,6 @@ The extension will activate the first time you open a Lua script in a workspace;
 
 |Command|Description|
 |-|-|
-|`mililua.openDocs`|Opens the built-in documentation in your browser.|
 
 ## Extension Settings
 |Setting|Type|Description|

@@ -33,18 +33,11 @@
           "scope": "resource"
         }
       }
-    },
-    "commands": [
-      {
-        "command": "mililua.openDocs",
-        "title": "MiliLua: Open Built-in Documentation"
-      }
-    ]
+    }
   },
   "scripts": {
     "fetch-definitions": "node scripts/fetch-definitions.js",
-    "generate-docs": "emmylua_doc_cli ./out/library -o ./out/docs --site-name \"Miliastra Wonderland Lua API\"",
-    "vscode:prepublish": "npm run fetch-definitions && npm run generate-docs && npm run compile",
+    "vscode:prepublish": "npm run fetch-definitions && npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
