@@ -2,7 +2,7 @@
   "name": "mililua-api-definitions",
   "displayName": "MiliLua API Definitions",
   "description": "Provides definitions and documentation for the Miliastra Wonderland Lua API.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "publisher": "haminpants",
   "icon": "images/icon.png",
   "engines": {
