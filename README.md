@@ -1,7 +1,7 @@
 # MiliLua API Definitions for VS Code
 MiliLua API Definitions is a VS Code extension that provides Lua definitions and documentation for the Miliastra Wonderland Lua API.
 
-To make contributions to the defintions, or to download definitions separately, see [the MiliLua repo](https://github.com/haminpants/mililua).
+To make contributions to the defintions, or to download definitions separately, see [the Miliastra Lua API repo](https://github.com/haminpants/miliastra-lua-api).
 
 ## Installation
 Get the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=haminpants.mililua-api-definitions).

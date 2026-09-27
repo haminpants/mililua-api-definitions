@@ -1,7 +1,7 @@
 const { execSync } = require("child_process");
 const { mkdirSync, cpSync, rmSync } = require("fs");
 
-const REPO_URL = "https://github.com/haminpants/mililua";
+const REPO_URL = "https://github.com/haminpants/miliastra-lua-api";
 
 console.log('Fetching latest Lua definitions...');
 
