@@ -7,7 +7,7 @@ To make contributions to the defintions, or to download definitions separately, 
 Get the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=haminpants.mililua-api-definitions).
 
 ## Usage
-The extension will activate the first time you open a Lua script in a workspace; a prompt to enable MiliLua for your current workspace will appear at the botom-left corner of VS Code. Accepting the prompt will configure the bundled definitions as part of your workspace library.
+The extension will activate the first time you open a Lua script in a workspace; a prompt to enable MiliLua for your current workspace will appear at the botom-left corner of VS Code. Accepting the prompt will configure the bundled definitions as part of your workspace library. See the [IDE Setup](https://wiki.miliastra.dev/en/guides/haminpants/lua-quickstart#ide-setup) section of haminpants' Lua Quickstart Guide for more info.
 
 ## Features
 - Definitions for functions, types, and enums.
