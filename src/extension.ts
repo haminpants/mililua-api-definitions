@@ -5,6 +5,8 @@ const cfg_enableDefinitions = "enableDefinitions";
 const cfg_luaRuntimeVersion = "runtime.version";
 const cfg_luaWorkspaceLibrary = "workspace.library";
 
+const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
+
 let isPromptActive = false;
 let isInitialized = false;
 
@@ -47,7 +49,30 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
     }
 }
 
+function updateStatusBarItem(context: vscode.ExtensionContext) {
+    let status = `❌`;
+    let tooltip = "No workspace is active. Open the external_lua_file folder for your project to enable the definitions.";
+
+    const enabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue ?? null;
+    switch (enabled) {
+        case true:
+            status = `✅`;
+            tooltip = "The Miliastra Wonderland Lua Scripting API definitions are enabled for this workspace.";
+            break;
+        case false:
+            tooltip = "The Miliastra Wonderland Lua Scripting API definitions are disabled for this workspace.";
+            break;
+    }
+
+    statusBarItem.text = `Miliastra ${status}`;
+    statusBarItem.tooltip = tooltip;
+}
+
 export async function activate(context: vscode.ExtensionContext) {
+    context.subscriptions.push(statusBarItem);
+    statusBarItem.show();
+    updateStatusBarItem(context);
+
     if (!vscode.workspace.workspaceFolders) { return; }
 
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
@@ -80,15 +105,15 @@ export async function activate(context: vscode.ExtensionContext) {
             if (enabled) {
                 luaConfig.update(cfg_luaRuntimeVersion, "Lua 5.3", false);
                 updateLibs(context);
-                vscode.window.showInformationMessage("MiliLua has been enabled for this workspace!");
             }
             else {
                 luaConfig.update(cfg_luaRuntimeVersion, undefined);
                 const libs: string[] = luaConfig.inspect<string[]>(cfg_luaWorkspaceLibrary)?.workspaceValue ?? [];
                 if (libs.length === 0) { return; }
                 luaConfig.update(cfg_luaWorkspaceLibrary, libs.filter(i => typeof (i) === "string" && !i.match("mililua")));
-                vscode.window.showInformationMessage("MiliLua has been disabled for this workspace.");
             }
+
+            updateStatusBarItem(context);
         })
     );
 }
