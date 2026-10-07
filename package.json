@@ -1,7 +1,7 @@
 {
   "name": "mililua-api-definitions",
   "displayName": "MiliLua API Definitions",
-  "description": "Provides definitions and documentation for the Miliastra Wonderland Lua API.",
+  "description": "Provides IntelliSense for the Miliastra Wonderland Lua API.",
   "version": "1.2.1",
   "publisher": "haminpants",
   "icon": "images/icon.png",
@@ -29,7 +29,7 @@
         "mililua.enableDefinitions": {
           "type": "boolean",
           "default": null,
-          "description": "(Workspace only) Whether to enable Miliastra Wonderland Lua API definitions for the current workspace.",
+          "description": "(Workspace only) Whether to enable Miliastra Wonderland Lua API support for the current workspace.",
           "scope": "resource"
         }
       }

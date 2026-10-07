@@ -57,10 +57,10 @@ function updateStatusBarItem(context: vscode.ExtensionContext) {
     switch (enabled) {
         case true:
             status = `✅`;
-            tooltip = "The Miliastra Wonderland Lua Scripting API definitions are enabled for this workspace.";
+            tooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
             break;
         case false:
-            tooltip = "The Miliastra Wonderland Lua Scripting API definitions are disabled for this workspace.";
+            tooltip = "The Miliastra Wonderland Lua API definitions are disabled for this workspace.";
             break;
     }
 
