@@ -27,7 +27,7 @@ See the [IDE Setup](https://wiki.miliastra.dev/en/guides/haminpants/lua-quicksta
 |`mililua.enableDefinitions`|`boolean`|(Workspace only) Whether to enable Miliastra Wonderland Lua API definitions for the current workspace.|
 
 ## Snippets
-
+![GIF demonstrating the use of snippets to quickly generate code.](/images/readme/example_snippets.gif)
 |Prefix|Description|
 |-|-|
 |`mili-lifecycle`|Generates all lifecycle functions.|
