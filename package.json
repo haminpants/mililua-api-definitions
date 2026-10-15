@@ -33,7 +33,13 @@
           "scope": "resource"
         }
       }
-    }
+    },
+    "snippets": [
+        {
+            "language": "lua",
+            "path": "./snippets/lua.code-snippets"
+        }
+    ]
   },
   "scripts": {
     "fetch-definitions": "node scripts/fetch-definitions.js",

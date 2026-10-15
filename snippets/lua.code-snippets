@@ -1,0 +1,126 @@
+{
+    "Insert All Lifecycle Functions": {
+        "prefix": ["mili-lifecycle"],
+        "description": "Generates all lifecycle function blocks.",
+        "isFileTemplate": true,
+        "body": [
+            "function OnInit()",
+            "\t$0",
+            "end",
+            "",
+            "function OnEnable()",
+            "\t",
+            "end",
+            "",
+            "function OnStart()",
+            "\t",
+            "end",
+            "",
+            "function OnUpdate(dt)",
+            "\t",
+            "end",
+            "",
+            "function OnLevelUpdate(dt)",
+            "\t",
+            "end",
+            "",
+            "function OnDisable()",
+            "\t",
+            "end",
+            "",
+            "function OnDestroy()",
+            "\t",
+            "end",
+        ]
+    },
+    "Insert OnInit Function": {
+        "prefix": ["function OnInit()","OnInit"],
+        "description": "Generates the OnInit lifecycle function block.",
+        "body": [
+            "function OnInit()",
+            "\t$0",
+            "end",
+        ]
+    },
+    "Insert OnEnable Function": {
+        "prefix": ["function OnEnable()", "OnEnable"],
+        "description": "Generates the OnEnable lifecycle function block.",
+        "body": [
+            "function OnEnable()",
+            "\t$0",
+            "end",
+        ]
+    },
+    "Insert OnStart Function": {
+        "prefix": ["function OnStart()", "OnStart"],
+        "description": "Generates the OnStart lifecycle function block.",
+        "body": [
+            "function OnStart()",
+            "\t$0",
+            "end",
+        ]
+    },
+    "Insert OnUpdate Function": {
+        "prefix": ["function OnUpdate()", "OnUpdate"],
+        "description": "Generates the OnUpdate lifecycle function block.",
+        "body": [
+            "function OnUpdate(dt)",
+            "\t$0",
+            "end",
+        ]
+    },
+    "Insert OnLevelUpdate Function": {
+        "prefix": ["function OnLevelUpdate()", "OnLevelUpdate"],
+        "description": "Generates the OnLevelUpdate lifecycle function block.",
+        "body": [
+            "function OnLevelUpdate(dt)",
+            "\t$0",
+            "end",
+        ]
+    },
+    "Insert OnDisable Function": {
+        "prefix": ["function OnDisable()", "OnDisable"],
+        "description": "Generates the OnDisable lifecycle function block.",
+        "body": [
+            "function OnDisable()",
+            "\t$0",
+            "end",
+        ]
+    },
+    "Insert OnDestroy Function": {
+        "prefix": ["function OnDestroy()", "OnDestroy"],
+        "description": "Generates the OnDestroy lifecycle function block.",
+        "body": [
+            "function OnDestroy()",
+            "\t$0",
+            "end",
+        ]
+    },
+    "Create Tween": {
+        "prefix": ["mili-tween", "game.Tween"],
+        "body": [
+            "game.Tween(${1:script.object}, {$0}, ${2:duration})",
+        ]
+    },
+    "Create Tween (One-shot)": {
+        "prefix": ["mili-tween-one-shot"],
+        "description": "Create a Tween that kills itself on completion.",
+        "body": [
+            "local ${1:t} = game.Tween(${2:script.object}, {$0}, ${3:duration})",
+            "${1:t}:SetOnComplete(function()",
+            "    ${1:t}:Kill(false)",
+            "end)",
+        ]
+    },
+    "Create Tween Sequence (One-shot)": {
+        "prefix": ["mili-tween-sequence-one-shot", "mili-ts"],
+        "description": "Create a Tween Sequence that kills itself on completion.",
+        "body": [
+            "local ${1:ts} = game.TweenSequence()",
+            "${1:ts}:SetOnComplete(function()",
+            "    ${1:ts}:Kill(false)",
+            "end)",
+            "$0",
+        ]
+    },
+}
