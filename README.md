@@ -26,6 +26,22 @@ See the [IDE Setup](https://wiki.miliastra.dev/en/guides/haminpants/lua-quicksta
 |-|-|-|
 |`mililua.enableDefinitions`|`boolean`|(Workspace only) Whether to enable Miliastra Wonderland Lua API definitions for the current workspace.|
 
+## Snippets
+
+|Prefix|Description|
+|-|-|
+|`mili-lifecycle`|Generates all lifecycle functions.|
+|`function OnInit()`<br>`OnInit`|Generates the OnInit lifecycle function.|
+|`function OnEnable()`<br>`OnEnable`|Generates the OnEnable lifecycle function.|
+|`function OnStart()`<br>`OnStart`|Generates the OnStart lifecycle function.|
+|`function OnUpdate()`<br>`OnUpdate`|Generates the OnUpdate lifecycle function.|
+|`function OnLevelUpdate()`<br>`OnLevelUpdate`|Generates the OnLevelUpdate lifecycle function.|
+|`function OnDisable()`<br>`OnDisable`|Generates the OnDisable lifecycle function.|
+|`function OnDestroy()`<br>`OnDestroy`|Generates the OnDestroy lifecycle function.|
+|`mili-tween`<br>`game.Tween`|Generates Tween starter code.|
+|`mili-tween-one-shot`|Generates a Tween that calls Kill when completed.|
+|`mili-tween-sequence-one-shot`|Generates a Tween Sequence that calls Kill when completed.|
+
 ## Limitations
 - Functions that return `ClientUIBaseControl` do return the exact runtime type; however, LuaLS cannot infer the correct type, so an alias containing all Client Control types is returned instead.
 - Functions that return data from the server, such as from signals or `game.GetGlobalCustomVariableValue`, will always return a type from the `ServerDataType` alias or `nil`; however, LuaLS cannot infer the correct type, so `any` is returned instead.

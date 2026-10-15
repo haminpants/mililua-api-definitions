@@ -1,7 +1,7 @@
 {
     "Insert All Lifecycle Functions": {
         "prefix": ["mili-lifecycle"],
-        "description": "Generates all lifecycle function blocks.",
+        "description": "Generates all lifecycle functions.",
         "isFileTemplate": true,
         "body": [
             "function OnInit()",
@@ -35,7 +35,7 @@
     },
     "Insert OnInit Function": {
         "prefix": ["function OnInit()","OnInit"],
-        "description": "Generates the OnInit lifecycle function block.",
+        "description": "Generates the OnInit lifecycle function.",
         "body": [
             "function OnInit()",
             "\t$0",
@@ -98,13 +98,14 @@
     },
     "Create Tween": {
         "prefix": ["mili-tween", "game.Tween"],
+        "description": "Generates Tween starter code.",
         "body": [
             "game.Tween(${1:script.object}, {$0}, ${2:duration})",
         ]
     },
     "Create Tween (One-shot)": {
         "prefix": ["mili-tween-one-shot"],
-        "description": "Create a Tween that kills itself on completion.",
+        "description": "Generates a Tween that calls Kill when completed.",
         "body": [
             "local ${1:t} = game.Tween(${2:script.object}, {$0}, ${3:duration})",
             "${1:t}:SetOnComplete(function()",
@@ -114,7 +115,7 @@
     },
     "Create Tween Sequence (One-shot)": {
         "prefix": ["mili-tween-sequence-one-shot", "mili-ts"],
-        "description": "Create a Tween Sequence that kills itself on completion.",
+        "description": "Generates a Tween Sequence that calls Kill when completed.",
         "body": [
             "local ${1:ts} = game.TweenSequence()",
             "${1:ts}:SetOnComplete(function()",
