@@ -20,6 +20,7 @@ See the [IDE Setup](https://wiki.miliastra.dev/en/guides/haminpants/lua-quicksta
     - `Vector3`, to represent the 3D Vector data type.
     - `ApiType`, containing all known return values from the `typeof` function.
 - Extended documentation verified through testing.
+- [Snippets](#snippets) for commonly used blocks of code.
 
 ## Extension Settings
 |Setting|Type|Description|
