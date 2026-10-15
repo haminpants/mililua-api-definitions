@@ -114,7 +114,7 @@
         ]
     },
     "Create Tween Sequence (One-shot)": {
-        "prefix": ["mili-tween-sequence-one-shot", "mili-ts"],
+        "prefix": ["mili-tween-sequence-one-shot"],
         "description": "Generates a Tween Sequence that calls Kill when completed.",
         "body": [
             "local ${1:ts} = game.TweenSequence()",
