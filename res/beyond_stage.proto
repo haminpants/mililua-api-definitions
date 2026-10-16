@@ -11,12 +11,7 @@ message MultiLanguageText {
 }
 
 message MLTWrapper {
-  repeated TextFromEditor text_from_editor = 1;
   ScriptTextVariableWrapper stv_wrapper = 2;
-}
-
-message TextFromEditor {
-  string name = 1;
 }
 
 message ScriptTextVariableWrapper {
