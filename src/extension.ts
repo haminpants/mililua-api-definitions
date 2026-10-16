@@ -47,11 +47,9 @@ function updateStatusBarItem(context: vscode.ExtensionContext) {
     let tooltip = "The Miliastra Wonderland Lua API definitions are disabled for this workspace.";
 
     const enabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue ?? null;
-    switch (enabled) {
-        case true:
-            status = `✅`;
-            tooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
-            break;
+    if (enabled) {
+        status = `✅`;
+        tooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
     }
 
     statusBarItem.text = `Miliastra ${status}`;
