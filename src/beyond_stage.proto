@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+message BeyondStage {
+  uint32 save_id = 1;
+  string name = 2;
+  MultiLanguageText multi_language_text = 35;
+}
+
+message MultiLanguageText {
+  MLTWrapper mlt_wrapper = 1;
+}
+
+message MLTWrapper {
+  repeated TextFromEditor text_from_editor = 1;
+  ScriptTextVariableWrapper stv_wrapper = 2;
+}
+
+message TextFromEditor {
+  string name = 1;
+}
+
+message ScriptTextVariableWrapper {
+  repeated ScriptTextVariable script_text_variable = 1;
+}
+
+message ScriptTextVariable {
+  string name = 1;
+  uint32 index = 2;
+}
