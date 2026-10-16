@@ -30,7 +30,8 @@
     "sumneko.lua"
   ],
   "activationEvents": [
-    "onLanguage:lua"
+    "workspaceContains:**/*.gil",
+    "workspaceContains:**/*.lua"
   ],
   "main": "./out/extension.js",
   "contributes": {

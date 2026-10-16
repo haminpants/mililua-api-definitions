@@ -8,29 +8,23 @@ const cfg_luaWorkspaceLibrary = "workspace.library";
 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
 
 let isPromptActive = false;
-let isInitialized = false;
 
-function updateLibs(context: vscode.ExtensionContext) {
+function updateLibs(context: vscode.ExtensionContext, addLibs: boolean = true) {
     const apiPath = vscode.Uri.joinPath(context.extensionUri, "out", "library").fsPath.replace(/\\/g, '/');
     const luaConfig = vscode.workspace.getConfiguration("Lua");
+    const isMiliLuaLib = RegExp(context.extension.packageJSON.name)
 
     let libs: string[] = luaConfig.inspect<string[]>(cfg_luaWorkspaceLibrary)?.workspaceValue ?? [];
-    libs = libs.filter(i => {
-        if (typeof (i) !== "string") { return false; }
-        const match = i.match(/mililua.*-(\d+\.\d+\.\d+)/);
-        return match ? match[1] === context.extension.packageJSON.version : true;
-    });
-    if (!libs.includes(apiPath)) { libs.push(apiPath); }
+    libs = libs.filter(lib => { return typeof (lib) === "string" && !isMiliLuaLib.test(lib); });
+    if (addLibs && !libs.includes(apiPath)) { libs.push(apiPath); }
     luaConfig.update(cfg_luaWorkspaceLibrary, libs);
 }
 
 async function checkEnableDefinitions(context: vscode.ExtensionContext) {
-    if (isInitialized) { return; }
     const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
 
     switch (mililuaConfig.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
         case true:
-            isInitialized = true;
             updateLibs(context);
             break;
         case false:
@@ -40,10 +34,9 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
             isPromptActive = true;
             await vscode.window.showInformationMessage("Would you like to enable MiliLua for this workspace? Miliastra Wonderland Lua API definitions will be added to this project.", "Yes", "No")
                 .then(choice => {
-                    isInitialized = true;
                     isPromptActive = false;
-                    mililuaConfig.update(cfg_enableDefinitions, null);
                     mililuaConfig.update(cfg_enableDefinitions, choice === "Yes");
+                    updateStatusBarItem(context);
                 });
             break;
     }
@@ -51,16 +44,13 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
 
 function updateStatusBarItem(context: vscode.ExtensionContext) {
     let status = `❌`;
-    let tooltip = "No workspace is active. Open the external_lua_file folder for your project to enable the definitions.";
+    let tooltip = "The Miliastra Wonderland Lua API definitions are disabled for this workspace.";
 
     const enabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue ?? null;
     switch (enabled) {
         case true:
             status = `✅`;
             tooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
-            break;
-        case false:
-            tooltip = "The Miliastra Wonderland Lua API definitions are disabled for this workspace.";
             break;
     }
 
@@ -69,30 +59,14 @@ function updateStatusBarItem(context: vscode.ExtensionContext) {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
+    console.log("Activating MiliLua API Definitions...")
+
     context.subscriptions.push(statusBarItem);
-    statusBarItem.show();
     updateStatusBarItem(context);
+    statusBarItem.show()
 
     if (!vscode.workspace.workspaceFolders) { return; }
-
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
-    if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "lua") {
-        checkEnableDefinitions(context);
-    }
-
-    context.subscriptions.push(
-        vscode.workspace.onDidChangeTextDocument(async e => {
-            if (e.document.languageId !== "lua") { return; }
-            checkEnableDefinitions(context);
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.workspace.onDidOpenTextDocument(d => {
-            if (d.languageId !== "lua") { return; }
-            checkEnableDefinitions(context);
-        })
-    );
 
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
@@ -108,14 +82,17 @@ export async function activate(context: vscode.ExtensionContext) {
             }
             else {
                 luaConfig.update(cfg_luaRuntimeVersion, undefined);
-                const libs: string[] = luaConfig.inspect<string[]>(cfg_luaWorkspaceLibrary)?.workspaceValue ?? [];
-                if (libs.length === 0) { return; }
-                luaConfig.update(cfg_luaWorkspaceLibrary, libs.filter(i => typeof (i) === "string" && !i.match("mililua")));
+                updateLibs(context, false);
             }
 
             updateStatusBarItem(context);
         })
     );
+
+    if (!vscode.workspace.workspaceFolders) { return; }
+    checkEnableDefinitions(context);
 }
 
-export function deactivate() { }
+export function deactivate() {
+    console.log("Deactivating MiliLua API Definitions")
+}
