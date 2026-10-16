@@ -11,14 +11,36 @@ message MultiLanguageText {
 }
 
 message MLTWrapper {
+  EditorTextWrappper et_wrapper = 1;
   ScriptTextVariableWrapper stv_wrapper = 2;
+}
+
+message EditorTextWrappper {
+  repeated EditorText editor_text = 1;
+  uint32 unk_int_flag = 2;
+  bytes unk_bytes = 3;
+}
+
+message EditorText {
+  string name = 1;
+  uint32 unk_int_flag = 4;
+  bytes extra_data = 501;
 }
 
 message ScriptTextVariableWrapper {
   repeated ScriptTextVariable script_text_variable = 1;
+  uint32 unk_int_flag = 2;
+  bytes unk_bytes = 3;
 }
 
 message ScriptTextVariable {
   string name = 1;
   uint32 index = 2;
+  repeated TranslationEntry translations = 3;
+  uint32 unk_flag = 4;
+}
+
+message TranslationEntry {
+  int32 type = 1;
+  string value = 2;
 }
