@@ -43,6 +43,12 @@
           "default": null,
           "description": "(Workspace only) Whether to enable Miliastra Wonderland Lua API support for the current workspace.",
           "scope": "resource"
+        },
+        "mililua.enableScriptTextVariableExtraction": {
+          "type": "boolean",
+          "default": null,
+          "description": "(Workspace only) Whether to enable Script Text Variable extraction from the .gil file in the current workspace.",
+          "scope": "resource"
         }
       }
     },
