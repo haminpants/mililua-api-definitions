@@ -51,6 +51,8 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 - This extension operates offline; no data leaves your device.
 - This feature does not modify the .gil file.
 - This feature can be disabled separately from API support.
+- Scripts in the `.gil_resources` folder **should not** be mapped in the Client Script Resource Explorer.
+- The `.gil_resources` folder can be safely excluded from a Git repo through `.gitignore`.
 
 ## Snippets
 ![GIF demonstrating the use of snippets to quickly generate code.](/images/readme/example_snippets.gif)
