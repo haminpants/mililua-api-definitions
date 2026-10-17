@@ -12,6 +12,7 @@ const cfg_luaWorkspaceLibrary = "workspace.library";
 
 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
 
+let expectedGil = "";
 let isPromptActive = false;
 
 function updateLibs(context: vscode.ExtensionContext) {
@@ -41,7 +42,6 @@ async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResource
     const end = start + contentLength;
     const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
 
-    console.log("Extracting .gil resources")
     const scriptTextVariables = stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariable ?? [];
     resourceHandler.processResource(GilResource.ScriptTextVariables, scriptTextVariables)
 }
@@ -57,43 +57,52 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
         default:
             if (isPromptActive) { break; }
             isPromptActive = true;
-            await vscode.window.showInformationMessage("Would you like to enable MiliLua for this workspace? Miliastra Wonderland Lua API definitions will be added to this project.", "Yes", "No")
+            vscode.window.showInformationMessage("Would you like to enable MiliLua for this workspace? Miliastra Wonderland Lua API definitions will be added to this project.", "Yes", "No")
                 .then(choice => {
                     isPromptActive = false;
                     mililuaConfig.update(cfg_enableDefinitions, choice === "Yes");
-                    updateStatusBarItem(context);
+                    mililuaConfig.update(cfg_extractGilResources, choice === "Yes");
                 });
             break;
     }
 }
 
-function updateStatusBarItem(context: vscode.ExtensionContext) {
-    let status = `❌`;
-    let tooltip = "The Miliastra Wonderland Lua API definitions are disabled for this workspace.";
+function updateStatusBarItem() {
+    let apiEnabled = `❌`;
+    let apiTooltip = `The Miliastra Wonderland Lua API definitions are disabled for this workspace.\nEnable the workspace setting "${cfg_id}.${cfg_enableDefinitions}" for API support.`;
 
-    const enabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue ?? null;
-    if (enabled) {
-        status = `✅`;
-        tooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
+    let extractEnabled = ``;
+    let extractTooltip = `.gil Resource Extraction is not enabled.\nEnable the workspace setting "${cfg_id}.${cfg_extractGilResources}" for stage-specific support.`;
+
+    if (vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
+        apiEnabled = `✅`;
+        apiTooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
     }
 
-    statusBarItem.text = `Miliastra ${status}`;
-    statusBarItem.tooltip = tooltip;
+    if (vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_extractGilResources)?.workspaceValue) {
+        extractEnabled = `🪄`;
+        extractTooltip = `.gil Resource Extraction is active. Target File: ${expectedGil}\nExtracting: Script Text Variables`;
+    }
+
+    statusBarItem.text = `Miliastra ${apiEnabled}${extractEnabled}`;
+    statusBarItem.tooltip = `${apiTooltip}\n\n${extractTooltip}`;
 }
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating MiliLua API Definitions...")
 
     context.subscriptions.push(statusBarItem);
-    updateStatusBarItem(context);
+    updateStatusBarItem();
     statusBarItem.show()
 
     if (!vscode.workspace.workspaceFolders) { return; }
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
     const gilResourceHandler = new GilResourceHandler(workspaceRoot);
+    expectedGil = `${workspaceRoot.name}.gil`;
+    updateStatusBarItem();
 
     context.subscriptions.push(
-        vscode.workspace.onDidChangeConfiguration(e => {
+        vscode.workspace.onDidChangeConfiguration(async e => {
             if (e.affectsConfiguration(`${cfg_id}.${cfg_enableDefinitions}`, workspaceRoot)) {
                 const luaConfig = vscode.workspace.getConfiguration("Lua");
                 if (vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
@@ -109,7 +118,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 updateLibs(context)
             }
 
-            updateStatusBarItem(context);
+            updateStatusBarItem();
         })
     );
 
