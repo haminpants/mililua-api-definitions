@@ -27,7 +27,7 @@ export class GilWriterRegistry {
                     return [
                         `---${SCRIPT_MAPPING_INFO}`,
                         "---@meta",
-                        "---@alias ScriptTextVariable",
+                        "---@alias ScriptTextVariable string",
                         ...content.map(v => { return `---| "${v.name}"` })
                     ].join("\n")
                 },
