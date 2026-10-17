@@ -1,15 +1,26 @@
 # MiliLua API Definitions for VS Code
-MiliLua API Definitions is a VS Code extension that provides IntelliSense for the Miliastra Wonderland Lua API based on definitions and documentation from the [miliastra-lua-api repo](https://github.com/haminpants/miliastra-lua-api).
+MiliLua API Definitions is a VS Code extension that provides IntelliSense and extended tooling for the Miliastra Wonderland Lua API based on definitions and documentation from the [miliastra-lua-api repo](https://github.com/haminpants/miliastra-lua-api).
 
 ## Installation
 Get the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=haminpants.mililua-api-definitions).
 
 ## Usage
-1. Open your project's `external_lua_file` folder in VS Code.
-1. Open a file with the `.lua` extension.
+1. Open your project's save folder in VS Code.
+    ```
+    File > Open Folder > vvv Navigate to Save Path vvv
+    C:\Users\YOUR_USER\AppData\LocalLow\miHoYo\Genshin Impact\BeyondLocal\YOUR_UID\Beyond_Local_Save_Level\YOUR_SAVE_ID
+    ```
+    **This folder should contain the `.gil` file and `external_lua_file` folder for your project.**
 1. Select "Yes" when prompted whether to enable MiliLua for the current workspace.
 
     ![Popup](https://wiki.miliastra.dev/guides/haminpants/lua-quickstart/setup_mililua_popup.png)
+3. Open the Miliastra editor for the corresponding project, then save the project in the Miliastra editor. A folder called `.gil_resources` should be generated.
+
+---
+
+Hover over the status bar entry to diagnose common issues.
+
+![Example diagnostic provided by the status bar entry.](/images/readme/example_diagnosis.png)
 
 See the [IDE Setup](https://wiki.miliastra.dev/en/guides/haminpants/lua-quickstart#ide-setup) section of haminpants' Lua Quickstart Guide for more info.
 
@@ -20,12 +31,26 @@ See the [IDE Setup](https://wiki.miliastra.dev/en/guides/haminpants/lua-quicksta
     - `Vector3`, to represent the 3D Vector data type.
     - `ApiType`, containing all known return values from the `typeof` function.
 - Extended documentation verified through testing.
+- [Data Extraction](#data-extraction) for enhanced autocomplete and typing.
 - [Snippets](#snippets) for commonly used blocks of code.
 
 ## Extension Settings
 |Setting|Type|Description|
 |-|-|-|
-|`mililua.enableDefinitions`|`boolean`|(Workspace only) Whether to enable Miliastra Wonderland Lua API definitions for the current workspace.|
+|`mililua.enableDefinitions`|`boolean`|(Workspace only) Whether to enable Miliastra Wonderland Lua API support for the current workspace.|
+|`mililua.extractGilResources`|`boolean`|(Workspace only) Whether to attempt resource extraction from the .gil file matching the current workspace folder name.|
+
+## Data Extraction
+When the "Extract Gil Resources" setting is enabled for your current workspace, the extension will automatically attempt to extract information from the .gil file matching the workspace folder name whenever a save occurs in the Miliastra editor.
+
+|Extracted Data|Description|File|
+|-|-|-|
+|Script Text Variables|The Mapping ID of Script Text Variables will be extracted to provide autocomplete for the `game.GetText` function.|`.gil_resources/ScriptTextVariables.d.lua`|
+
+### Notes
+- This extension operates offline; no data leaves your device.
+- This feature does not modify the .gil file.
+- This feature can be disabled separately from API support.
 
 ## Snippets
 ![GIF demonstrating the use of snippets to quickly generate code.](/images/readme/example_snippets.gif)
