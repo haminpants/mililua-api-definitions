@@ -60,13 +60,14 @@
     ]
   },
   "scripts": {
+    "generate-ts-protobuf": "protoc --proto_path=./res/ --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_out=./generated ./res/beyond_stage.proto",
     "check-types": "tsc --noEmit",
-    "compile": "npm run check-types && node esbuild.js",
+    "compile": "npm run check-types && npm run generate-ts-protobuf && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "vscode:prepublish": "npx tsx scripts/fetch-definitions.ts && npm run package",
-    "package": "npm run check-types && node esbuild.js --production"
+    "package": "npm run check-types && npm run generate-ts-protobuf && node esbuild.js --production"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
