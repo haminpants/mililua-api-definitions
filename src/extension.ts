@@ -86,19 +86,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (!e.affectsConfiguration(cfg_id + "." + cfg_enableDefinitions, workspaceRoot)) { return; }
-
-            const enabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue ?? null;
-            if (enabled === null) { return; }
-
-            const luaConfig = vscode.workspace.getConfiguration("Lua");
-            if (enabled) {
-                luaConfig.update(cfg_luaRuntimeVersion, "Lua 5.3", false);
-                updateLibs(context);
-            }
-            else {
-                luaConfig.update(cfg_luaRuntimeVersion, undefined);
-                updateLibs(context, false);
+            if (e.affectsConfiguration(`${cfg_id}.${cfg_enableDefinitions}`, workspaceRoot)) {
+                const luaConfig = vscode.workspace.getConfiguration("Lua");
+                if (vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
+                    luaConfig.update(cfg_luaRuntimeVersion, "Lua 5.3", false);
+                    updateLibs(context);
+                }
+                else {
+                    luaConfig.update(cfg_luaRuntimeVersion, undefined);
+                    updateLibs(context, false);
+                }
             }
 
             updateStatusBarItem(context);
