@@ -1,36 +1,55 @@
-import * as vscode from 'vscode';
+import * as fs from "fs/promises";
+import * as vscode from "vscode";
+import { GilResourceHandler } from "@/gil-resource-handler";
+import { BeyondStage } from "@Protobufs/beyond_stage";
+import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
+const cfg_extractGilResources = "extractGilResources";
 const cfg_luaRuntimeVersion = "runtime.version";
 const cfg_luaWorkspaceLibrary = "workspace.library";
 
 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
 
+let expectedGil = "";
 let isPromptActive = false;
-let isInitialized = false;
 
 function updateLibs(context: vscode.ExtensionContext) {
     const apiPath = vscode.Uri.joinPath(context.extensionUri, "out", "library").fsPath.replace(/\\/g, '/');
+    const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
     const luaConfig = vscode.workspace.getConfiguration("Lua");
+    const isMiliLuaLib = RegExp(`(?:${context.extension.packageJSON.name}|${RESOURCES_DIR})`)
 
     let libs: string[] = luaConfig.inspect<string[]>(cfg_luaWorkspaceLibrary)?.workspaceValue ?? [];
-    libs = libs.filter(i => {
-        if (typeof (i) !== "string") { return false; }
-        const match = i.match(/mililua.*-(\d+\.\d+\.\d+)/);
-        return match ? match[1] === context.extension.packageJSON.version : true;
-    });
-    if (!libs.includes(apiPath)) { libs.push(apiPath); }
+    libs = libs.filter(lib => { return typeof (lib) === "string" && !isMiliLuaLib.test(lib); });
+
+    if (mililuaConfig.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue && !libs.includes(apiPath)) {
+        libs.push(apiPath);
+    }
+    if (mililuaConfig.inspect<boolean>(cfg_extractGilResources)?.workspaceValue && !libs.includes(`./${RESOURCES_DIR}/`)) {
+        libs.push(`./${RESOURCES_DIR}/`)
+    }
+
     luaConfig.update(cfg_luaWorkspaceLibrary, libs);
 }
 
-async function checkEnableDefinitions(context: vscode.ExtensionContext) {
-    if (isInitialized) { return; }
-    const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
+async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResourceHandler) {
+    const fileBuffer = await fs.readFile(uri.fsPath)
 
+    const contentLength = fileBuffer.readUInt32BE(0x10);
+    const start = 20;
+    const end = start + contentLength;
+    const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
+
+    const scriptTextVariables = stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariable ?? [];
+    resourceHandler.processResource(GilResource.ScriptTextVariables, scriptTextVariables)
+}
+
+async function checkEnableDefinitions(context: vscode.ExtensionContext) {
+    const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
     switch (mililuaConfig.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
         case true:
-            isInitialized = true;
             updateLibs(context);
             break;
         case false:
@@ -38,84 +57,81 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
         default:
             if (isPromptActive) { break; }
             isPromptActive = true;
-            await vscode.window.showInformationMessage("Would you like to enable MiliLua for this workspace? Miliastra Wonderland Lua API definitions will be added to this project.", "Yes", "No")
+            vscode.window.showInformationMessage("Would you like to enable MiliLua for this workspace? Miliastra Wonderland Lua API definitions will be added to this project.", "Yes", "No")
                 .then(choice => {
-                    isInitialized = true;
                     isPromptActive = false;
-                    mililuaConfig.update(cfg_enableDefinitions, null);
                     mililuaConfig.update(cfg_enableDefinitions, choice === "Yes");
+                    mililuaConfig.update(cfg_extractGilResources, choice === "Yes");
                 });
             break;
     }
 }
 
-function updateStatusBarItem(context: vscode.ExtensionContext) {
-    let status = `❌`;
-    let tooltip = "No workspace is active. Open the external_lua_file folder for your project to enable the definitions.";
+function updateStatusBarItem() {
+    let apiEnabled = `❌`;
+    let apiTooltip = `The Miliastra Wonderland Lua API definitions are disabled for this workspace.\nEnable the workspace setting "${cfg_id}.${cfg_enableDefinitions}" for API support.`;
 
-    const enabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue ?? null;
-    switch (enabled) {
-        case true:
-            status = `✅`;
-            tooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
-            break;
-        case false:
-            tooltip = "The Miliastra Wonderland Lua API definitions are disabled for this workspace.";
-            break;
+    let extractEnabled = ``;
+    let extractTooltip = `.gil Resource Extraction is not enabled.\nEnable the workspace setting "${cfg_id}.${cfg_extractGilResources}" for stage-specific support.`;
+
+    if (vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
+        apiEnabled = `✅`;
+        apiTooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
     }
 
-    statusBarItem.text = `Miliastra ${status}`;
-    statusBarItem.tooltip = tooltip;
+    if (vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_extractGilResources)?.workspaceValue) {
+        extractEnabled = `🪄`;
+        extractTooltip = `.gil Resource Extraction is active. Target File: ${expectedGil}\nExtracting: Script Text Variables`;
+    }
+
+    statusBarItem.text = `Miliastra ${apiEnabled}${extractEnabled}`;
+    statusBarItem.tooltip = `${apiTooltip}\n\n${extractTooltip}`;
 }
 
 export async function activate(context: vscode.ExtensionContext) {
+    console.log("Activating MiliLua API Definitions...")
+
     context.subscriptions.push(statusBarItem);
-    statusBarItem.show();
-    updateStatusBarItem(context);
+    updateStatusBarItem();
+    statusBarItem.show()
 
     if (!vscode.workspace.workspaceFolders) { return; }
-
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
-    if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "lua") {
-        checkEnableDefinitions(context);
-    }
+    const gilResourceHandler = new GilResourceHandler(workspaceRoot);
+    expectedGil = `${workspaceRoot.name}.gil`;
+    updateStatusBarItem();
 
     context.subscriptions.push(
-        vscode.workspace.onDidChangeTextDocument(async e => {
-            if (e.document.languageId !== "lua") { return; }
-            checkEnableDefinitions(context);
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.workspace.onDidOpenTextDocument(d => {
-            if (d.languageId !== "lua") { return; }
-            checkEnableDefinitions(context);
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.workspace.onDidChangeConfiguration(e => {
-            if (!e.affectsConfiguration(cfg_id + "." + cfg_enableDefinitions, workspaceRoot)) { return; }
-
-            const enabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue ?? null;
-            if (enabled === null) { return; }
-
-            const luaConfig = vscode.workspace.getConfiguration("Lua");
-            if (enabled) {
-                luaConfig.update(cfg_luaRuntimeVersion, "Lua 5.3", false);
+        vscode.workspace.onDidChangeConfiguration(async e => {
+            if (e.affectsConfiguration(`${cfg_id}.${cfg_enableDefinitions}`, workspaceRoot)) {
+                const luaConfig = vscode.workspace.getConfiguration("Lua");
+                if (vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
+                    luaConfig.update(cfg_luaRuntimeVersion, "Lua 5.3", false);
+                }
+                else {
+                    luaConfig.update(cfg_luaRuntimeVersion, undefined);
+                }
                 updateLibs(context);
             }
-            else {
-                luaConfig.update(cfg_luaRuntimeVersion, undefined);
-                const libs: string[] = luaConfig.inspect<string[]>(cfg_luaWorkspaceLibrary)?.workspaceValue ?? [];
-                if (libs.length === 0) { return; }
-                luaConfig.update(cfg_luaWorkspaceLibrary, libs.filter(i => typeof (i) === "string" && !i.match("mililua")));
+
+            if (e.affectsConfiguration(`${cfg_id}.${cfg_extractGilResources}`, workspaceRoot)) {
+                updateLibs(context)
             }
 
-            updateStatusBarItem(context);
+            updateStatusBarItem();
         })
     );
+
+    const gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${workspaceRoot.name}.gil`);
+    gilWatcher.onDidChange(uri => {
+        if (!(vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_extractGilResources)?.workspaceValue ?? null)) { return; }
+        extractGilResources(uri, gilResourceHandler);
+    })
+    context.subscriptions.push(gilWatcher);
+
+    checkEnableDefinitions(context);
 }
 
-export function deactivate() { }
+export function deactivate() {
+    console.log("Deactivating MiliLua API Definitions")
+}
