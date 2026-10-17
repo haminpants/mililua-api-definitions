@@ -1,20 +1,20 @@
-import { context } from 'esbuild';
+import { context } from "esbuild";
 
-const production = process.argv.includes('--production');
-const watch = process.argv.includes('--watch');
+const production = process.argv.includes("--production");
+const watch = process.argv.includes("--watch");
 
 async function main() {
     const ctx = await context({
-        entryPoints: ['src/extension.ts'],
+        entryPoints: ["src/extension.ts"],
         bundle: true,
-        format: 'cjs',
+        format: "cjs",
         minify: production,
         sourcemap: !production,
         sourcesContent: false,
-        platform: 'node',
-        outfile: 'out/extension.js',
-        external: ['vscode'],
-        logLevel: 'warning',
+        platform: "node",
+        outfile: "out/extension.js",
+        external: ["vscode"],
+        logLevel: "warning",
         plugins: [
             esbuildProblemMatcherPlugin
         ]
@@ -28,14 +28,14 @@ async function main() {
 }
 
 /**
- * @type {import('esbuild').Plugin}
+ * @type { import("esbuild").Plugin }
  */
 const esbuildProblemMatcherPlugin = {
-    name: 'esbuild-problem-matcher',
+    name: "esbuild-problem-matcher",
 
     setup(build) {
         build.onStart(() => {
-            console.log('[watch] build started');
+            console.log("[watch] build started");
         });
         build.onEnd(result => {
             result.errors.forEach(({ text, location }) => {
@@ -43,7 +43,7 @@ const esbuildProblemMatcherPlugin = {
                 if (location == null) return;
                 console.error(`    ${location.file}:${location.line}:${location.column}:`);
             });
-            console.log('[watch] build finished');
+            console.log("[watch] build finished");
         });
     }
 };
