@@ -25,7 +25,7 @@ function updateLibs(context: vscode.ExtensionContext, addLibs: boolean = true) {
     luaConfig.update(cfg_luaWorkspaceLibrary, libs);
 }
 
-async function extractGilResources(context: vscode.ExtensionContext, uri: vscode.Uri, resourceHandler: GilResourceHandler) {
+async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResourceHandler) {
     const fileBuffer = await fs.readFile(uri.fsPath)
 
     const contentLength = fileBuffer.readUInt32BE(0x10);
@@ -108,7 +108,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${workspaceRoot.name}.gil`);
     gilWatcher.onDidChange(uri => {
         if (!(vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableExtractGilResources)?.workspaceValue ?? null)) { return; }
-        extractGilResources(context, uri, gilResourceHandler);
+        extractGilResources(uri, gilResourceHandler);
     })
     context.subscriptions.push(gilWatcher);
 
