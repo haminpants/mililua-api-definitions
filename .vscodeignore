@@ -2,6 +2,7 @@
 .vscode-test/**
 images/readme/**
 node_modules/**
+res/**
 scripts/**
 src/**
 
