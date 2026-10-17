@@ -12,6 +12,7 @@ execSync(`git clone --depth 1 ${REPO_URL} ${tsconfig.outDir}/${TMP_DIR}`, { stdi
 mkdirSync(`${tsconfig.outDir}`, { recursive: true });
 rmSync(`${tsconfig.outDir}/${LIB_DIR}`, { recursive: true, force: true });
 cpSync(`${tsconfig.outDir}/${TMP_DIR}/${LIB_DIR}`, `${tsconfig.outDir}/${LIB_DIR}`, { recursive: true });
+rmSync(`${tsconfig.outDir}/${LIB_DIR}/addons/VSCodeAddons.d.lua`, { force: true });
 rmSync(`${tsconfig.outDir}/${TMP_DIR}`, { recursive: true, force: true });
 
 console.log(`Successfully retrieved latest API definitions.\nSaved to ${tsconfig.outDir}/${LIB_DIR}`);
