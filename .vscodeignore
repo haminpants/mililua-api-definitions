@@ -2,16 +2,17 @@
 .vscode-test/**
 images/readme/**
 node_modules/**
-res/**
+protobufs/**
 scripts/**
 src/**
-
-*.gitignore
-.yarnrc
-.prettierignore
 
 **/tsconfig.json
 **/eslint.config.mjs
 **/*.map
 **/*.ts
 **/.vscode-test.*
+*.gitignore
+
+.yarnrc
+.prettierignore
+esbuild.js
