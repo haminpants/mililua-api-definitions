@@ -5,20 +5,22 @@ export enum GilResource {
     ScriptTextVariables
 }
 
+const RESOURCES_DIR = ".gil_resources";
+
 interface ResourceHandlerConfig {
     targetPath: string;
     formatContent: (content: any) => string
 }
 
 export class GilWriterRegistry {
-    readonly outputDir: string;
+    readonly writeDir: string;
     private configs: Record<GilResource, ResourceHandlerConfig>;
 
     constructor(outputDirectory: string) {
-        this.outputDir = path.join(outputDirectory, "gil_resources")
+        this.writeDir = path.join(outputDirectory, RESOURCES_DIR)
         this.configs = {
             [GilResource.ScriptTextVariables]: {
-                targetPath: path.join(this.outputDir, "ScriptTextVariables.d.lua"),
+                targetPath: path.join(this.writeDir, "ScriptTextVariables.d.lua"),
                 formatContent(content: ScriptTextVariable[]) {
                     return [
                         "---@meta",
