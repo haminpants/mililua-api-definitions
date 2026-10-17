@@ -72,8 +72,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "24.x",
     "@types/vscode": "^1.134.0",
-    "@vscode/test-cli": "^0.0.15",
-    "@vscode/test-electron": "^3.0.0",
+    "esbuild": "^0.28.2",
     "eslint": "^10.5.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1"
@@ -83,6 +82,6 @@
     "serialize-javascript": "^7.0.6"
   },
   "dependencies": {
-    "protobufjs": "^8.8.1"
+    "ts-proto": "^2.15.3"
   }
 }
