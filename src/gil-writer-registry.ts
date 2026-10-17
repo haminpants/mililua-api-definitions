@@ -1,11 +1,11 @@
 import { ScriptTextVariable } from "@Root/protobufs/beyond_stage";
 import path from "path";
 
+export const RESOURCES_DIR = ".gil_resources";
+
 export enum GilResource {
     ScriptTextVariables
 }
-
-const RESOURCES_DIR = ".gil_resources";
 
 interface ResourceHandlerConfig {
     targetPath: string;

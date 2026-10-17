@@ -2,7 +2,7 @@ import * as fs from "fs/promises";
 import * as vscode from "vscode";
 import { GilResourceHandler } from "@/gil-resource-handler";
 import { BeyondStage } from "@Protobufs/beyond_stage";
-import { GilResource } from "@/gil-writer-registry";
+import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
@@ -14,14 +14,22 @@ const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignmen
 
 let isPromptActive = false;
 
-function updateLibs(context: vscode.ExtensionContext, addLibs: boolean = true) {
+function updateLibs(context: vscode.ExtensionContext) {
     const apiPath = vscode.Uri.joinPath(context.extensionUri, "out", "library").fsPath.replace(/\\/g, '/');
+    const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
     const luaConfig = vscode.workspace.getConfiguration("Lua");
-    const isMiliLuaLib = RegExp(context.extension.packageJSON.name)
+    const isMiliLuaLib = RegExp(`(?:${context.extension.packageJSON.name}|${RESOURCES_DIR})`)
 
     let libs: string[] = luaConfig.inspect<string[]>(cfg_luaWorkspaceLibrary)?.workspaceValue ?? [];
     libs = libs.filter(lib => { return typeof (lib) === "string" && !isMiliLuaLib.test(lib); });
-    if (addLibs && !libs.includes(apiPath)) { libs.push(apiPath); }
+
+    if (mililuaConfig.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue && !libs.includes(apiPath)) {
+        libs.push(apiPath);
+    }
+    if (mililuaConfig.inspect<boolean>(cfg_extractGilResources)?.workspaceValue && !libs.includes(`./${RESOURCES_DIR}/`)) {
+        libs.push(`./${RESOURCES_DIR}/`)
+    }
+
     luaConfig.update(cfg_luaWorkspaceLibrary, libs);
 }
 
@@ -90,12 +98,15 @@ export async function activate(context: vscode.ExtensionContext) {
                 const luaConfig = vscode.workspace.getConfiguration("Lua");
                 if (vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
                     luaConfig.update(cfg_luaRuntimeVersion, "Lua 5.3", false);
-                    updateLibs(context);
                 }
                 else {
                     luaConfig.update(cfg_luaRuntimeVersion, undefined);
-                    updateLibs(context, false);
                 }
+                updateLibs(context);
+            }
+
+            if (e.affectsConfiguration(`${cfg_id}.${cfg_extractGilResources}`, workspaceRoot)) {
+                updateLibs(context)
             }
 
             updateStatusBarItem(context);
