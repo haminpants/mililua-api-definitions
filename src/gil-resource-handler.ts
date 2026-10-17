@@ -1,14 +1,20 @@
+import * as fs from "fs/promises";
+import * as path from "path";
 import stableStringify from "fast-json-stable-stringify";
+import { GilResource, GilWriterRegistry } from "./gil-writer-registry";
+import { WorkspaceFolder } from "vscode";
 
-export enum GilResourceCacheId {
-    ScriptTextVariables
-}
 
 export class GilResourceHandler {
+    private registry: GilWriterRegistry;
     private hashFn: ((input: string) => number) | null = null;
-    private hashCache: Record<GilResourceCacheId, number> = {
-        [GilResourceCacheId.ScriptTextVariables]: Infinity,
+    private hashCache: Record<GilResource, number> = {
+        [GilResource.ScriptTextVariables]: Infinity,
     };
+
+    constructor(workspaceFolder: WorkspaceFolder) {
+        this.registry = new GilWriterRegistry(workspaceFolder.uri.fsPath);
+    }
 
     private async getHashFunction() {
         if (!this.hashFn) {
@@ -19,13 +25,16 @@ export class GilResourceHandler {
         return this.hashFn;
     }
 
-    async checkIfResourceChanged(key: GilResourceCacheId, value: object, onChanged: () => void | Promise<void>) {
+    async processResource(key: GilResource, value: object): Promise<boolean> {
         const hash = await this.getHashFunction();
         const newHash = hash(stableStringify(value));
 
-        if (newHash !== this.hashCache[key]) {
-            this.hashCache[key] = newHash;
-            await onChanged();
-        }
+        if (newHash === this.hashCache[key]) { return false; }
+        this.hashCache[key] = newHash;
+
+        const resourceConfig = this.registry.getConfig(key)
+        await fs.mkdir(path.dirname(resourceConfig.targetPath), { recursive: true })
+        await fs.writeFile(resourceConfig.targetPath, resourceConfig.formatContent(value), "utf-8");
+        return true;
     }
 }

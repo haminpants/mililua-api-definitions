@@ -1,7 +1,12 @@
-import * as vscode from 'vscode';
+import * as fs from "fs/promises";
+import * as vscode from "vscode";
+import { GilResourceHandler } from "@/gil-resource-handler";
+import { BeyondStage } from "@Protobufs/beyond_stage";
+import { GilResource } from "@/gil-writer-registry";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
+const cfg_enableExtractGilResources = "enableExtractGilResources";
 const cfg_luaRuntimeVersion = "runtime.version";
 const cfg_luaWorkspaceLibrary = "workspace.library";
 
@@ -20,9 +25,21 @@ function updateLibs(context: vscode.ExtensionContext, addLibs: boolean = true) {
     luaConfig.update(cfg_luaWorkspaceLibrary, libs);
 }
 
+async function extractGilResources(context: vscode.ExtensionContext, uri: vscode.Uri, resourceHandler: GilResourceHandler) {
+    const fileBuffer = await fs.readFile(uri.fsPath)
+
+    const contentLength = fileBuffer.readUInt32BE(0x10);
+    const start = 20;
+    const end = start + contentLength;
+    const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
+
+    console.log("Extracting .gil resources")
+    const scriptTextVariables = stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariable ?? [];
+    resourceHandler.processResource(GilResource.ScriptTextVariables, scriptTextVariables)
+}
+
 async function checkEnableDefinitions(context: vscode.ExtensionContext) {
     const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
-
     switch (mililuaConfig.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
         case true:
             updateLibs(context);
@@ -65,6 +82,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     if (!vscode.workspace.workspaceFolders) { return; }
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
+    const gilResourceHandler = new GilResourceHandler(workspaceRoot);
 
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
@@ -87,7 +105,13 @@ export async function activate(context: vscode.ExtensionContext) {
         })
     );
 
-    if (!vscode.workspace.workspaceFolders) { return; }
+    const gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${workspaceRoot.name}.gil`);
+    gilWatcher.onDidChange(uri => {
+        if (!(vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableExtractGilResources)?.workspaceValue ?? null)) { return; }
+        extractGilResources(context, uri, gilResourceHandler);
+    })
+    context.subscriptions.push(gilWatcher);
+
     checkEnableDefinitions(context);
 }
 
