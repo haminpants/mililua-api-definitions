@@ -44,10 +44,10 @@
           "description": "(Workspace only) Whether to enable Miliastra Wonderland Lua API support for the current workspace.",
           "scope": "resource"
         },
-        "mililua.enableExtractGilResources": {
+        "mililua.extractGilResources": {
           "type": "boolean",
           "default": null,
-          "description": "(Workspace only) Whether to enable resource extraction from the .gil file matching the current workspace folder name.",
+          "description": "(Workspace only) Whether to attempt resource extraction from the .gil file matching the current workspace folder name.",
           "scope": "resource"
         }
       }

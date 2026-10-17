@@ -6,7 +6,7 @@ import { GilResource } from "@/gil-writer-registry";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
-const cfg_enableExtractGilResources = "enableExtractGilResources";
+const cfg_extractGilResources = "extractGilResources";
 const cfg_luaRuntimeVersion = "runtime.version";
 const cfg_luaWorkspaceLibrary = "workspace.library";
 
@@ -107,7 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${workspaceRoot.name}.gil`);
     gilWatcher.onDidChange(uri => {
-        if (!(vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableExtractGilResources)?.workspaceValue ?? null)) { return; }
+        if (!(vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_extractGilResources)?.workspaceValue ?? null)) { return; }
         extractGilResources(uri, gilResourceHandler);
     })
     context.subscriptions.push(gilWatcher);
