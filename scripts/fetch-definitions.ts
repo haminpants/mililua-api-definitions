@@ -1,4 +1,4 @@
-import { compilerOptions as tsconfig } from "@root/tsconfig.json";
+import { compilerOptions as tsconfig } from "@Root/tsconfig.json";
 import { execSync } from "child_process";
 import { mkdirSync, cpSync, rmSync } from "fs";
 
