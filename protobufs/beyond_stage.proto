@@ -7,6 +7,9 @@ message BeyondStage {
   MultiLanguageText multi_language_text = 35;
 }
 
+// =============================================
+// STAGE TEXT
+// =============================================
 message MultiLanguageText {
   MLTWrapper mlt_wrapper = 1;
 }
@@ -18,27 +21,20 @@ message MLTWrapper {
 
 message EditorTextWrappper {
   repeated EditorText editor_text = 1;
-  uint32 unk_int_flag = 2;
-  bytes unk_bytes = 3;
 }
 
 message EditorText {
   string name = 1;
-  uint32 unk_int_flag = 4;
-  bytes extra_data = 501;
 }
 
 message ScriptTextVariableWrapper {
-  repeated ScriptTextVariable script_text_variable = 1;
-  uint32 unk_int_flag = 2;
-  bytes unk_bytes = 3;
+  repeated ScriptTextVariable script_text_variables = 1;
 }
 
 message ScriptTextVariable {
   string name = 1;
   uint32 index = 2;
   repeated TranslationEntry translations = 3;
-  uint32 unk_flag = 4;
 }
 
 message TranslationEntry {
