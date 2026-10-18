@@ -1,4 +1,4 @@
-import { ScriptTextVariable, Signal, SignalParamType, UIComponent } from "@Root/protobufs/beyond_stage";
+import { ScriptTextVariable, Signal, SignalParamType, UIComponent, UIComponentTypeIdentifier } from "@Root/protobufs/beyond_stage";
 import path from "path";
 
 export const RESOURCES_DIR = ".gil_resources";
@@ -97,11 +97,10 @@ export class GilWriterRegistry {
 
                     content.forEach(c => {
                         const name = c.meta[0]?.nameWrapper?.name;
+                        const typeIdentifier = c.meta[1]?.typeIdentifier;
                         const identifierBytes = c.identifierMeta[2]?.identiferWrapper?.identifierBytes;
 
-                        if (!name) { return; }
-                        if (!identifierBytes || !identifierBytes.match(`^\\[0-9]{3}\\200\\200\\200\\004$`)) { return; }
-
+                        if (!name || !identifierBytes || typeIdentifier !== UIComponentTypeIdentifier.UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL) { return; }
                         templateIndexes.push(`---| ${c.index} # ${name}`);
                     })
 

@@ -104,13 +104,19 @@ message UIComponentIdentifierMeta {
 }
 
 message UIComponentIdentifierWrapper {
-  string identifier_bytes = 501;
+  bytes identifier_bytes = 501;
 }
 
 message UIComponentMeta {
   UIComponentMetaNameWrapper name_wrapper = 12;
+  UIComponentTypeIdentifier type_identifier = 502;
 }
 
 message UIComponentMetaNameWrapper {
   string name = 501;
+}
+
+enum UIComponentTypeIdentifier {
+  UI_COMPONENT_TYPE_IDENTIFIER_UNSPECIFIED = 0;
+  UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
 }
