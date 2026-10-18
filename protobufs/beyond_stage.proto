@@ -55,7 +55,12 @@ message UnkonwnSignalWrapper {
 
 message Signal {
   string name = 3;
-  uint32 unk_meta_3 = 6;
+  repeated SignalParameter parameters = 4;
+}
+
+message SignalParameter {
+  string name = 1;
+  SignalParamType type = 2;
 }
 
 enum SignalParamType {
