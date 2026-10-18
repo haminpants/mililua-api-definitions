@@ -12,7 +12,10 @@ interface ResourceHandlerConfig {
     formatContent: (content: any) => string
 }
 
-const SCRIPT_MAPPING_INFO = "This file should not be mapped in the Client Script Resource Explorer."
+const FILE_HEADER = [
+    "---This file should not be mapped in the Client Script Resource Explorer.",
+    "---@meta"
+];
 
 export class GilWriterRegistry {
     readonly writeDir: string;
@@ -25,8 +28,7 @@ export class GilWriterRegistry {
                 targetPath: path.join(this.writeDir, "ScriptTextVariables.d.lua"),
                 formatContent(content: ScriptTextVariable[]) {
                     return [
-                        `---${SCRIPT_MAPPING_INFO}`,
-                        "---@meta",
+                        ...FILE_HEADER,
                         "---@alias ScriptTextVariable string",
                         ...content.map(v => { return `---| "${v.name}"` })
                     ].join("\n")
