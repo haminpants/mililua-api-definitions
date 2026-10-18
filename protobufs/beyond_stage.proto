@@ -100,9 +100,14 @@ message UIAsset {
 
 message UIAssetMeta {
   UIAssetMetaNameWrapper name_wrapper = 12;
-  uint32 type_identifier = 502;
+  UIAssetTypeIdentifier type_identifier = 502;
 }
 
 message UIAssetMetaNameWrapper {
   string name = 501;
+}
+
+enum UIAssetTypeIdentifier {
+  UI_ASSET_TYPE_IDENTIFIER_UNSPECIFIED = 0;
+  UI_ASSET_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
 }
