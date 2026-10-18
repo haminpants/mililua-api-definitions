@@ -62,7 +62,7 @@ export class GilWriterRegistry {
                 targetPath: path.join(this.writeDir, "Signals.d.lua"),
                 formatContent(content: Signal[]) {
                     const signalNames = [
-                        `---@alias SignalName string \`T\``
+                        "---@alias SignalName \`T\`"
                     ];
                     const signalClasses: string[] = [];
 
