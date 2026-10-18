@@ -92,17 +92,17 @@ export class GilWriterRegistry {
                 targetPath: path.join(this.writeDir, "ClientControlTemplateIndexes.d.lua"),
                 formatContent(content: UIComponent[]) {
                     const templateIndexes = [
-                        "---@alias ClientControlTemplateIndexes.d.lua"
+                        "---@alias ClientControlTemplateIndex"
                     ]
 
-                    content.forEach(a => {
-                        const name = a.meta[0]?.nameWrapper?.name;
-                        const identifierBytes = a.identifierMeta[3]?.identiferWrapper?.identifierBytes;
+                    content.forEach(c => {
+                        const name = c.meta[0]?.nameWrapper?.name;
+                        const identifierBytes = c.identifierMeta[2]?.identiferWrapper?.identifierBytes;
 
                         if (!name) { return; }
                         if (!identifierBytes || !identifierBytes.match(`^\\[0-9]{3}\\200\\200\\200\\004$`)) { return; }
 
-                        templateIndexes.push(`---| ${a.index} # ${name}`);
+                        templateIndexes.push(`---| ${c.index} # ${name}`);
                     })
 
                     return [
