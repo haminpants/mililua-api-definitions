@@ -3,7 +3,7 @@ syntax = "proto3";
 message BeyondStage {
   uint32 save_id = 1;
   string name = 2;
-  UIAssetWrapper ui_asset_wrapper = 9;
+  UIWrapper ui_asset_wrapper = 9;
   UnknownStageData unk_stage_data = 10;
   MultiLanguageText multi_language_text = 35;
 }
@@ -89,25 +89,28 @@ enum SignalParamType {
 // =============================================
 // CLIENT CONTROL TEMPLATES
 // =============================================
-message UIAssetWrapper {
-  repeated UIAsset asset = 502;
+message UIWrapper {
+  repeated UIComponent asset = 502;
 }
 
-message UIAsset {
+message UIComponent {
   uint32 index = 501;
-  repeated UIAssetMeta meta = 505;
+  repeated UIComponentIdentifierMeta identifier_meta = 502;
+  repeated UIComponentMeta meta = 505;
 }
 
-message UIAssetMeta {
-  UIAssetMetaNameWrapper name_wrapper = 12;
-  UIAssetTypeIdentifier type_identifier = 502;
+message UIComponentIdentifierMeta {
+  UIComponentIdentifierWrapper identifer_wrapper = 14;
 }
 
-message UIAssetMetaNameWrapper {
+message UIComponentIdentifierWrapper {
+  string identifier_bytes = 501;
+}
+
+message UIComponentMeta {
+  UIComponentMetaNameWrapper name_wrapper = 12;
+}
+
+message UIComponentMetaNameWrapper {
   string name = 501;
-}
-
-enum UIAssetTypeIdentifier {
-  UI_ASSET_TYPE_IDENTIFIER_UNSPECIFIED = 0;
-  UI_ASSET_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
 }
