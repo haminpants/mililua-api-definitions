@@ -40,8 +40,8 @@ See the [IDE Setup](https://wiki.miliastra.dev/en/guides/haminpants/lua-quicksta
 |`mililua.enableDefinitions`|`boolean`|(Workspace only) Whether to enable Miliastra Wonderland Lua API support for the current workspace.|
 |`mililua.extractGilResources`|`boolean`|(Workspace only) Whether to attempt resource extraction from the .gil file matching the current workspace folder name.|
 
-## Data Extraction
-When the "Extract Gil Resources" setting is enabled for your current workspace, the extension will automatically attempt to extract information from the .gil file matching the workspace folder name whenever a save occurs in the Miliastra editor.
+## Resource Extraction
+When the "Extract Gil Resources" setting is enabled for your current workspace, the extension will automatically attempt to [extract resources](#resource-extraction) from the .gil file matching the workspace folder name whenever a save occurs in the Miliastra editor.
 
 |Extracted Data|Description|File|
 |-|-|-|
