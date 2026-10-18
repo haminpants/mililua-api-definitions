@@ -84,3 +84,24 @@ enum SignalParamType {
   SIGNAL_PARAM_TYPE_CONFIG_ID_LIST = 22;
   SIGNAL_PARAM_TYPE_PREFAB_ID_LIST = 23;
 }
+
+// =============================================
+// CLIENT CONTROL TEMPLATES
+// =============================================
+message UIAssetWrapper {
+  repeated UIAsset asset = 502;
+}
+
+message UIAsset {
+  uint32 index = 501;
+  repeated UIAssetMeta meta = 505;
+}
+
+message UIAssetMeta {
+  UIAssetMetaNameWrapper name_wrapper = 12;
+  uint32 type_identifier = 502;
+}
+
+message UIAssetMetaNameWrapper {
+  string name = 501;
+}
