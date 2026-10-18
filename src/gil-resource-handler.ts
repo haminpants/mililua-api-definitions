@@ -4,12 +4,12 @@ import stableStringify from "fast-json-stable-stringify";
 import { GilResource, GilWriterRegistry } from "./gil-writer-registry";
 import { WorkspaceFolder } from "vscode";
 
-
 export class GilResourceHandler {
     private registry: GilWriterRegistry;
     private hashFn: ((input: string) => number) | null = null;
     private hashCache: Record<GilResource, number> = {
         [GilResource.ScriptTextVariables]: Infinity,
+        [GilResource.Signals]: Infinity,
     };
 
     constructor(workspaceFolder: WorkspaceFolder) {

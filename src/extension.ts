@@ -42,8 +42,10 @@ async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResource
     const end = start + contentLength;
     const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
 
-    const scriptTextVariables = stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariable ?? [];
-    resourceHandler.processResource(GilResource.ScriptTextVariables, scriptTextVariables)
+    resourceHandler.processResource(GilResource.ScriptTextVariables,
+        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [])
+    resourceHandler.processResource(GilResource.Signals,
+        stageData.unkStageData?.signalWrapper?.signals ?? [])
 }
 
 async function checkEnableDefinitions(context: vscode.ExtensionContext) {

@@ -1,21 +1,45 @@
-import { ScriptTextVariable } from "@Root/protobufs/beyond_stage";
+import { ScriptTextVariable, Signal, SignalParamType } from "@Root/protobufs/beyond_stage";
 import path from "path";
 
 export const RESOURCES_DIR = ".gil_resources";
 
+const FILE_HEADER = [
+    "---This file should not be mapped in the Client Script Resource Explorer.",
+    "---@meta"
+];
+
+const signalParamTypeAnnotationMapping: Record<SignalParamType, string> = {
+    [SignalParamType.SIGNAL_PARAM_TYPE_UNSPECIFIED]: "nil",
+    [SignalParamType.SIGNAL_PARAM_TYPE_ENTITY]: "integer",
+    [SignalParamType.SIGNAL_PARAM_TYPE_GUID]: "integer",
+    [SignalParamType.SIGNAL_PARAM_TYPE_INTEGER]: "integer",
+    [SignalParamType.SIGNAL_PARAM_TYPE_BOOLEAN]: "boolean",
+    [SignalParamType.SIGNAL_PARAM_TYPE_FLOATING_POINT_NUMBER]: "number",
+    [SignalParamType.SIGNAL_PARAM_TYPE_STRING]: "string",
+    [SignalParamType.SIGNAL_PARAM_TYPE_GUID_LIST]: "integer",
+    [SignalParamType.SIGNAL_PARAM_TYPE_INTEGER_LIST]: "integer[]",
+    [SignalParamType.SIGNAL_PARAM_TYPE_BOOLEAN_LIST]: "boolean[]",
+    [SignalParamType.SIGNAL_PARAM_TYPE_FLOATING_POINT_LIST]: "number[]",
+    [SignalParamType.SIGNAL_PARAM_TYPE_STRING_LIST]: "string[]",
+    [SignalParamType.SIGNAL_PARAM_TYPE_3D_VECTOR]: "Vector3",
+    [SignalParamType.SIGNAL_PARAM_TYPE_ENTITY_LIST]: "integer[]",
+    [SignalParamType.SIGNAL_PARAM_TYPE_3D_VECTOR_LIST]: "Vector3[]",
+    [SignalParamType.SIGNAL_PARAM_TYPE_CONFIG_ID]: "integer",
+    [SignalParamType.SIGNAL_PARAM_TYPE_PREFAB_ID]: "integer",
+    [SignalParamType.SIGNAL_PARAM_TYPE_CONFIG_ID_LIST]: "integer[]",
+    [SignalParamType.SIGNAL_PARAM_TYPE_PREFAB_ID_LIST]: "integer[]",
+    [SignalParamType.UNRECOGNIZED]: "nil"
+}
+
 export enum GilResource {
-    ScriptTextVariables
+    ScriptTextVariables,
+    Signals
 }
 
 interface ResourceHandlerConfig {
     targetPath: string;
     formatContent: (content: any) => string
 }
-
-const FILE_HEADER = [
-    "---This file should not be mapped in the Client Script Resource Explorer.",
-    "---@meta"
-];
 
 export class GilWriterRegistry {
     readonly writeDir: string;
@@ -31,7 +55,25 @@ export class GilWriterRegistry {
                         ...FILE_HEADER,
                         "---@alias ScriptTextVariable string",
                         ...content.map(v => { return `---| "${v.name}"` })
-                    ].join("\n")
+                    ].join("\n");
+                },
+            },
+            [GilResource.Signals]: {
+                targetPath: path.join(this.writeDir, "Signals.d.lua"),
+                formatContent(content: Signal[]) {
+                    return [
+                        ...FILE_HEADER,
+                        ...content.flatMap(s => {
+                            let i = 0;
+                            return [
+                                `---@class ${s.name}`,
+                                s.parameters.flatMap(p => {
+                                    i++;
+                                    return `---@field [${i}] ${signalParamTypeAnnotationMapping[p.type]} # ${p.name}`;
+                                })
+                            ]
+                        })
+                    ].join("\n");
                 },
             }
         }
