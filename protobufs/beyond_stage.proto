@@ -3,6 +3,7 @@ syntax = "proto3";
 message BeyondStage {
   uint32 save_id = 1;
   string name = 2;
+  UnknownStageData unk_stage_data = 10;
   MultiLanguageText multi_language_text = 35;
 }
 
@@ -43,4 +44,42 @@ message ScriptTextVariable {
 message TranslationEntry {
   int32 type = 1;
   string value = 2;
+}
+
+// =============================================
+// SIGNALS
+// =============================================
+message UnknownStageData {
+  UnkonwnSignalWrapper signal_wrapper = 5;
+}
+
+message UnkonwnSignalWrapper {
+  repeated Signal signals = 3;
+}
+
+message Signal {
+  string name = 3;
+  uint32 unk_meta_3 = 6;
+}
+
+enum SignalParamType {
+  SIGNAL_PARAM_TYPE_UNSPECIFIED = 0;
+  SIGNAL_PARAM_TYPE_ENTITY = 1;
+  SIGNAL_PARAM_TYPE_GUID = 2;
+  SIGNAL_PARAM_TYPE_INTEGER = 3;
+  SIGNAL_PARAM_TYPE_BOOLEAN = 4;
+  SIGNAL_PARAM_TYPE_FLOATING_POINT_NUMBER = 5;
+  SIGNAL_PARAM_TYPE_STRING = 6;
+  SIGNAL_PARAM_TYPE_GUID_LIST = 7;
+  SIGNAL_PARAM_TYPE_INTEGER_LIST = 8;
+  SIGNAL_PARAM_TYPE_BOOLEAN_LIST = 9;
+  SIGNAL_PARAM_TYPE_FLOATING_POINT_LIST = 10;
+  SIGNAL_PARAM_TYPE_STRING_LIST = 11;
+  SIGNAL_PARAM_TYPE_3D_VECTOR = 12;
+  SIGNAL_PARAM_TYPE_ENTITY_LIST = 13;
+  SIGNAL_PARAM_TYPE_3D_VECTOR_LIST = 15;
+  SIGNAL_PARAM_TYPE_CONFIG_ID = 20;
+  SIGNAL_PARAM_TYPE_PREFAB_ID = 21;
+  SIGNAL_PARAM_TYPE_CONFIG_ID_LIST = 22;
+  SIGNAL_PARAM_TYPE_PREFAB_ID_LIST = 23;
 }
