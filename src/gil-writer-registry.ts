@@ -5,7 +5,9 @@ export const RESOURCES_DIR = ".gil_resources";
 
 const FILE_HEADER = [
     "---This file should not be mapped in the Client Script Resource Explorer.",
-    "---@meta"
+    "---@meta",
+    "---@diagnostic disable: luadoc-miss-type-name",
+    ""
 ];
 
 const signalParamTypeAnnotationMapping: Record<SignalParamType, string> = {
@@ -53,7 +55,7 @@ export class GilWriterRegistry {
                 formatContent(content: ScriptTextVariable[]) {
                     return [
                         ...FILE_HEADER,
-                        "---@alias ScriptTextVariable string",
+                        "---@alias ScriptTextVariable",
                         ...content.map(v => { return `---| "${v.name}"` })
                     ].join("\n");
                 },
