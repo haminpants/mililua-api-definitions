@@ -26,13 +26,18 @@ export class GilResourceHandler {
     }
 
     async processResource(key: GilResource, value: object): Promise<boolean> {
+        const resourceConfig = this.registry.getConfig(key);
         const hash = await this.getHashFunction();
         const newHash = hash(stableStringify(value));
 
-        if (newHash === this.hashCache[key]) { return false; }
+        let fileExists = true;
+        try { await fs.access(resourceConfig.targetPath); }
+        catch { fileExists = false; }
+
+        if (newHash === this.hashCache[key] && fileExists) { return false; }
+
         this.hashCache[key] = newHash;
 
-        const resourceConfig = this.registry.getConfig(key)
         await fs.mkdir(path.dirname(resourceConfig.targetPath), { recursive: true })
         await fs.writeFile(resourceConfig.targetPath, resourceConfig.formatContent(value), "utf-8");
         return true;
