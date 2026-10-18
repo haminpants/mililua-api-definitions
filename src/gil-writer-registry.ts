@@ -61,18 +61,27 @@ export class GilWriterRegistry {
             [GilResource.Signals]: {
                 targetPath: path.join(this.writeDir, "Signals.d.lua"),
                 formatContent(content: Signal[]) {
+                    const signalNames = [
+                        `---@alias SignalName \`T\``
+                    ];
+                    const signalClasses: string[] = [];
+
+                    content.forEach(s => {
+                        let i = 0;
+                        signalNames.push(`---| "${s.name}"`);
+                        signalClasses.push(
+                            `---@class ${s.name}`,
+                            ...s.parameters.flatMap(p => {
+                                i++;
+                                return `---@field [${i}] ${signalParamTypeAnnotationMapping[p.type]} # ${p.name}`;
+                            })
+                        )
+                    })
+
                     return [
                         ...FILE_HEADER,
-                        ...content.flatMap(s => {
-                            let i = 0;
-                            return [
-                                `---@class ${s.name}`,
-                                s.parameters.flatMap(p => {
-                                    i++;
-                                    return `---@field [${i}] ${signalParamTypeAnnotationMapping[p.type]} # ${p.name}`;
-                                })
-                            ]
-                        })
+                        ...signalNames,
+                        ...signalClasses
                     ].join("\n");
                 },
             }
