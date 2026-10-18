@@ -1,4 +1,4 @@
-import { ScriptTextVariable, Signal, SignalParamType } from "@Root/protobufs/beyond_stage";
+import { ScriptTextVariable, Signal, SignalParamType, UIComponent } from "@Root/protobufs/beyond_stage";
 import path from "path";
 
 export const RESOURCES_DIR = ".gil_resources";
@@ -35,7 +35,8 @@ const signalParamTypeAnnotationMapping: Record<SignalParamType, string> = {
 
 export enum GilResource {
     ScriptTextVariables,
-    Signals
+    Signals,
+    ClientControlTemplateIndex
 }
 
 interface ResourceHandlerConfig {
@@ -84,6 +85,29 @@ export class GilWriterRegistry {
                         ...FILE_HEADER,
                         ...signalNames,
                         ...signalClasses
+                    ].join("\n");
+                },
+            },
+            [GilResource.ClientControlTemplateIndex]: {
+                targetPath: path.join(this.writeDir, "ClientControlTemplateIndexes.d.lua"),
+                formatContent(content: UIComponent[]) {
+                    const templateIndexes = [
+                        "---@alias ClientControlTemplateIndexes.d.lua"
+                    ]
+
+                    content.forEach(a => {
+                        const name = a.meta[0]?.nameWrapper?.name;
+                        const identifierBytes = a.identifierMeta[3]?.identiferWrapper?.identifierBytes;
+
+                        if (!name) { return; }
+                        if (!identifierBytes || !identifierBytes.match(`^\\[0-9]{3}\\200\\200\\200\\004$`)) { return; }
+
+                        templateIndexes.push(`---| ${a.index} # ${name}`);
+                    })
+
+                    return [
+                        ...FILE_HEADER,
+                        ...templateIndexes
                     ].join("\n");
                 },
             }

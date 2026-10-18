@@ -46,6 +46,8 @@ async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResource
         stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [])
     resourceHandler.processResource(GilResource.Signals,
         stageData.unkStageData?.signalWrapper?.signals ?? [])
+    resourceHandler.processResource(GilResource.ClientControlTemplateIndex,
+        stageData.uiAssetWrapper?.asset ?? [])
 }
 
 async function checkEnableDefinitions(context: vscode.ExtensionContext) {

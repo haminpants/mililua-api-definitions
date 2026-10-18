@@ -10,6 +10,7 @@ export class GilResourceHandler {
     private hashCache: Record<GilResource, number> = {
         [GilResource.ScriptTextVariables]: Infinity,
         [GilResource.Signals]: Infinity,
+        [GilResource.ClientControlTemplateIndex]: Infinity,
     };
 
     constructor(workspaceFolder: WorkspaceFolder) {
