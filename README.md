@@ -46,6 +46,7 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 |Extracted Data|Description|File|
 |-|-|-|
 |Script Text Variables|The Mapping ID of Script Text Variables will be extracted to provide autocomplete for the `game.GetText` function.|`.gil_resources/ScriptTextVariables.d.lua`|
+|Signals|The name and typed parameters of all Signals will be extracted to provide Signal name autocomplete for all signal-related functions, as well as typing for Signal parameters.|`.gil_resources/Signals.d.lua`|
 
 ### Notes
 - This extension operates offline; no data leaves your device.
