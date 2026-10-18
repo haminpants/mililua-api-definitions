@@ -3,6 +3,7 @@ syntax = "proto3";
 message BeyondStage {
   uint32 save_id = 1;
   string name = 2;
+  UIAssetWrapper ui_asset_wrapper = 9;
   UnknownStageData unk_stage_data = 10;
   MultiLanguageText multi_language_text = 35;
 }
