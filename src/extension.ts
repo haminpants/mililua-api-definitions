@@ -77,7 +77,7 @@ function updateStatusBar(context: vscode.ExtensionContext) {
     const isExtractGilResourcesEnabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_extractGilResources)?.workspaceValue;
     const tooltip = new vscode.MarkdownString();
     const tooltipNotes: string[] = [];
-    let status = isDefinitionsEnabled ? "✅" : (isExtractGilResourcesEnabled ? "⚠️" : "❌")
+    let status = isDefinitionsEnabled && isExtractGilResourcesEnabled ? "✅" : isDefinitionsEnabled || isExtractGilResourcesEnabled ? "⚠️" : "❌";
 
     if (isDefinitionsEnabled) {
         if (isExtractGilResourcesEnabled) {
