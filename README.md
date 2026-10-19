@@ -16,13 +16,11 @@ Get the extension from the [Visual Studio Code Marketplace](https://marketplace.
     ![Popup](https://wiki.miliastra.dev/guides/haminpants/lua-quickstart/setup_mililua_popup.png)
 3. Open the Miliastra editor for the corresponding project, then save the project in the Miliastra editor. A folder called `.gil_resources` should be generated.
 
----
+## Troubleshooting
 
 Hover over the status bar entry to diagnose common issues.
 
-![Example diagnostic provided by the status bar entry.](/images/readme/example_diagnosis.png)
-
-See the [IDE Setup](https://wiki.miliastra.dev/en/guides/haminpants/lua-quickstart#ide-setup) section of haminpants' Lua Quickstart Guide for more info.
+![Example diagnostic provided by the status bar entry.](/images/readme/example_troubleshooting.png)
 
 ## Features
 - Complete definitions for all types, fields, functions, globals, and enums.
