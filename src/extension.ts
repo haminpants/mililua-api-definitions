@@ -100,6 +100,12 @@ function updateStatusBar(context: vscode.ExtensionContext) {
             )
         }
     }
+    else {
+        tooltipNotes.push(
+            `#### Miliastra Lua API Definitions are disabled`,
+            `- [Enable Miliastra Lua API Definitions](command:${cfg_id}.${cfg_enableDefinitions})\n`
+        )
+    }
 
     tooltip.isTrusted = true;
     tooltip.appendMarkdown([
