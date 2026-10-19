@@ -116,7 +116,7 @@ function updateStatusBar(context: vscode.ExtensionContext) {
         `### Gil Resource Extraction: ${isExtractGilResourcesEnabled ? (isDefinitionsEnabled ? "✅" : "⚠️") : "❌"}`,
         "---",
         ...tooltipNotes,
-        `[Open Workspace Settings](command:${cfg_id}.${cmd_openWorkspaceSettings})`
+        `[Open Workspace Settings](command:${cfg_id}.${cmd_openWorkspaceSettings}) • [Restart Language Server](command:lua.startServer)`
     ].join("\n"));
 
     // let apiTooltip = `The Miliastra Wonderland Lua API definitions are disabled for this workspace.\nEnable the workspace setting "${cfg_id}.${cfg_enableDefinitions}" for API support.`;
