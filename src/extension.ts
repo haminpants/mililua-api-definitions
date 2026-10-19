@@ -79,18 +79,11 @@ function updateStatusBar(context: vscode.ExtensionContext) {
     const tooltipNotes: string[] = [];
     let status = isDefinitionsEnabled ? "✅" : (isExtractGilResourcesEnabled ? "⚠️" : "❌")
 
-    if (!isDefinitionsEnabled && isExtractGilResourcesEnabled) {
-        tooltipNotes.push(
-            `#### ⚠️ Gil Resource Extraction will only work if Miliastra Lua API Definitions are enabled.`,
-            `- [Enable Miliastra Lua API Definitions](command:${cfg_id}.${cfg_enableDefinitions})\n`
-        )
-    }
-
     if (isDefinitionsEnabled) {
         if (isExtractGilResourcesEnabled) {
             tooltipNotes.push(
                 `#### 📄 Listening for changes to \`${expectedGil}\``,
-                `- Resources extraction will be attempted when a change is detected to ${expectedGil}\n`
+                `- Resources extraction will be attempted when a change is detected to \`${expectedGil}\`\n`
             )
         }
         else {
@@ -101,11 +94,20 @@ function updateStatusBar(context: vscode.ExtensionContext) {
         }
     }
     else {
-        tooltipNotes.push(
-            `#### Miliastra Lua API Definitions are disabled`,
-            `- [Enable Miliastra Lua API Definitions](command:${cfg_id}.${cfg_enableDefinitions})\n`
-        )
+        if (isExtractGilResourcesEnabled) {
+            tooltipNotes.push(
+                `#### ⚠️ Gil Resource Extraction will only work if Miliastra Lua API Definitions are enabled.`,
+                `- [Enable Miliastra Lua API Definitions](command:${cfg_id}.${cfg_enableDefinitions})\n`
+            )
+        }
+        else {
+            tooltipNotes.push(
+                `#### Miliastra Lua API Definitions are disabled`,
+                `- [Enable Miliastra Lua API Definitions](command:${cfg_id}.${cfg_enableDefinitions})\n`
+            )
+        }
     }
+    if (tooltipNotes.length > 0) { tooltipNotes.push(`---`); }
 
     tooltip.isTrusted = true;
     tooltip.appendMarkdown([
