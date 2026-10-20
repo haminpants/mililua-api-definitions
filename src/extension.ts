@@ -119,14 +119,6 @@ function updateStatusBar(context: vscode.ExtensionContext) {
         `[Open Workspace Settings](command:${cfg_id}.${cmd_openWorkspaceSettings}) • [Restart Language Server](command:lua.startServer)`
     ].join("\n"));
 
-    // let apiTooltip = `The Miliastra Wonderland Lua API definitions are disabled for this workspace.\nEnable the workspace setting "${cfg_id}.${cfg_enableDefinitions}" for API support.`;
-
-    // let extractTooltip = `Gil Resource Extraction is disbaled for this workspace.\nEnable the workspace setting "${cfg_id}.${cfg_extractGilResources}" to get autocomplete and type-checking for resources from your project.`;
-    // apiTooltip = "The Miliastra Wonderland Lua API definitions are enabled for this workspace.";
-    // extractTooltip = `Gil Resource Extraction is enabled for this workspace.\nMiliLua will attempt to extract resources from ${expectedGil} if present.`;
-    // apiEnabled = `✅`;
-    // extractEnabled = `🪄`;
-
     statusBar.text = `Miliastra ${status}`;
     statusBar.tooltip = tooltip;
 }
