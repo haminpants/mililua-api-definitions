@@ -39,11 +39,11 @@ Hover over the status bar entry to diagnose common issues.
 |`mililua.extractGilResources`|`boolean`|(Workspace only) Whether to attempt resource extraction from the .gil file matching the current workspace folder name.|
 
 ## Resource Extraction
-When the "Extract Gil Resources" setting is enabled for your current workspace, the extension will automatically attempt to [extract resources](#resource-extraction) from the .gil file matching the workspace folder name whenever a save occurs in the Miliastra editor.
+When the "Extract Gil Resources" setting is enabled for your current workspace, the extension will automatically attempt to extract resources from the .gil file matching the workspace folder name whenever a save occurs in the Miliastra editor.
 
-|Extracted Data|Description|File|
+|Extracted Resource|Description|File|
 |-|-|-|
-|Client Control Template Indexes|The index of all Client Control Templates will be extracted to provide autocomplete for the `game.InstantiateClientUIControl` function.|`.gil_resources/ClientControlTemplateIndexes.d.lua`|
+|Client Controls|The index of all Client Control Templates will be extracted to provide autocomplete for the `game.InstantiateClientUIControl` function.<br><br>The name of all Client Controls in the hierarchy and saved Client Control Templates will be extracted to provide autocomplete for the `game.FindClientUIRoot` and `ClientUIBaseControl:GetChild` functions.|`.gil_resources/ClientControls.d.lua`|
 |Script Text Variables|The Mapping ID of Script Text Variables will be extracted to provide autocomplete for the `game.GetText` function.|`.gil_resources/ScriptTextVariables.d.lua`|
 |Signals|The name and typed parameters of all Signals will be extracted to provide Signal name autocomplete for all signal-related functions, as well as type-checking for Signal parameters.|`.gil_resources/Signals.d.lua`|
 

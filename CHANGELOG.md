@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0]
+
+### Added
+- Gil Resource Extraction for Client Control names.
+
 ## [2.2.0]
 
 ### Added
