@@ -20,7 +20,7 @@ Get the extension from the [Visual Studio Code Marketplace](https://marketplace.
 
 Hover over the status bar entry to diagnose common issues.
 
-![Example diagnostic provided by the status bar entry.](/images/readme/example_troubleshooting.png)
+![Example diagnostic provided by the status bar entry.](/assets/readme/example_troubleshooting.png)
 
 ## Features
 - Complete definitions for all types, fields, functions, globals, and enums.
@@ -55,7 +55,7 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 - The `.gil_resources` folder can be safely excluded from a Git repo through `.gitignore`.
 
 ## Snippets
-![GIF demonstrating the use of snippets to quickly generate code.](/images/readme/example_snippets.gif)
+![GIF demonstrating the use of snippets to quickly generate code.](/assets/readme/example_snippets.gif)
 
 |Prefix|Description|
 |-|-|

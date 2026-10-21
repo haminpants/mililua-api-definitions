@@ -4,7 +4,7 @@
   "description": "IntelliSense and tooling for the Miliastra Wonderland Lua API.",
   "version": "2.3.0",
   "publisher": "haminpants",
-  "icon": "images/icon.png",
+  "icon": "assets/icon.png",
   "categories": [
     "Programming Languages",
     "Snippets",

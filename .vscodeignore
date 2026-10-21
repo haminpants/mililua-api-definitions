@@ -1,6 +1,6 @@
 .vscode/**
 .vscode-test/**
-images/readme/**
+assets/readme/**
 node_modules/**
 protobufs/**
 scripts/**
