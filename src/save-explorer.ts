@@ -9,10 +9,6 @@ export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
 const isUid = new RegExp(`^1?[1,2,3,5,6,7,8,9][0-9]{8}$`);
 const isStage = new RegExp(`^[0-9]{10}$`);
 
-export enum ICON_PATH {
-    SAVE = "miliastra_save_icon.svg"
-}
-
 class PlayerDirectory {
     constructor(
         public readonly uid: string,
@@ -23,11 +19,9 @@ export class SaveExplorerItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        iconPath?: ICON_PATH,
         public readonly children?: SaveExplorerItem[],
     ) {
         super(label, collapsibleState);
-        this.iconPath = iconPath
     }
 }
 
@@ -66,7 +60,7 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
                     return new SaveExplorerItem(s.value.stageDir, TreeItemCollapsibleState.None);
                 });
 
-            return new SaveExplorerItem(p.uid, TreeItemCollapsibleState.Expanded, undefined, validStages);
+            return new SaveExplorerItem(p.uid, TreeItemCollapsibleState.Expanded, validStages);
         }))
 
         this.data = results.filter(r => { return r.status === "fulfilled" }).map(r => r.value);

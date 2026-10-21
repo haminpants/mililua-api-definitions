@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { GilResourceHandler } from "@/gil-resource-handler";
 import { BeyondStage } from "@Protobufs/beyond_stage";
 import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
-import { SaveExplorerTreeDataProvider } from "./project-explorer-data-provider";
+import { SaveExplorerTreeDataProvider } from "@/save-explorer";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
