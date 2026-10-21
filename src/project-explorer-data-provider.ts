@@ -19,24 +19,24 @@ class PlayerDirectory {
     ) { }
 }
 
-export class ProjectExplorerItem extends vscode.TreeItem {
+export class SaveExplorerItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         iconPath?: ICON_PATH,
-        public readonly children?: ProjectExplorerItem[],
+        public readonly children?: SaveExplorerItem[],
     ) {
         super(label, collapsibleState);
         this.iconPath = iconPath
     }
 }
 
-export class ProjectExplorerTreeDataProvider implements vscode.TreeDataProvider<ProjectExplorerItem> {
-    private _onDidChangeTreeData: vscode.EventEmitter<ProjectExplorerItem | undefined | null | void> = new vscode.EventEmitter<ProjectExplorerItem | undefined | null | void>();
-    readonly onDidChangeTreeData: vscode.Event<ProjectExplorerItem[] | ProjectExplorerItem | undefined | null | void> = this._onDidChangeTreeData.event;
+export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<SaveExplorerItem> {
+    private _onDidChangeTreeData: vscode.EventEmitter<SaveExplorerItem | undefined | null | void> = new vscode.EventEmitter<SaveExplorerItem | undefined | null | void>();
+    readonly onDidChangeTreeData: vscode.Event<SaveExplorerItem[] | SaveExplorerItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     private readonly beyondLocalPath = path.join(homedir(), "AppData", "LocalLow", "miHoYo", "Genshin Impact", "BeyondLocal");
-    private data: ProjectExplorerItem[] = [];
+    private data: SaveExplorerItem[] = [];
 
     constructor() {
         this.update();
@@ -63,10 +63,10 @@ export class ProjectExplorerTreeDataProvider implements vscode.TreeDataProvider<
                     return s.status === "fulfilled" && s.value.isValid === true;
                 })
                 .map(s => {
-                    return new ProjectExplorerItem(s.value.stageDir, TreeItemCollapsibleState.None);
+                    return new SaveExplorerItem(s.value.stageDir, TreeItemCollapsibleState.None);
                 });
 
-            return new ProjectExplorerItem(p.uid, TreeItemCollapsibleState.Expanded, undefined, validStages);
+            return new SaveExplorerItem(p.uid, TreeItemCollapsibleState.Expanded, undefined, validStages);
         }))
 
         this.data = results.filter(r => { return r.status === "fulfilled" }).map(r => r.value);
@@ -74,11 +74,11 @@ export class ProjectExplorerTreeDataProvider implements vscode.TreeDataProvider<
         this.updateView();
     }
 
-    getTreeItem(element: ProjectExplorerItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    getTreeItem(element: SaveExplorerItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element;
     }
 
-    getChildren(element?: ProjectExplorerItem | undefined): vscode.ProviderResult<ProjectExplorerItem[]> {
+    getChildren(element?: SaveExplorerItem | undefined): vscode.ProviderResult<SaveExplorerItem[]> {
         if (!element) { return this.data; }
         return element.children;
     }
