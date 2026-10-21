@@ -30,6 +30,7 @@
     "sumneko.lua"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "workspaceContains:*.gil",
     "workspaceContains:**/*.lua"
   ],
@@ -57,7 +58,25 @@
         "language": "lua",
         "path": "./snippets/lua.code-snippets"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "project-explorer",
+          "title": "Project Explorer",
+          "icon": "assets/miliastra_save_icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "project-explorer": [
+        {
+          "id": "project-explorer",
+          "name": "Miliastra Project Explorer",
+          "icon": "assets/miliastra_save_icon.svg"
+        }
+      ]
+    }
   },
   "scripts": {
     "generate-ts-protobuf": "protoc --proto_path=.\\protobufs\\ --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\protobufs\\ .\\protobufs\\beyond_stage.proto",
