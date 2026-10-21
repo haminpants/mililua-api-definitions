@@ -4,7 +4,7 @@ import * as path from "path";
 import { TreeItemCollapsibleState } from "vscode";
 import { homedir } from "os";
 
-export const STAGE_SAVE_DIR = "Beyond_Local_Save_Level"
+export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
 
 const isUid = new RegExp(`^1?[1,2,3,5,6,7,8,9][0-9]{8}$`);
 const isStage = new RegExp(`^[0-9]{10}$`);
@@ -16,7 +16,6 @@ export enum ICON_PATH {
 class PlayerDirectory {
     constructor(
         public readonly uid: string,
-        public readonly path: string,
     ) { }
 }
 
@@ -46,9 +45,31 @@ export class ProjectExplorerTreeDataProvider implements vscode.TreeDataProvider<
     async update() {
         const playerDirectories = await this.getPlayerDirectories();
 
-        this.data = playerDirectories.map(p => {
-            return new ProjectExplorerItem(p.uid, TreeItemCollapsibleState.Expanded)
-        })
+        const results = await Promise.allSettled(playerDirectories.map(async p => {
+            const stageDirs = await fs.readdir(path.join(this.beyondLocalPath, p.uid, LEVEL_SAVE_DIR));
+
+            const stageCheckResults = await Promise.allSettled(
+                stageDirs.map(async stageDir => {
+                    const stageFiles = await fs.readdir(path.join(this.beyondLocalPath, p.uid, LEVEL_SAVE_DIR, stageDir));
+
+                    const isValid = stageFiles.includes(`${stageDir}.gil`) && stageFiles.includes("external_lua_file");
+
+                    return { stageDir, isValid };
+                })
+            );
+
+            const validStages = stageCheckResults
+                .filter((s): s is PromiseFulfilledResult<{ stageDir: string; isValid: boolean }> => {
+                    return s.status === "fulfilled" && s.value.isValid === true;
+                })
+                .map(s => {
+                    return new ProjectExplorerItem(s.value.stageDir, TreeItemCollapsibleState.None);
+                });
+
+            return new ProjectExplorerItem(p.uid, TreeItemCollapsibleState.Expanded, undefined, validStages);
+        }))
+
+        this.data = results.filter(r => { return r.status === "fulfilled" }).map(r => r.value);
 
         this.updateView();
     }
@@ -81,6 +102,6 @@ export class ProjectExplorerTreeDataProvider implements vscode.TreeDataProvider<
                 && r.value.stats.isDirectory()
                 && !r.value.stats.isSymbolicLink()
                 && isUid.test(r.value.file);
-        }).map(r => { return new PlayerDirectory(r.value.file, path.join(this.beyondLocalPath, r.value.file)) })
+        }).map(r => { return new PlayerDirectory(r.value.file) })
     }
 }
