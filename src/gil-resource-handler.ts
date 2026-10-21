@@ -26,7 +26,7 @@ export class GilResourceHandler {
         return this.hashFn;
     }
 
-    async processResource(key: GilResource, value: object): Promise<boolean> {
+    async processResource(key: GilResource, value: object, force: boolean = false): Promise<boolean> {
         const resourceConfig = this.registry.getConfig(key);
         const hash = await this.getHashFunction();
         const newHash = hash(stableStringify(value));
@@ -35,7 +35,7 @@ export class GilResourceHandler {
         try { await fs.access(resourceConfig.targetPath); }
         catch { fileExists = false; }
 
-        if (newHash === this.hashCache[key] && fileExists) { return false; }
+        if (!force && newHash === this.hashCache[key] && fileExists) { return false; }
 
         this.hashCache[key] = newHash;
 
