@@ -98,7 +98,7 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
         case false:
             break;
         default:
-            vscode.window.showInformationMessage("Would you like to enable MiliLua for this workspace? Miliastra Wonderland Lua API definitions will be added to this project.", "Yes", "No")
+            vscode.window.showInformationMessage("Would you Would you like to enable MiliLua API Definitions for this workspace? Miliastra Lua API definitions and Gil Resource Extraction will be enabled for this workspace.", "Yes", "No")
                 .then(choice => {
                     mililuaConfig.update(cfg_enableDefinitions, choice === "Yes");
                     mililuaConfig.update(cfg_extractGilResources, choice === "Yes");
