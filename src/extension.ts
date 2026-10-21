@@ -139,8 +139,8 @@ async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResou
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating MiliLua API Definitions...")
-
     if (!vscode.workspace.workspaceFolders) { return; }
+
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
     const mililuaSettings = vscode.workspace.getConfiguration(cfg_id);
     const gilUri = vscode.Uri.joinPath(workspaceRoot.uri, `${workspaceRoot.name}.gil`);
