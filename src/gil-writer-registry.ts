@@ -89,8 +89,9 @@ export class GilWriterRegistry {
                 },
             },
             [GilResource.ClientControlTemplateIndex]: {
-                targetPath: path.join(this.writeDir, "ClientControlTemplateIndexes.d.lua"),
+                targetPath: path.join(this.writeDir, "ClientControls.d.lua"),
                 formatContent(content: UIComponent[]) {
+                    const clientControlNames = new Set<string>();
                     const templateIndexes = [
                         "---@alias ClientControlTemplateIndex"
                     ]
@@ -100,13 +101,17 @@ export class GilWriterRegistry {
                         const typeIdentifier = c.meta[1]?.typeIdentifier;
                         const identifierBytes = c.identifierMeta[2]?.identiferWrapper?.identifierBytes;
 
-                        if (!name || !identifierBytes || typeIdentifier !== UIComponentTypeIdentifier.UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL) { return; }
-                        templateIndexes.push(`---| ${c.index} # ${name}`);
+                        if (name && typeIdentifier === UIComponentTypeIdentifier.UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL) {
+                            clientControlNames.add(`---| "${name}"`);
+                            if (identifierBytes) { templateIndexes.push(`---| ${c.index} # ${name}`); }
+                        }
                     })
 
                     return [
                         ...FILE_HEADER,
-                        ...templateIndexes
+                        ...templateIndexes,
+                        `---@alias ClientControlName`,
+                        ...clientControlNames
                     ].join("\n");
                 },
             }
