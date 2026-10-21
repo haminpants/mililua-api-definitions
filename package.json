@@ -30,7 +30,6 @@
     "sumneko.lua"
   ],
   "activationEvents": [
-    "onStartupFinished",
     "workspaceContains:*.gil",
     "workspaceContains:**/*.lua"
   ],
