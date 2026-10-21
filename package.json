@@ -61,16 +61,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "project-explorer",
-          "title": "Project Explorer",
+          "id": "miliastra-project-explorer",
+          "title": "Miliastra Project Explorer",
           "icon": "assets/miliastra_save_icon.svg"
         }
       ]
     },
     "views": {
-      "project-explorer": [
+      "miliastra-project-explorer": [
         {
-          "id": "project-explorer",
+          "id": "haminpants.mililua-api-definitions.project-explorer",
           "name": "Miliastra Project Explorer",
           "icon": "assets/miliastra_save_icon.svg"
         }
