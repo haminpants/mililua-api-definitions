@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { GilResourceHandler } from "@/gil-resource-handler";
 import { BeyondStage } from "@Protobufs/beyond_stage";
 import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
+import { ProjectExplorerTreeDataProvider } from "./project-explorer-data-provider";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
@@ -139,6 +140,11 @@ async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResou
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating MiliLua API Definitions...")
+
+    const projectExplorer = new ProjectExplorerTreeDataProvider();
+    const projectExplorerView = vscode.window.createTreeView(`${context.extension.id}.project-explorer`, { treeDataProvider: projectExplorer });
+
+    // TODO: this needs to be fixed to not continue activation if not in a lua workspace or gil workspace
     if (!vscode.workspace.workspaceFolders) { return; }
 
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
