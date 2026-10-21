@@ -1,5 +1,9 @@
 syntax = "proto3";
 
+message GilNamePeek {
+  string name = 2;
+}
+
 message BeyondStage {
   uint32 save_id = 1;
   string name = 2;
