@@ -14,7 +14,7 @@ const cmd_openWorkspaceSettings = "openWorkspaceSettings";
 let expectedGil = "";
 const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
 
-function updateConfig(context: vscode.ExtensionContext) {
+async function updateConfig(context: vscode.ExtensionContext) {
     const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
     const luaConfig = vscode.workspace.getConfiguration("Lua");
     const apiPath = vscode.Uri.joinPath(context.extensionUri, "out", "library").fsPath.replace(/\\/g, '/');
@@ -38,41 +38,7 @@ function updateConfig(context: vscode.ExtensionContext) {
     luaConfig.update(cfg_luaWorkspaceLibrary, libs);
 }
 
-async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResourceHandler) {
-    const fileBuffer = await fs.readFile(uri.fsPath)
-
-    const contentLength = fileBuffer.readUInt32BE(0x10);
-    const start = 20;
-    const end = start + contentLength;
-    const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
-
-    resourceHandler.processResource(GilResource.ScriptTextVariables,
-        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [])
-    resourceHandler.processResource(GilResource.Signals,
-        stageData.unkStageData?.signalWrapper?.signals ?? [])
-    resourceHandler.processResource(GilResource.ClientControlTemplateIndex,
-        stageData.uiAssetWrapper?.asset ?? [])
-}
-
-async function checkEnableDefinitions(context: vscode.ExtensionContext) {
-    const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
-    switch (mililuaConfig.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
-        case true:
-            updateConfig(context);
-            break;
-        case false:
-            break;
-        default:
-            vscode.window.showInformationMessage("Would you like to enable MiliLua for this workspace? Miliastra Wonderland Lua API definitions will be added to this project.", "Yes", "No")
-                .then(choice => {
-                    mililuaConfig.update(cfg_enableDefinitions, choice === "Yes");
-                    mililuaConfig.update(cfg_extractGilResources, choice === "Yes");
-                });
-            break;
-    }
-}
-
-function updateStatusBar(context: vscode.ExtensionContext) {
+async function updateStatusBar() {
     const isDefinitionsEnabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_enableDefinitions)?.workspaceValue;
     const isExtractGilResourcesEnabled = vscode.workspace.getConfiguration(cfg_id).inspect<boolean>(cfg_extractGilResources)?.workspaceValue;
     const tooltip = new vscode.MarkdownString();
@@ -123,6 +89,40 @@ function updateStatusBar(context: vscode.ExtensionContext) {
     statusBar.tooltip = tooltip;
 }
 
+async function checkEnableDefinitions(context: vscode.ExtensionContext) {
+    const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
+    switch (mililuaConfig.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
+        case true:
+            updateConfig(context);
+            break;
+        case false:
+            break;
+        default:
+            vscode.window.showInformationMessage("Would you like to enable MiliLua for this workspace? Miliastra Wonderland Lua API definitions will be added to this project.", "Yes", "No")
+                .then(choice => {
+                    mililuaConfig.update(cfg_enableDefinitions, choice === "Yes");
+                    mililuaConfig.update(cfg_extractGilResources, choice === "Yes");
+                });
+            break;
+    }
+}
+
+async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResourceHandler) {
+    const fileBuffer = await fs.readFile(uri.fsPath)
+
+    const contentLength = fileBuffer.readUInt32BE(0x10);
+    const start = 20;
+    const end = start + contentLength;
+    const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
+
+    resourceHandler.processResource(GilResource.ScriptTextVariables,
+        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [])
+    resourceHandler.processResource(GilResource.Signals,
+        stageData.unkStageData?.signalWrapper?.signals ?? [])
+    resourceHandler.processResource(GilResource.ClientControlTemplateIndex,
+        stageData.uiAssetWrapper?.asset ?? [])
+}
+
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating MiliLua API Definitions...")
 
@@ -135,8 +135,8 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(async e => {
             if (e.affectsConfiguration(`${cfg_id}`, workspaceRoot)) {
-                updateConfig(context);
-                updateStatusBar(context);
+                await updateConfig(context);
+                updateStatusBar();
             }
         }),
         vscode.commands.registerCommand(`${cfg_id}.${cmd_openWorkspaceSettings}`, args => {
@@ -152,7 +152,7 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 
     const gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${workspaceRoot.name}.gil`);
-    gilWatcher.onDidChange(uri => {
+    gilWatcher.onDidChange(async uri => {
         if (!mililuaSettings.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue
             || !mililuaSettings.inspect<boolean>(cfg_extractGilResources)?.workspaceValue) {
             return;
@@ -162,7 +162,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(gilWatcher);
 
     checkEnableDefinitions(context);
-    updateStatusBar(context);
+    updateStatusBar();
     statusBar.show()
 }
 
