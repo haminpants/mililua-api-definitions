@@ -10,9 +10,19 @@ const cfg_extractGilResources = "extractGilResources";
 const cfg_luaRuntimeVersion = "runtime.version";
 const cfg_luaWorkspaceLibrary = "workspace.library";
 const cmd_openWorkspaceSettings = "openWorkspaceSettings";
+const cmd_forceUpdateGilResources = "forceUpdateGilResources";
+
+const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
 
 let expectedGil = "";
-const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
+let lastGilExtract: number = -1;
+const dateFormatter = new Intl.DateTimeFormat(vscode.env.language, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+})
 
 async function updateConfig(context: vscode.ExtensionContext) {
     const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
@@ -49,7 +59,8 @@ async function updateStatusBar() {
         if (isExtractGilResourcesEnabled) {
             tooltipNotes.push(
                 `#### 📄 Listening for changes to \`${expectedGil}\``,
-                `- Resources extraction will be attempted when a change is detected to \`${expectedGil}\`\n`
+                `- Resources extraction will be attempted when a change is detected to \`${expectedGil}\``,
+                `- [Force Refresh Gil Resources](command:${cfg_id}.${cmd_forceUpdateGilResources}) (Last updated: ${lastGilExtract > 0 ? dateFormatter.format(lastGilExtract) : "Unknown"})\n`
             )
         }
         else {
@@ -82,7 +93,7 @@ async function updateStatusBar() {
         `### Gil Resource Extraction: ${isExtractGilResourcesEnabled ? (isDefinitionsEnabled ? "✅" : "⚠️") : "❌"}`,
         "---",
         ...tooltipNotes,
-        `[Open Workspace Settings](command:${cfg_id}.${cmd_openWorkspaceSettings}) • [Restart Language Server](command:lua.startServer)`
+        `[Open Workspace Settings](command:${cfg_id}.${cmd_openWorkspaceSettings}) • [Restart Language Server](command:lua.startServer)`,
     ].join("\n"));
 
     statusBar.text = `Miliastra ${status}`;
@@ -107,8 +118,8 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
     }
 }
 
-async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResourceHandler) {
-    const fileBuffer = await fs.readFile(uri.fsPath)
+async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResourceHandler, force: boolean = false) {
+    const fileBuffer = await fs.readFile(`${gilUri.fsPath}`);
 
     const contentLength = fileBuffer.readUInt32BE(0x10);
     const start = 20;
@@ -116,11 +127,14 @@ async function extractGilResources(uri: vscode.Uri, resourceHandler: GilResource
     const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
 
     resourceHandler.processResource(GilResource.ScriptTextVariables,
-        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [])
+        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [], force)
     resourceHandler.processResource(GilResource.Signals,
-        stageData.unkStageData?.signalWrapper?.signals ?? [])
+        stageData.unkStageData?.signalWrapper?.signals ?? [], force)
     resourceHandler.processResource(GilResource.ClientControlTemplateIndex,
-        stageData.uiAssetWrapper?.asset ?? [])
+        stageData.uiAssetWrapper?.asset ?? [], force)
+
+    lastGilExtract = Date.now();
+    updateStatusBar();
 }
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -129,6 +143,7 @@ export async function activate(context: vscode.ExtensionContext) {
     if (!vscode.workspace.workspaceFolders) { return; }
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
     const mililuaSettings = vscode.workspace.getConfiguration(cfg_id);
+    const gilUri = vscode.Uri.joinPath(workspaceRoot.uri, `${workspaceRoot.name}.gil`);
     const gilResourceHandler = new GilResourceHandler(workspaceRoot);
     expectedGil = `${workspaceRoot.name}.gil`;
 
@@ -148,6 +163,16 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(`${cfg_id}.${cfg_extractGilResources}`, args => {
             vscode.workspace.getConfiguration(cfg_id).update(cfg_extractGilResources, true);
         }),
+        vscode.commands.registerCommand(`${cfg_id}.${cmd_forceUpdateGilResources}`, args => {
+            fs.rm(`${workspaceRoot.uri.fsPath}/${RESOURCES_DIR}`, { recursive: true, force: true }).then(_ => {
+                try {
+                    extractGilResources(gilUri, gilResourceHandler, true);
+                }
+                catch {
+                    vscode.window.showErrorMessage(`Failed to update Gil resources. Ensure ${expectedGil} is present in the workspace.`);
+                }
+            })
+        }),
         statusBar
     );
 
@@ -157,7 +182,8 @@ export async function activate(context: vscode.ExtensionContext) {
             || !mililuaSettings.inspect<boolean>(cfg_extractGilResources)?.workspaceValue) {
             return;
         }
-        extractGilResources(uri, gilResourceHandler);
+
+        extractGilResources(gilUri, gilResourceHandler);
     })
     context.subscriptions.push(gilWatcher);
 
