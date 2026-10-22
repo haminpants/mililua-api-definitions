@@ -4,6 +4,7 @@ import { GilResourceHandler } from "@/gil-resource-handler";
 import { BeyondStage } from "@Protobufs/beyond_stage";
 import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
 import { SaveExplorerTreeDataProvider } from "@/save-explorer";
+import { formatDate } from "@/utils/date.utils";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
@@ -27,13 +28,6 @@ const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Ri
 
 let expectedGil = "";
 let lastGilExtract: number = -1;
-const dateFormatter = new Intl.DateTimeFormat(vscode.env.language, {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-})
 
 async function updateConfig(context: vscode.ExtensionContext) {
     const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
@@ -71,7 +65,7 @@ async function updateStatusBar() {
             tooltipNotes.push(
                 `#### 📄 Listening for changes to \`${expectedGil}\``,
                 `- Resources extraction will be attempted when a change is detected to \`${expectedGil}\``,
-                `- [Force Refresh Gil Resources](command:${cfg_id}.${cmd_forceUpdateGilResources}) (Last updated: ${lastGilExtract > 0 ? dateFormatter.format(lastGilExtract) : "Unknown"})\n`
+                `- [Force Refresh Gil Resources](command:${cfg_id}.${cmd_forceUpdateGilResources}) (Last updated: ${lastGilExtract > 0 ? formatDate(lastGilExtract) : "Unknown"})\n`
             )
         }
         else {
