@@ -3,6 +3,9 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import { TreeItemCollapsibleState } from "vscode";
 import { homedir } from "os";
+import { GlobalStateEntry } from "@/extension";
+import { EnkaResponse, UidInfo } from "@/types";
+import { isUid } from "@/utils/string.utils";
 
 export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
 
@@ -97,5 +100,61 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
                 && !r.value.stats.isSymbolicLink()
                 && isUid.test(r.value.file);
         }).map(r => { return new PlayerDirectory(r.value.file) })
+    private async getUidInfo(uids: string[]): Promise<Record<string, UidInfo>> {
+        const uidInfoCache = this.context.globalState.get<Record<string, UidInfo>>(GlobalStateEntry.UidInfo, {});
+        const results: Record<string, UidInfo> = {};
+        const now = Date.now();
+        let updateGlobalState = false;
+
+        const validUids = uids.filter(uid => { return isUid(uid) });
+        const staleUids = validUids.filter(uid => {
+            const cachedUid = uidInfoCache[uid];
+            if (cachedUid && cachedUid.lastUpdate >= now - uidInfoCacheLifetime) {
+                results[uid] = cachedUid;
+                return false;
+            }
+            return true;
+        });
+
+        if (staleUids.length > 0) {
+            console.log(`Querying enka.network for UIDs: ${staleUids.join(", ")}`);
+
+            const enkaUidInfoPromises = staleUids.map(async uid => {
+                const apiUrl = `https://enka.network/api/uid/${uid}/?info`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        headers: {
+                            "User-Agent": "MiliLua-VSCode-Extension (Discord @haminpants)"
+                        },
+                        signal: AbortSignal.timeout(5000)
+                    });
+
+                    if (!response.ok) { throw new Error(`HTTP Error - Status: ${response.status} ${response.statusText}`) }
+                    const data = await response.json() as EnkaResponse;
+                    const nickname = data?.playerInfo?.nickname;
+
+                    if (nickname) { return { uid, uidInfo: { name: data.playerInfo.nickname, lastUpdate: now }, success: true } }
+                    throw new Error(`Response body missing playerInfo.nickname for UID ${uid}`);
+                }
+                catch (err) {
+                    console.error(`Failed to fetch UID ${uid}`, err);
+                    return { uid, uidInfo: uidInfoCache[uid] ?? { name: "Unknown", lastUpdate: now }, success: false }
+                }
+            });
+
+            for (const { uid, uidInfo, success } of await Promise.all(enkaUidInfoPromises)) {
+                results[uid] = uidInfo;
+                if (success) {
+                    uidInfoCache[uid] = uidInfo;
+                    updateGlobalState = true;
+                }
+            }
+
+            if (updateGlobalState) { await this.context.globalState.update(GlobalStateEntry.UidInfo, uidInfoCache); }
+        }
+
+        return results;
+    }
     }
 }
