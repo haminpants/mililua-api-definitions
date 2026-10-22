@@ -52,6 +52,21 @@
         }
       }
     },
+    "commands": [
+      {
+        "command": "mililua.refreshSaveExplorer",
+        "title": "Refresh Save Explorer",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "mililua.logGlobalState",
+        "title": "MiliLua: Log Global State"
+      },
+      {
+        "command": "mililua.resetGlobalState",
+        "title": "MiliLua: Reset Global State"
+      }
+    ],
     "snippets": [
       {
         "language": "lua",
@@ -70,9 +85,18 @@
     "views": {
       "miliastra-save-explorer": [
         {
-          "id": "haminpants.mililua-api-definitions.save-explorer",
+          "id": "mililua.save-explorer",
           "name": "Miliastra Save Explorer",
           "icon": "assets/miliastra_save_icon.svg"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "mililua.refreshSaveExplorer",
+          "when": "view == mililua.save-explorer",
+          "group": "navigation"
         }
       ]
     }
