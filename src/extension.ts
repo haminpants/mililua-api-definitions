@@ -5,6 +5,7 @@ import { BeyondStage } from "@Protobufs/beyond_stage";
 import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
 import { SaveExplorerTreeDataProvider } from "@/save-explorer";
 import { formatDate } from "@/utils/date.utils";
+import { stripGilHeader } from "@/utils/gil.utils";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
@@ -124,19 +125,14 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
 }
 
 async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResourceHandler, force: boolean = false) {
-    const fileBuffer = await fs.readFile(`${gilUri.fsPath}`);
-
-    const contentLength = fileBuffer.readUInt32BE(0x10);
-    const start = 20;
-    const end = start + contentLength;
-    const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
+    const stageData = BeyondStage.decode(await stripGilHeader(gilUri));
 
     resourceHandler.processResource(GilResource.ScriptTextVariables,
-        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [], force)
+        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [], force);
     resourceHandler.processResource(GilResource.Signals,
-        stageData.unkStageData?.signalWrapper?.signals ?? [], force)
+        stageData.unkStageData?.signalWrapper?.signals ?? [], force);
     resourceHandler.processResource(GilResource.ClientControlTemplateIndex,
-        stageData.uiAssetWrapper?.asset ?? [], force)
+        stageData.uiAssetWrapper?.asset ?? [], force);
 
     lastGilExtract = Date.now();
     updateStatusBar();
