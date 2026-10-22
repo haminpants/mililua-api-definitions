@@ -12,6 +12,16 @@ const cfg_luaRuntimeVersion = "runtime.version";
 const cfg_luaWorkspaceLibrary = "workspace.library";
 const cmd_openWorkspaceSettings = "openWorkspaceSettings";
 const cmd_forceUpdateGilResources = "forceUpdateGilResources";
+const cmd_logGlobalState = "logGlobalState";
+const cmd_resetGlobalState = "resetGlobalState";
+
+export enum GlobalStateEntry {
+    UidInfo = "uidInfo"
+}
+
+export enum CommandId {
+    RefreshSaveExplorer = "refreshSaveExplorer"
+}
 
 const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
 
@@ -141,8 +151,8 @@ async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResou
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating MiliLua API Definitions...")
 
-    const saveExplorer = new SaveExplorerTreeDataProvider();
-    const saveExplorerView = vscode.window.createTreeView(`${context.extension.id}.save-explorer`, { treeDataProvider: saveExplorer });
+    const saveExplorer = new SaveExplorerTreeDataProvider(context);
+    const saveExplorerView = vscode.window.createTreeView(`${cfg_id}.save-explorer`, { treeDataProvider: saveExplorer, canSelectMany: false });
 
     // TODO: this needs to be fixed to not continue activation if not in a lua workspace or gil workspace
     if (!vscode.workspace.workspaceFolders) { return; }
@@ -169,7 +179,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(`${cfg_id}.${cfg_extractGilResources}`, args => {
             vscode.workspace.getConfiguration(cfg_id).update(cfg_extractGilResources, true);
         }),
-        vscode.commands.registerCommand(`${cfg_id}.${cmd_forceUpdateGilResources}`, args => {
+        vscode.commands.registerCommand(`${cfg_id}.${cmd_forceUpdateGilResources}`, async args => {
             fs.rm(`${workspaceRoot.uri.fsPath}/${RESOURCES_DIR}`, { recursive: true, force: true }).then(_ => {
                 try {
                     extractGilResources(gilUri, gilResourceHandler, true);
@@ -178,6 +188,15 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.window.showErrorMessage(`Failed to update Gil resources. Ensure ${expectedGil} is present in the workspace.`);
                 }
             })
+        }),
+        vscode.commands.registerCommand(`${cfg_id}.${CommandId.RefreshSaveExplorer}`, args => {
+            saveExplorer.update();
+        }),
+        vscode.commands.registerCommand(`${cfg_id}.${cmd_logGlobalState}`, args => {
+            console.log(context.globalState.keys().map(k => context.globalState.get(k)));
+        }),
+        vscode.commands.registerCommand(`${cfg_id}.${cmd_resetGlobalState}`, args => {
+            Object.values(GlobalStateEntry).forEach(e => context.globalState.update(e, undefined));
         }),
         statusBar
     );
