@@ -26,16 +26,34 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
     private _onDidChangeTreeData: vscode.EventEmitter<SaveExplorerItem | undefined | null | void> = new vscode.EventEmitter<SaveExplorerItem | undefined | null | void>();
     readonly onDidChangeTreeData: vscode.Event<SaveExplorerItem[] | SaveExplorerItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
+    private readonly icon_save: vscode.Uri;
+
     private data: SaveExplorerItem[] = [];
 
     constructor(
         private readonly context: vscode.ExtensionContext
     ) {
+        this.icon_save = vscode.Uri.joinPath(context.extensionUri, "assets", "miliastra_save_icon.svg");
         this.update();
     }
 
     async update() {
-        console.log(await this.getUidSaves());
+        this.data = (await this.getUidSaves()).map(uidSaves => {
+            return new SaveExplorerItem(
+                `${uidSaves.nickname} (${uidSaves.uid})`,
+                uidSaves.uri,
+                vscode.TreeItemCollapsibleState.Expanded,
+                uidSaves.saves.map(save => {
+                    const e = new SaveExplorerItem(
+                        `${save.name} (${save.id})`,
+                        save.uri,
+                        vscode.TreeItemCollapsibleState.None
+                    );
+                    e.iconPath = this.icon_save;
+                    return e;
+                }))
+        });
+
         this.updateView();
     }
 
