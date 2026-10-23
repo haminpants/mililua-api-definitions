@@ -28,12 +28,14 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
 
     private data: SaveExplorerItem[] = [];
 
-    constructor() {
+    constructor(
+        private readonly context: vscode.ExtensionContext
+    ) {
         this.update();
     }
 
     async update() {
-
+        console.log(await this.getUidSaves());
         this.updateView();
     }
 
@@ -47,7 +49,6 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
     }
 
     updateView() {
-        console.log("Updating view...")
         this._onDidChangeTreeData.fire();
     }
 
@@ -138,7 +139,7 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
             const saveContentsPromises = saveDirectories.map(async saveDirectory => {
                 const saveContents = await fs.readdir(vscode.Uri.joinPath(uidDirSavesUri, saveDirectory).fsPath);
                 const isValidSave = saveContents.includes(`external_lua_file`) && saveContents.includes(`${saveDirectory}.gil`);
-                return { saveId: saveDirectory, saveUri: vscode.Uri.joinPath(uidDirSavesUri, saveDirectory), isValidSave };
+                return { saveId: saveDirectory, saveUri: vscode.Uri.joinPath(uidDirSavesUri, saveDirectory, `${saveDirectory}.gil`), isValidSave };
             });
 
             const validSaveNamesPromises = (await Promise.allSettled(saveContentsPromises))
@@ -151,8 +152,8 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
 
             const validSaves = (await Promise.allSettled(validSaveNamesPromises))
                 .filter((r): r is PromiseFulfilledResult<{ saveId: string, saveName: string }> => {
-                    return r.status === "fulfilled"
-                }).map(r => { return { id: r.value.saveId, uri: vscode.Uri.joinPath(uidDirSavesUri, r.value.saveId), name: r.value.saveName } })
+                    return r.status === "fulfilled";
+                }).map(r => { return { id: r.value.saveId, uri: vscode.Uri.joinPath(uidDirSavesUri, r.value.saveId), name: r.value.saveName } });
 
             return {
                 uid: uidDirectory.uid,
