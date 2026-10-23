@@ -4,7 +4,6 @@ import { GlobalStateEntry } from "@/extension";
 import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
 import { isUid } from "@/utils/string.utils";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "./utils/uri.utils";
-import { readdir } from "fs";
 import { stripGilHeader } from "./utils/gil.utils";
 import { GilNamePeek } from "@Root/protobufs/beyond_stage";
 
