@@ -106,7 +106,14 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
         const now = Date.now();
         let updateGlobalState = false;
 
-        const validUids = uids.filter(uid => { return isUid(uid) });
+        const validUids = uids.filter(uid => {
+            if (!isUid(uid)) {
+                results[uid] = { name: "Invalid UID", lastUpdate: now };
+                return false;
+            }
+            return true;
+        });
+
         const staleUids = validUids.filter(uid => {
             const cachedUid = uidInfoCache[uid];
             if (cachedUid && cachedUid.lastUpdate >= now - uidInfoCacheLifetime) {
