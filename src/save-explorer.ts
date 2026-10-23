@@ -27,6 +27,7 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
     readonly onDidChangeTreeData: vscode.Event<SaveExplorerItem[] | SaveExplorerItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     private readonly icon_save: vscode.Uri;
+    private readonly icon_uid: vscode.ThemeIcon;
 
     private data: SaveExplorerItem[] = [];
 
@@ -34,24 +35,27 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
         private readonly context: vscode.ExtensionContext
     ) {
         this.icon_save = vscode.Uri.joinPath(context.extensionUri, "assets", "miliastra_save_icon.svg");
+        this.icon_uid = new vscode.ThemeIcon(`accounts-view-bar-icon`);
         this.update();
     }
 
     async update() {
         this.data = (await this.getUidSaves()).map(uidSaves => {
-            return new SaveExplorerItem(
+            const uidEntry = new SaveExplorerItem(
                 `${uidSaves.nickname} (${uidSaves.uid})`,
                 uidSaves.uri,
                 vscode.TreeItemCollapsibleState.Expanded,
                 uidSaves.saves.map(save => {
-                    const e = new SaveExplorerItem(
+                    const saveEntry = new SaveExplorerItem(
                         `${save.name} (${save.id})`,
                         save.uri,
                         vscode.TreeItemCollapsibleState.None
                     );
-                    e.iconPath = this.icon_save;
-                    return e;
-                }))
+                    saveEntry.iconPath = this.icon_save;
+                    return saveEntry;
+                }));
+            uidEntry.iconPath = this.icon_uid;
+            return uidEntry;
         });
 
         this.updateView();
