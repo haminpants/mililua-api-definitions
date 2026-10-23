@@ -1,26 +1,21 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
-import * as path from "path";
-import { TreeItemCollapsibleState } from "vscode";
-import { homedir } from "os";
 import { GlobalStateEntry } from "@/extension";
-import { EnkaResponse, UidInfo } from "@/types";
+import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
 import { isUid } from "@/utils/string.utils";
+import { getBeyondLocalSaveUri, getBeyondLocalUri } from "./utils/uri.utils";
+import { readdir } from "fs";
+import { stripGilHeader } from "./utils/gil.utils";
+import { GilNamePeek } from "@Root/protobufs/beyond_stage";
 
 export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
 
-const isUid = new RegExp(`^1?[1,2,3,5,6,7,8,9][0-9]{8}$`);
-const isStage = new RegExp(`^[0-9]{10}$`);
-
-class PlayerDirectory {
-    constructor(
-        public readonly uid: string,
-    ) { }
-}
+const uidInfoCacheLifetime = 60 * 60 * 1000;
 
 export class SaveExplorerItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
+        public readonly uri: vscode.Uri,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         public readonly children?: SaveExplorerItem[],
     ) {
@@ -40,33 +35,6 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
     }
 
     async update() {
-        const playerDirectories = await this.getPlayerDirectories();
-
-        const results = await Promise.allSettled(playerDirectories.map(async p => {
-            const stageDirs = await fs.readdir(path.join(this.beyondLocalPath, p.uid, LEVEL_SAVE_DIR));
-
-            const stageCheckResults = await Promise.allSettled(
-                stageDirs.map(async stageDir => {
-                    const stageFiles = await fs.readdir(path.join(this.beyondLocalPath, p.uid, LEVEL_SAVE_DIR, stageDir));
-
-                    const isValid = stageFiles.includes(`${stageDir}.gil`) && stageFiles.includes("external_lua_file");
-
-                    return { stageDir, isValid };
-                })
-            );
-
-            const validStages = stageCheckResults
-                .filter((s): s is PromiseFulfilledResult<{ stageDir: string; isValid: boolean }> => {
-                    return s.status === "fulfilled" && s.value.isValid === true;
-                })
-                .map(s => {
-                    return new SaveExplorerItem(s.value.stageDir, TreeItemCollapsibleState.None);
-                });
-
-            return new SaveExplorerItem(p.uid, TreeItemCollapsibleState.Expanded, validStages);
-        }))
-
-        this.data = results.filter(r => { return r.status === "fulfilled" }).map(r => r.value);
 
         this.updateView();
     }
@@ -85,21 +53,6 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
         this._onDidChangeTreeData.fire();
     }
 
-    private async getPlayerDirectories(): Promise<PlayerDirectory[]> {
-        const files = await fs.readdir(this.beyondLocalPath);
-
-        const results = await Promise.allSettled(files.map(async file => {
-            const filePath = path.join(this.beyondLocalPath, file);
-            const stats = await fs.lstat(filePath);
-            return { file, stats }
-        }));
-
-        return results.filter((r): r is PromiseFulfilledResult<{ file: string, stats: any }> => {
-            return r.status === "fulfilled"
-                && r.value.stats.isDirectory()
-                && !r.value.stats.isSymbolicLink()
-                && isUid.test(r.value.file);
-        }).map(r => { return new PlayerDirectory(r.value.file) })
     private async getUidInfo(uids: string[]): Promise<Record<string, UidInfo>> {
         const uidInfoCache = this.context.globalState.get<Record<string, UidInfo>>(GlobalStateEntry.UidInfo, {});
         const results: Record<string, UidInfo> = {};
@@ -164,7 +117,7 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
         return results;
     }
 
-    private async getUidSaves(): Promise<any> {
+    private async getUidSaves(): Promise<UidSaveData[]> {
         const beyondLocalUri = getBeyondLocalUri();
         const beyondLocalContents = await fs.readdir(beyondLocalUri.fsPath);
 
@@ -201,7 +154,7 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
             const validSaves = (await Promise.allSettled(validSaveNamesPromises))
                 .filter((r): r is PromiseFulfilledResult<{ saveId: string, saveName: string }> => {
                     return r.status === "fulfilled"
-                }).map(r => { return { id: r.value.saveId, name: r.value.saveName } })
+                }).map(r => { return { id: r.value.saveId, uri: vscode.Uri.joinPath(uidDirSavesUri, r.value.saveId), name: r.value.saveName } })
 
             return {
                 uid: uidDirectory.uid,
