@@ -27,7 +27,6 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
     private _onDidChangeTreeData: vscode.EventEmitter<SaveExplorerItem | undefined | null | void> = new vscode.EventEmitter<SaveExplorerItem | undefined | null | void>();
     readonly onDidChangeTreeData: vscode.Event<SaveExplorerItem[] | SaveExplorerItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
-    private readonly beyondLocalPath = path.join(homedir(), "AppData", "LocalLow", "miHoYo", "Genshin Impact", "BeyondLocal");
     private data: SaveExplorerItem[] = [];
 
     constructor() {
