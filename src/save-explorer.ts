@@ -163,5 +163,54 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
 
         return results;
     }
+
+    private async getUidSaves(): Promise<any> {
+        const beyondLocalUri = getBeyondLocalUri();
+        const beyondLocalContents = await fs.readdir(beyondLocalUri.fsPath);
+
+        const uidDirectoryPromises = beyondLocalContents.map(async uidDirectory => {
+            const stats = await fs.lstat(vscode.Uri.joinPath(beyondLocalUri, uidDirectory).fsPath);
+            return { uidDirectory, stats };
+        });
+
+        const uidDirectories = (await Promise.allSettled(uidDirectoryPromises))
+            .filter((r): r is PromiseFulfilledResult<{ uidDirectory: string, stats: any }> => {
+                return r.status === "fulfilled" && r.value.stats.isDirectory() && !r.value.stats.isSymbolicLink() && isUid(r.value.uidDirectory);
+            }).map(r => { return { uid: r.value.uidDirectory, uri: vscode.Uri.joinPath(beyondLocalUri, r.value.uidDirectory) } });
+
+        const uidInfoPromise = this.getUidInfo(uidDirectories.map(uidDir => uidDir.uid));
+
+        const uidSaveDataPromises = uidDirectories.map(async uidDirectory => {
+            const uidDirSavesUri = getBeyondLocalSaveUri(uidDirectory.uid);
+            const saveDirectories = await fs.readdir(uidDirSavesUri.fsPath);
+
+            const saveContentsPromises = saveDirectories.map(async saveDirectory => {
+                const saveContents = await fs.readdir(vscode.Uri.joinPath(uidDirSavesUri, saveDirectory).fsPath);
+                const isValidSave = saveContents.includes(`external_lua_file`) && saveContents.includes(`${saveDirectory}.gil`);
+                return { saveId: saveDirectory, saveUri: vscode.Uri.joinPath(uidDirSavesUri, saveDirectory), isValidSave };
+            });
+
+            const validSaveNamesPromises = (await Promise.allSettled(saveContentsPromises))
+                .filter((r): r is PromiseFulfilledResult<{ saveId: string, saveUri: vscode.Uri, isValidSave: boolean }> => {
+                    return r.status === "fulfilled" && r.value.isValidSave;
+                }).map(async r => {
+                    const saveData = GilNamePeek.decode(await stripGilHeader(r.value.saveUri));
+                    return { saveId: r.value.saveId, saveName: saveData.name }
+                });
+
+            const validSaves = (await Promise.allSettled(validSaveNamesPromises))
+                .filter((r): r is PromiseFulfilledResult<{ saveId: string, saveName: string }> => {
+                    return r.status === "fulfilled"
+                }).map(r => { return { id: r.value.saveId, name: r.value.saveName } })
+
+            return {
+                uid: uidDirectory.uid,
+                uri: uidDirectory.uri,
+                nickname: (await uidInfoPromise)[uidDirectory.uid]?.name ?? "Unknown",
+                saves: validSaves
+            }
+        });
+
+        return Promise.all(uidSaveDataPromises);
     }
 }
