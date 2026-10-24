@@ -19,24 +19,26 @@ export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
         canSelectMany: false
     });
 
-    const onSelectListener = saveExplorerTreeView.onDidChangeSelection(e => {
-        const selection = e.selection[0];
-        if (!selection || !selection.isSave) { return; }
-        console.log(`${e.selection[0].label} was selected.`);
-    });
-
     const refreshCommand = vscode.commands.registerCommand(COMMANDS.REFRESH_SAVE_EXPLORER, () => {
         saveExplorer.update();
     });
 
-    const selectCommand = vscode.commands.registerCommand(COMMANDS.SELECT_SAVE_EXPLORER_ITEM, (item: SaveExplorerItem) => {
+    const selectCommand = vscode.commands.registerCommand(COMMANDS.SELECT_SAVE_EXPLORER_ITEM, async (item: SaveExplorerItem) => {
         if (!item.isSave) { return; }
+        if ((vscode.workspace.workspaceFolders?.length ?? 0 > 0) || vscode.workspace.textDocuments.length > 0) {
+            const choice = await vscode.window.showInformationMessage(
+                `Are you sure you would like to open ${item.label}?\nAny unsaved changes in your current files and workspace will be lost.`,
+                { modal: true },
+                "Yes"
+            );
+
+            if (choice !== "Yes") { return; }
+        }
         vscode.commands.executeCommand(`vscode.openFolder`, item.uri, { forceNewWindow: false })
     })
 
     context.subscriptions.push(
         saveExplorerTreeView,
-        onSelectListener,
         refreshCommand,
         selectCommand
     );
