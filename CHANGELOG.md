@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0]
+
+### Added
+- Save Explorer
+
 ## [2.3.0]
 
 ### Added
@@ -15,12 +20,12 @@ All notable changes to this project will be documented in this file.
 ## [2.1.0]
 
 ### Added
-- Gil Resource Extraction for Signals
+- Gil Resource Extraction for Signals.
 
 ## [2.0.0]
 
 ### Added
-- Gil Resource Extraction for Script Text Variables
+- Gil Resource Extraction for Script Text Variables.
 
 ## [1.3.0]
 

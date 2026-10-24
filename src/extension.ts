@@ -3,6 +3,9 @@ import * as vscode from "vscode";
 import { GilResourceHandler } from "@/gil-resource-handler";
 import { BeyondStage } from "@Protobufs/beyond_stage";
 import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
+import { registerSaveExplorerTreeView } from "@/providers/save-explorer.provider";
+import { formatDate } from "@/utils/date.utils";
+import { stripGilHeader } from "@/utils/gil.utils";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
@@ -16,13 +19,6 @@ const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Ri
 
 let expectedGil = "";
 let lastGilExtract: number = -1;
-const dateFormatter = new Intl.DateTimeFormat(vscode.env.language, {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-})
 
 async function updateConfig(context: vscode.ExtensionContext) {
     const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
@@ -60,7 +56,7 @@ async function updateStatusBar() {
             tooltipNotes.push(
                 `#### 📄 Listening for changes to \`${expectedGil}\``,
                 `- Resources extraction will be attempted when a change is detected to \`${expectedGil}\``,
-                `- [Force Refresh Gil Resources](command:${cfg_id}.${cmd_forceUpdateGilResources}) (Last updated: ${lastGilExtract > 0 ? dateFormatter.format(lastGilExtract) : "Unknown"})\n`
+                `- [Force Refresh Gil Resources](command:${cfg_id}.${cmd_forceUpdateGilResources}) (Last updated: ${lastGilExtract > 0 ? formatDate(lastGilExtract) : "Unknown"})\n`
             )
         }
         else {
@@ -109,7 +105,7 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
         case false:
             break;
         default:
-            vscode.window.showInformationMessage("Would you Would you like to enable MiliLua API Definitions for this workspace? Miliastra Lua API definitions and Gil Resource Extraction will be enabled for this workspace.", "Yes", "No")
+            vscode.window.showInformationMessage("Would you like to enable MiliLua API Definitions for this workspace? Miliastra Lua API definitions and Gil Resource Extraction will be enabled for this workspace.", "Yes", "No")
                 .then(choice => {
                     mililuaConfig.update(cfg_enableDefinitions, choice === "Yes");
                     mililuaConfig.update(cfg_extractGilResources, choice === "Yes");
@@ -119,19 +115,14 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
 }
 
 async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResourceHandler, force: boolean = false) {
-    const fileBuffer = await fs.readFile(`${gilUri.fsPath}`);
-
-    const contentLength = fileBuffer.readUInt32BE(0x10);
-    const start = 20;
-    const end = start + contentLength;
-    const stageData = BeyondStage.decode(fileBuffer.subarray(start, end))
+    const stageData = BeyondStage.decode(await stripGilHeader(gilUri));
 
     resourceHandler.processResource(GilResource.ScriptTextVariables,
-        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [], force)
+        stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [], force);
     resourceHandler.processResource(GilResource.Signals,
-        stageData.unkStageData?.signalWrapper?.signals ?? [], force)
+        stageData.unkStageData?.signalWrapper?.signals ?? [], force);
     resourceHandler.processResource(GilResource.ClientControlTemplateIndex,
-        stageData.uiAssetWrapper?.asset ?? [], force)
+        stageData.uiAssetWrapper?.asset ?? [], force);
 
     lastGilExtract = Date.now();
     updateStatusBar();
@@ -139,6 +130,9 @@ async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResou
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating MiliLua API Definitions...")
+    registerSaveExplorerTreeView(context);
+
+    // TODO: this needs to be fixed to not continue activation if not in a lua workspace or gil workspace
     if (!vscode.workspace.workspaceFolders) { return; }
 
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
@@ -163,7 +157,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(`${cfg_id}.${cfg_extractGilResources}`, args => {
             vscode.workspace.getConfiguration(cfg_id).update(cfg_extractGilResources, true);
         }),
-        vscode.commands.registerCommand(`${cfg_id}.${cmd_forceUpdateGilResources}`, args => {
+        vscode.commands.registerCommand(`${cfg_id}.${cmd_forceUpdateGilResources}`, async args => {
             fs.rm(`${workspaceRoot.uri.fsPath}/${RESOURCES_DIR}`, { recursive: true, force: true }).then(_ => {
                 try {
                     extractGilResources(gilUri, gilResourceHandler, true);
