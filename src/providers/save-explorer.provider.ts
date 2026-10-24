@@ -23,7 +23,7 @@ export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
 
     const onSelectListener = saveExplorerTreeView.onDidChangeSelection(e => {
         const selection = e.selection[0];
-        if (!selection) { return; }
+        if (!selection || !selection.isSave) { return; }
         console.log(`${e.selection[0].label} was selected.`);
     });
 
@@ -42,6 +42,7 @@ export class SaveExplorerItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly uri: vscode.Uri,
+        public readonly isSave: boolean,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         public readonly children?: SaveExplorerItem[],
     ) {
@@ -68,20 +69,34 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
 
     async update() {
         this.data = (await this.getUidSaves()).map(uidSaves => {
+            const saveEntries = uidSaves.saves.map(save => {
+                const saveEntry = new SaveExplorerItem(
+                    `${save.name} (${save.id})`,
+                    save.uri,
+                    true,
+                    vscode.TreeItemCollapsibleState.None
+                );
+
+                saveEntry.iconPath = this.icon_save;
+                saveEntry.command = {
+                    command: COMMANDS.SELECT_SAVE_EXPLORER_ITEM,
+                    title: "Open Save",
+                    arguments: [this],
+                }
+
+                return saveEntry;
+            });
+
             const uidEntry = new SaveExplorerItem(
                 `${uidSaves.nickname} (${uidSaves.uid})`,
                 uidSaves.uri,
+                false,
                 vscode.TreeItemCollapsibleState.Expanded,
-                uidSaves.saves.map(save => {
-                    const saveEntry = new SaveExplorerItem(
-                        `${save.name} (${save.id})`,
-                        save.uri,
-                        vscode.TreeItemCollapsibleState.None
-                    );
-                    saveEntry.iconPath = this.icon_save;
-                    return saveEntry;
-                }));
+                saveEntries
+            );
+
             uidEntry.iconPath = this.icon_uid;
+
             return uidEntry;
         });
         this.updateView();
