@@ -54,7 +54,7 @@
     },
     "commands": [
       {
-        "command": "mililua.refreshSaveExplorer",
+        "command": "haminpants.mililua-api-definitions.refreshSaveExplorer",
         "title": "Refresh Save Explorer",
         "icon": "$(refresh)"
       },
@@ -94,8 +94,8 @@
     "menus": {
       "view/title": [
         {
-          "command": "mililua.refreshSaveExplorer",
-          "when": "view == mililua.save-explorer",
+          "command": "haminpants.mililua-api-definitions.refreshSaveExplorer",
+          "when": "view == haminpants.mililua-api-definitions.save-explorer",
           "group": "navigation"
         }
       ]
