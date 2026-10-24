@@ -6,10 +6,37 @@ import { GilNamePeek } from "@Root/protobufs/beyond_stage";
 import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
 import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
+import { EXTENSION_ID } from "@/constants/extension";
+import { COMMANDS } from "../constants/commands";
 
 export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
 
 const uidInfoCacheLifetime = 60 * 60 * 1000;
+
+export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
+    const saveExplorer = new SaveExplorerDataProvider(context);
+    const saveExplorerTreeView = vscode.window.createTreeView(`${EXTENSION_ID}.save-explorer`, {
+        treeDataProvider: saveExplorer,
+        showCollapseAll: true,
+        canSelectMany: false
+    });
+
+    const onSelectListener = saveExplorerTreeView.onDidChangeSelection(e => {
+        const selection = e.selection[0];
+        if (!selection) { return; }
+        console.log(`${e.selection[0].label} was selected.`);
+    });
+
+    const refreshCommand = vscode.commands.registerCommand(COMMANDS.REFRESH_SAVE_EXPLORER, () => {
+        saveExplorer.update();
+    });
+
+    context.subscriptions.push(
+        saveExplorerTreeView,
+        onSelectListener,
+        refreshCommand
+    );
+}
 
 export class SaveExplorerItem extends vscode.TreeItem {
     constructor(
