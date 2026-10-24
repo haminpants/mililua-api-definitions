@@ -4,7 +4,7 @@
   "description": "IntelliSense and tooling for the Miliastra Wonderland Lua API.",
   "version": "2.3.0",
   "publisher": "haminpants",
-  "icon": "assets/icon.png",
+  "icon": "resources/icon.png",
   "categories": [
     "Programming Languages",
     "Snippets",
@@ -78,7 +78,7 @@
         {
           "id": "miliastra-save-explorer",
           "title": "Miliastra Save Explorer",
-          "icon": "assets/miliastra_save_icon.svg"
+          "icon": "resources/miliastra_save_icon.svg"
         }
       ]
     },
@@ -87,7 +87,7 @@
         {
           "id": "haminpants.mililua-api-definitions.save-explorer",
           "name": "Miliastra Save Explorer",
-          "icon": "assets/miliastra_save_icon.svg"
+          "icon": "resources/miliastra_save_icon.svg"
         }
       ]
     },

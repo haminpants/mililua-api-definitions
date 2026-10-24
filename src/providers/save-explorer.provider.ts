@@ -68,7 +68,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
     constructor(
         private readonly context: vscode.ExtensionContext
     ) {
-        this.icon_save = vscode.Uri.joinPath(context.extensionUri, "assets", "miliastra_save_icon.svg");
+        this.icon_save = vscode.Uri.joinPath(context.extensionUri, "resources", "miliastra_save_icon.svg");
         this.icon_uid = new vscode.ThemeIcon(`accounts-view-bar-icon`);
         this.update();
     }
