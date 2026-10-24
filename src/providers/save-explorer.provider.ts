@@ -9,8 +9,6 @@ import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
 import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
 
-export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
-
 const uidInfoCacheLifetime = 60 * 60 * 1000;
 
 export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
