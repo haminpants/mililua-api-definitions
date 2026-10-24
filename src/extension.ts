@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { GilResourceHandler } from "@/gil-resource-handler";
 import { BeyondStage } from "@Protobufs/beyond_stage";
 import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
-import { SaveExplorerTreeDataProvider } from "@/save-explorer";
+import { registerSaveExplorerTreeView } from "@/providers/save-explorer.provider";
 import { formatDate } from "@/utils/date.utils";
 import { stripGilHeader } from "@/utils/gil.utils";
 
@@ -14,16 +14,6 @@ const cfg_luaRuntimeVersion = "runtime.version";
 const cfg_luaWorkspaceLibrary = "workspace.library";
 const cmd_openWorkspaceSettings = "openWorkspaceSettings";
 const cmd_forceUpdateGilResources = "forceUpdateGilResources";
-const cmd_logGlobalState = "logGlobalState";
-const cmd_resetGlobalState = "resetGlobalState";
-
-export enum GlobalStateEntry {
-    UidInfo = "uidInfo"
-}
-
-export enum CommandId {
-    RefreshSaveExplorer = "refreshSaveExplorer"
-}
 
 const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
 
@@ -140,9 +130,7 @@ async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResou
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating MiliLua API Definitions...")
-
-    const saveExplorer = new SaveExplorerTreeDataProvider(context);
-    const saveExplorerView = vscode.window.createTreeView(`${cfg_id}.save-explorer`, { treeDataProvider: saveExplorer, canSelectMany: false });
+    registerSaveExplorerTreeView(context);
 
     // TODO: this needs to be fixed to not continue activation if not in a lua workspace or gil workspace
     if (!vscode.workspace.workspaceFolders) { return; }
@@ -178,15 +166,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.window.showErrorMessage(`Failed to update Gil resources. Ensure ${expectedGil} is present in the workspace.`);
                 }
             })
-        }),
-        vscode.commands.registerCommand(`${cfg_id}.${CommandId.RefreshSaveExplorer}`, args => {
-            saveExplorer.update();
-        }),
-        vscode.commands.registerCommand(`${cfg_id}.${cmd_logGlobalState}`, args => {
-            console.log(context.globalState.keys().map(k => context.globalState.get(k)));
-        }),
-        vscode.commands.registerCommand(`${cfg_id}.${cmd_resetGlobalState}`, args => {
-            Object.values(GlobalStateEntry).forEach(e => context.globalState.update(e, undefined));
         }),
         statusBar
     );
