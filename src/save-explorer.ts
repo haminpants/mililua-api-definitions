@@ -22,7 +22,7 @@ export class SaveExplorerItem extends vscode.TreeItem {
     }
 }
 
-export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<SaveExplorerItem> {
+export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExplorerItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<SaveExplorerItem | undefined | null | void> = new vscode.EventEmitter<SaveExplorerItem | undefined | null | void>();
     readonly onDidChangeTreeData: vscode.Event<SaveExplorerItem[] | SaveExplorerItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
@@ -57,7 +57,6 @@ export class SaveExplorerTreeDataProvider implements vscode.TreeDataProvider<Sav
             uidEntry.iconPath = this.icon_uid;
             return uidEntry;
         });
-
         this.updateView();
     }
 
