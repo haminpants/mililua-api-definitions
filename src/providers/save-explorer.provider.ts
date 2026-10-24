@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import { isUid } from "@/utils/string.utils";
-import { GlobalStateEntry } from "@/extension";
 import { stripGilHeader } from "@/utils/gil.utils";
 import { GilNamePeek } from "@Root/protobufs/beyond_stage";
 import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
+import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
 
 export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
@@ -74,7 +74,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
     }
 
     private async getUidInfo(uids: string[]): Promise<Record<string, UidInfo>> {
-        const uidInfoCache = this.context.globalState.get<Record<string, UidInfo>>(GlobalStateEntry.UidInfo, {});
+        const uidInfoCache = this.context.globalState.get<Record<string, UidInfo>>(GLOBAL_STATE_KEYS.UidInfoCache, {});
         const results: Record<string, UidInfo> = {};
         const now = Date.now();
         let updateGlobalState = false;
@@ -131,7 +131,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
                 }
             }
 
-            if (updateGlobalState) { await this.context.globalState.update(GlobalStateEntry.UidInfo, uidInfoCache); }
+            if (updateGlobalState) { await this.context.globalState.update(GLOBAL_STATE_KEYS.UidInfoCache, uidInfoCache); }
         }
 
         return results;
