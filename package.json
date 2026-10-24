@@ -85,7 +85,7 @@
     "views": {
       "miliastra-save-explorer": [
         {
-          "id": "mililua.save-explorer",
+          "id": "haminpants.mililua-api-definitions.save-explorer",
           "name": "Miliastra Save Explorer",
           "icon": "assets/miliastra_save_icon.svg"
         }
