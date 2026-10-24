@@ -31,10 +31,16 @@ export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
         saveExplorer.update();
     });
 
+    const selectCommand = vscode.commands.registerCommand(COMMANDS.SELECT_SAVE_EXPLORER_ITEM, (item: SaveExplorerItem) => {
+        if (!item.isSave) { return; }
+        vscode.commands.executeCommand(`vscode.openFolder`, item.uri, { forceNewWindow: false })
+    })
+
     context.subscriptions.push(
         saveExplorerTreeView,
         onSelectListener,
-        refreshCommand
+        refreshCommand,
+        selectCommand
     );
 }
 
@@ -81,7 +87,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
                 saveEntry.command = {
                     command: COMMANDS.SELECT_SAVE_EXPLORER_ITEM,
                     title: "Open Save",
-                    arguments: [this],
+                    arguments: [saveEntry],
                 }
 
                 return saveEntry;
