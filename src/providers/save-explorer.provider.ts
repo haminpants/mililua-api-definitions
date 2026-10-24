@@ -3,11 +3,11 @@ import * as fs from "fs/promises";
 import { isUid } from "@/utils/string.utils";
 import { stripGilHeader } from "@/utils/gil.utils";
 import { GilNamePeek } from "@Root/protobufs/beyond_stage";
-import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
+import { COMMANDS } from "@/constants/commands";
+import { EXTENSION_ID } from "@/constants/extension";
 import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
-import { EXTENSION_ID } from "@/constants/extension";
-import { COMMANDS } from "../constants/commands";
+import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
 
 export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
 
