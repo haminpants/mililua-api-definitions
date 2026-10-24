@@ -3,8 +3,8 @@ import * as fs from "fs/promises";
 import { GlobalStateEntry } from "@/extension";
 import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
 import { isUid } from "@/utils/string.utils";
-import { getBeyondLocalSaveUri, getBeyondLocalUri } from "./utils/uri.utils";
-import { stripGilHeader } from "./utils/gil.utils";
+import { getBeyondLocalSaveUri, getBeyondLocalUri } from "../utils/uri.utils";
+import { stripGilHeader } from "../utils/gil.utils";
 import { GilNamePeek } from "@Root/protobufs/beyond_stage";
 
 export const LEVEL_SAVE_DIR = "Beyond_Local_Save_Level"
