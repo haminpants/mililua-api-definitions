@@ -38,13 +38,13 @@
     "configuration": {
       "title": "MiliLua API Definitions",
       "properties": {
-        "mililua.enableDefinitions": {
+        "haminpants.mililua-api-definitions.enableDefinitions": {
           "type": "boolean",
           "default": null,
           "description": "(Workspace only) Whether to enable Miliastra Wonderland Lua API support for the current workspace.",
           "scope": "resource"
         },
-        "mililua.extractGilResources": {
+        "haminpants.mililua-api-definitions.extractGilResources": {
           "type": "boolean",
           "default": null,
           "description": "(Workspace only) Whether to attempt resource extraction from the .gil file matching the current workspace folder name.",
