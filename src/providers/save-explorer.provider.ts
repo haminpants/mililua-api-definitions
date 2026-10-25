@@ -4,16 +4,16 @@ import { isUid } from "@/utils/string.utils";
 import { stripGilHeader } from "@/utils/gil.utils";
 import { GilNamePeek } from "@/generated/protobufs/beyond_stage";
 import { COMMANDS } from "@/constants/commands";
-import { EXTENSION_ID } from "@/constants/extension";
 import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
 import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
+import { SHORT_ID } from "@/constants/extension";
 
 const uidInfoCacheLifetime = 60 * 60 * 1000;
 
 export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
     const saveExplorer = new SaveExplorerDataProvider(context);
-    const saveExplorerTreeView = vscode.window.createTreeView(`${EXTENSION_ID}.save-explorer`, {
+    const saveExplorerTreeView = vscode.window.createTreeView(`${SHORT_ID}.save-explorer`, {
         treeDataProvider: saveExplorer,
         showCollapseAll: true,
         canSelectMany: false

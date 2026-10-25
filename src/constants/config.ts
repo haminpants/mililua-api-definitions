@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { EXTENSION_ID } from "@/constants/extension";
+import { SHORT_ID } from "./extension";
 
 export type ConfigKey = typeof CONFIGS[keyof typeof CONFIGS];
 export const CONFIGS = {
@@ -8,5 +8,5 @@ export const CONFIGS = {
 } as const;
 
 export function getWorkspaceConfig<T>(config: ConfigKey): T | undefined {
-    return vscode.workspace.getConfiguration(EXTENSION_ID).inspect<T>(config)?.workspaceValue;
+    return vscode.workspace.getConfiguration(SHORT_ID).inspect<T>(config)?.workspaceValue;
 }

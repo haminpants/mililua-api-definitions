@@ -1,6 +1,6 @@
-import { EXTENSION_ID } from "@/constants/extension";
+import { SHORT_ID } from "./extension";
 
 export const COMMANDS = {
-    RefreshSaveExplorer: `${EXTENSION_ID}.refreshSaveExplorer`,
-    SelectSaveExplorerItem: `${EXTENSION_ID}.selectSaveExplorerItem`,
+    RefreshSaveExplorer: `${SHORT_ID}.refreshSaveExplorer`,
+    SelectSaveExplorerItem: `${SHORT_ID}.selectSaveExplorerItem`,
 } as const;
