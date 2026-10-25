@@ -1,7 +1,7 @@
 import * as path from "path";
-import { compilerOptions as tsconfig } from "@Root/tsconfig.json";
-import { execSync } from "child_process";
 import { cpSync, rmSync } from "fs";
+import { execSync } from "child_process";
+import { compilerOptions as tsconfig } from "@Root/tsconfig.json";
 
 const REPO_URL = "https://github.com/haminpants/miliastra-lua-api";
 
