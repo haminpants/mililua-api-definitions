@@ -1,11 +1,11 @@
 import * as fs from "fs/promises";
 import * as vscode from "vscode";
-import { GilResourceHandler } from "@/gil-resource-handler";
+import { GilResourceHandler } from "@/services/gil-resource.service";
 import { BeyondStage } from "@/generated/protobufs/beyond_stage";
 import { registerSaveExplorerTreeView } from "@/providers/save-explorer.provider";
 import { formatDate } from "@/utils/date.utils";
 import { stripGilHeader } from "@/utils/gil.utils";
-import { GIL_RESOURCE_DIRECTORY } from "./constants/gil-resources";
+import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
