@@ -7,8 +7,6 @@
     "strict": true,
     "paths": {
       "@Root/*": ["./*"],
-      "@Out/*": ["./out/*"],
-      "@Protobufs/*": ["./protobufs/*"],
       "@/*": ["./src/*"]
     },
 
@@ -17,5 +15,5 @@
     "lib": ["ES2022"],
     "types": ["node", "mocha"]
   },
-  "include": ["src/**/*", "scripts/**/*", "protobufs/**/*"]
+  "include": ["src/**/*", "scripts/**/*"]
 }

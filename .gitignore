@@ -4,3 +4,4 @@ out/**
 **/*.vsix
 **/gil_dump*
 src/generated/**
+resources/library/**
