@@ -1,5 +1,5 @@
 # MiliLua API Definitions for VS Code
-MiliLua API Definitions is a VS Code extension that provides IntelliSense and extended tooling for the Miliastra Wonderland Lua API based on definitions and documentation from the [miliastra-lua-api repo](https://github.com/haminpants/miliastra-lua-api). See [Privacy & Additional Notes](#privacy--additional-notes) for info on how your data is handled by this extension.
+MiliLua API Definitions is a VS Code extension that provides IntelliSense and extended tooling for the Miliastra Wonderland Lua API based on definitions and documentation from the [miliastra-lua-api repo](https://github.com/haminpants/miliastra-lua-api). See [Privacy and Additional Notes](#privacy-and-additional-notes) for info on how your data is handled by this extension.
 
 ## Features
 - Complete definitions for all types, fields, functions, globals, and enums.
@@ -86,7 +86,7 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 - Functions that return data from the server, such as from signals or `game.GetGlobalCustomVariableValue`, will always return a type from the `ServerDataType` alias or `nil`; however, LuaLS cannot infer the correct type, so `any` is returned instead.
 - `TweenTarget` exposes all tweenable fields from all Client Control types; however, attempting to tween fields for the wrong type may cause errors at runtime.
 
-## Privacy & Additional Notes
+## Privacy and Additional Notes
 - **Unless specified below, no data, files, or analytics are sent to any third-party service.**
 - **This extension does not modify Gil files.**
 - Genshin account names are fetched by querying the [Enka.Network](https://enka.network/) API using UIDs found in the `BeyondLocal` directory.
