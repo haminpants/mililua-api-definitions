@@ -38,13 +38,13 @@
     "configuration": {
       "title": "MiliLua API Definitions",
       "properties": {
-        "haminpants.mililua-api-definitions.enableDefinitions": {
+        "mililua.enableDefinitions": {
           "type": "boolean",
           "default": null,
           "description": "(Workspace only) Whether to enable Miliastra Wonderland Lua API support for the current workspace.",
           "scope": "resource"
         },
-        "haminpants.mililua-api-definitions.extractGilResources": {
+        "mililua.extractGilResources": {
           "type": "boolean",
           "default": null,
           "description": "(Workspace only) Whether to attempt resource extraction from the .gil file matching the current workspace folder name.",
@@ -54,7 +54,7 @@
     },
     "commands": [
       {
-        "command": "haminpants.mililua-api-definitions.refreshSaveExplorer",
+        "command": "mililua.refreshSaveExplorer",
         "title": "Refresh Save Explorer",
         "icon": "$(refresh)"
       },
@@ -85,7 +85,7 @@
     "views": {
       "miliastra-save-explorer": [
         {
-          "id": "haminpants.mililua-api-definitions.save-explorer",
+          "id": "mililua.save-explorer",
           "name": "Miliastra Save Explorer",
           "icon": "resources/miliastra_save_icon.svg"
         }
@@ -94,8 +94,8 @@
     "menus": {
       "view/title": [
         {
-          "command": "haminpants.mililua-api-definitions.refreshSaveExplorer",
-          "when": "view == haminpants.mililua-api-definitions.save-explorer",
+          "command": "mililua.refreshSaveExplorer",
+          "when": "view == mililua.save-explorer",
           "group": "navigation"
         }
       ]
