@@ -2,10 +2,10 @@ import * as fs from "fs/promises";
 import * as vscode from "vscode";
 import { GilResourceHandler } from "@/gil-resource-handler";
 import { BeyondStage } from "@/generated/protobufs/beyond_stage";
-import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
 import { registerSaveExplorerTreeView } from "@/providers/save-explorer.provider";
 import { formatDate } from "@/utils/date.utils";
 import { stripGilHeader } from "@/utils/gil.utils";
+import { GIL_RESOURCE_DIRECTORY } from "./constants/gil-resources";
 
 const cfg_id = "mililua";
 const cfg_enableDefinitions = "enableDefinitions";
@@ -24,15 +24,15 @@ async function updateConfig(context: vscode.ExtensionContext) {
     const mililuaConfig = vscode.workspace.getConfiguration(cfg_id);
     const luaConfig = vscode.workspace.getConfiguration("Lua");
     const apiPath = vscode.Uri.joinPath(context.extensionUri, "resources", "library").fsPath.replace(/\\/g, '/');
-    const isMiliLuaLib = RegExp(`(?:${context.extension.packageJSON.name}|${RESOURCES_DIR})`)
+    const isMiliLuaLib = RegExp(`(?:${context.extension.packageJSON.name}|${GIL_RESOURCE_DIRECTORY})`)
 
     let libs: string[] = luaConfig.inspect<string[]>(cfg_luaWorkspaceLibrary)?.workspaceValue ?? [];
     libs = libs.filter(lib => { return typeof (lib) === "string" && !isMiliLuaLib.test(lib); });
 
     if (mililuaConfig.inspect<boolean>(cfg_enableDefinitions)?.workspaceValue) {
         if (!libs.includes(apiPath)) { libs.push(apiPath); }
-        if (mililuaConfig.inspect<boolean>(cfg_extractGilResources)?.workspaceValue && !libs.includes(`./${RESOURCES_DIR}/`)) {
-            libs.push(`./${RESOURCES_DIR}/`)
+        if (mililuaConfig.inspect<boolean>(cfg_extractGilResources)?.workspaceValue && !libs.includes(`./${GIL_RESOURCE_DIRECTORY}/`)) {
+            libs.push(`./${GIL_RESOURCE_DIRECTORY}/`)
         }
 
         luaConfig.update(cfg_luaRuntimeVersion, "Lua 5.3");
@@ -117,11 +117,11 @@ async function checkEnableDefinitions(context: vscode.ExtensionContext) {
 async function extractGilResources(gilUri: vscode.Uri, resourceHandler: GilResourceHandler, force: boolean = false) {
     const stageData = BeyondStage.decode(await stripGilHeader(gilUri));
 
-    resourceHandler.processResource(GilResource.ScriptTextVariables,
+    resourceHandler.processResource("ScriptTextVariables",
         stageData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [], force);
-    resourceHandler.processResource(GilResource.Signals,
+    resourceHandler.processResource("Signals",
         stageData.unkStageData?.signalWrapper?.signals ?? [], force);
-    resourceHandler.processResource(GilResource.ClientControlTemplateIndex,
+    resourceHandler.processResource("ClientControls",
         stageData.uiAssetWrapper?.asset ?? [], force);
 
     lastGilExtract = Date.now();
@@ -138,7 +138,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const workspaceRoot = vscode.workspace.workspaceFolders[0];
     const mililuaSettings = vscode.workspace.getConfiguration(cfg_id);
     const gilUri = vscode.Uri.joinPath(workspaceRoot.uri, `${workspaceRoot.name}.gil`);
-    const gilResourceHandler = new GilResourceHandler(workspaceRoot);
+    const gilResourceHandler = new GilResourceHandler(workspaceRoot.uri);
     expectedGil = `${workspaceRoot.name}.gil`;
 
     context.subscriptions.push(
@@ -158,7 +158,7 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.workspace.getConfiguration(cfg_id).update(cfg_extractGilResources, true);
         }),
         vscode.commands.registerCommand(`${cfg_id}.${cmd_forceUpdateGilResources}`, async args => {
-            fs.rm(`${workspaceRoot.uri.fsPath}/${RESOURCES_DIR}`, { recursive: true, force: true }).then(_ => {
+            fs.rm(`${gilResourceHandler.getFsPath()}`, { recursive: true, force: true }).then(_ => {
                 try {
                     extractGilResources(gilUri, gilResourceHandler, true);
                 }

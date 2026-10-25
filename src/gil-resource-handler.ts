@@ -1,20 +1,40 @@
+import * as vscode from "vscode";
 import * as fs from "fs/promises";
-import * as path from "path";
 import stableStringify from "fast-json-stable-stringify";
-import { GilResource, GilWriterRegistry } from "./gil-writer-registry";
-import { WorkspaceFolder } from "vscode";
+import { GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
+
 
 export class GilResourceHandler {
-    private registry: GilWriterRegistry;
+    private readonly uri: vscode.Uri;
     private hashFn: ((input: string) => number) | null = null;
     private hashCache: Record<GilResource, number> = {
-        [GilResource.ScriptTextVariables]: Infinity,
-        [GilResource.Signals]: Infinity,
-        [GilResource.ClientControlTemplateIndex]: Infinity,
+        ScriptTextVariables: Infinity,
+        Signals: Infinity,
+        ClientControls: Infinity
     };
 
-    constructor(workspaceFolder: WorkspaceFolder) {
-        this.registry = new GilWriterRegistry(workspaceFolder.uri.fsPath);
+    constructor(rootUri: vscode.Uri) {
+        this.uri = vscode.Uri.joinPath(rootUri, ".gil_resources");
+        this.getHashFunction();
+    }
+
+    async processResource(key: GilResource, value: object, force: boolean = false): Promise<boolean> {
+        const hash = await this.getHashFunction();
+        const newHash = hash(stableStringify(value));
+
+        let fileExists = true;
+        try { await fs.access(vscode.Uri.joinPath(this.uri, key).fsPath); }
+        catch { fileExists = false; }
+
+        if (!force && newHash === this.hashCache[key] && fileExists) { return false; }
+
+        this.hashCache[key] = newHash;
+
+        const formatter = GIL_RESOURCES[key].formatter as (content: any) => string;
+
+        await fs.mkdir(this.uri.fsPath, { recursive: true })
+        await fs.writeFile(vscode.Uri.joinPath(this.uri, GIL_RESOURCES[key].fileName).fsPath, formatter(value), "utf-8");
+        return true;
     }
 
     private async getHashFunction() {
@@ -26,21 +46,7 @@ export class GilResourceHandler {
         return this.hashFn;
     }
 
-    async processResource(key: GilResource, value: object, force: boolean = false): Promise<boolean> {
-        const resourceConfig = this.registry.getConfig(key);
-        const hash = await this.getHashFunction();
-        const newHash = hash(stableStringify(value));
-
-        let fileExists = true;
-        try { await fs.access(resourceConfig.targetPath); }
-        catch { fileExists = false; }
-
-        if (!force && newHash === this.hashCache[key] && fileExists) { return false; }
-
-        this.hashCache[key] = newHash;
-
-        await fs.mkdir(path.dirname(resourceConfig.targetPath), { recursive: true })
-        await fs.writeFile(resourceConfig.targetPath, resourceConfig.formatContent(value), "utf-8");
-        return true;
+    getFsPath() {
+        return this.uri.fsPath;
     }
 }
