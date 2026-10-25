@@ -3,4 +3,4 @@ out/**
 
 **/*.vsix
 **/gil_dump*
-protobufs/*.ts
+src/generated/**

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import { isUid } from "@/utils/string.utils";
 import { stripGilHeader } from "@/utils/gil.utils";
-import { GilNamePeek } from "@Root/protobufs/beyond_stage";
+import { GilNamePeek } from "@/generated/protobufs/beyond_stage";
 import { COMMANDS } from "@/constants/commands";
 import { EXTENSION_ID } from "@/constants/extension";
 import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";

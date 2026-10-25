@@ -1,4 +1,4 @@
-import { ScriptTextVariable, Signal, SignalParamType, UIComponent, UIComponentTypeIdentifier } from "@Root/protobufs/beyond_stage";
+import { ScriptTextVariable, Signal, SignalParamType, UIComponent, UIComponentTypeIdentifier } from "@/generated/protobufs/beyond_stage";
 import path from "path";
 
 export const RESOURCES_DIR = ".gil_resources";

@@ -1,7 +1,7 @@
 import * as fs from "fs/promises";
 import * as vscode from "vscode";
 import { GilResourceHandler } from "@/gil-resource-handler";
-import { BeyondStage } from "@Protobufs/beyond_stage";
+import { BeyondStage } from "@/generated/protobufs/beyond_stage";
 import { GilResource, RESOURCES_DIR } from "@/gil-writer-registry";
 import { registerSaveExplorerTreeView } from "@/providers/save-explorer.provider";
 import { formatDate } from "@/utils/date.utils";
