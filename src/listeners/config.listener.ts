@@ -8,10 +8,10 @@ const LUA_CONFIG = {
     RuntimeVersion: "runtime.version"
 } as const;
 
-export class ConfigChangedListener {
+export class ConfigListener {
     private luaLibraryPath: string;
     private isMiliLuaLib: RegExp;
-    private configListener: vscode.Disposable;
+    private listener: vscode.Disposable;
 
     constructor(
         context: vscode.ExtensionContext
@@ -19,12 +19,12 @@ export class ConfigChangedListener {
         this.luaLibraryPath = vscode.Uri.joinPath(context.extensionUri, "resources", "library").fsPath.replace(/\\/g, '/');
         this.isMiliLuaLib = RegExp(`(?:${context.extension.packageJSON.name}|${GIL_RESOURCE_DIRECTORY})`);
 
-        this.configListener = vscode.workspace.onDidChangeConfiguration(e => {
+        this.listener = vscode.workspace.onDidChangeConfiguration(e => {
             if (!e.affectsConfiguration(SHORT_ID)) { return; }
             this.updateLuaWorkspaceLibrary();
         });
 
-        context.subscriptions.push(this.configListener);
+        context.subscriptions.push(this.listener);
     }
 
     updateLuaWorkspaceLibrary() {
