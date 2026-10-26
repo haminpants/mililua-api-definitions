@@ -39,13 +39,13 @@ export class ConfigManager {
                 luaLibs.push(`./${GIL_RESOURCE_DIRECTORY}`);
             }
 
-            luaConfig.update(LUA_CONFIG.RuntimeVersion, "Lua 5.3");
+            luaConfig.update(LUA_CONFIG.RuntimeVersion, "Lua 5.3", vscode.ConfigurationTarget.Workspace);
         }
         else {
-            luaConfig.update(LUA_CONFIG.RuntimeVersion, undefined);
+            luaConfig.update(LUA_CONFIG.RuntimeVersion, undefined, vscode.ConfigurationTarget.Workspace);
         }
 
-        luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined);
+        luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
     }
 
     checkEnabled() {

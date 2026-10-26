@@ -6,5 +6,6 @@
     "out": true
   },
   "js/ts.tsc.autoDetect": "off",
-  "mililua.enableDefinitions": false
+  "mililua.enableDefinitions": false,
+  "Lua.workspace.library": []
 }
