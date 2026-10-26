@@ -8,7 +8,7 @@ const LUA_CONFIG = {
     RuntimeVersion: "runtime.version"
 } as const;
 
-export class ConfigListener {
+export class ConfigManager {
     private extensionConfig = vscode.workspace.getConfiguration(SHORT_ID);
     private luaLibraryPath: string;
     private isMiliLuaLib: RegExp;
