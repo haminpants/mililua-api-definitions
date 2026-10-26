@@ -25,7 +25,7 @@ export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
 
     const selectCommand = vscode.commands.registerCommand(COMMANDS.SelectSaveExplorerItem, async (item: SaveExplorerItem) => {
         if (!item.isSave) { return; }
-        if ((vscode.workspace.workspaceFolders?.length ?? 0 > 0) || vscode.workspace.textDocuments.length > 0) {
+        if ((vscode.workspace.workspaceFolders?.length ?? 0) > 0 || vscode.workspace.textDocuments.length > 0) {
             const choice = await vscode.window.showInformationMessage(
                 `Are you sure you would like to open ${item.label}?\nAny unsaved changes in your current files and workspace will be lost.`,
                 { modal: true },
