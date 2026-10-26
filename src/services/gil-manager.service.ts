@@ -5,7 +5,7 @@ import { BeyondStage } from "@/generated/protobufs/beyond_stage";
 import { GilResourceHandler } from "@/services/gil-resource.service";
 
 export class GilManager {
-    private readonly watcher: vscode.FileSystemWatcher;
+    private readonly gilWatcher: vscode.FileSystemWatcher;
 
     public readonly gilFileName: string;
     public readonly resourceHandler: GilResourceHandler;
@@ -17,11 +17,11 @@ export class GilManager {
         this.gilFileName = `${targetWorkspace.name}.gil`;
         this.resourceHandler = new GilResourceHandler(targetWorkspace.uri);
 
-        this.watcher = vscode.workspace.createFileSystemWatcher(`**/${this.gilFileName}`, false, false, true);
-        this.watcher.onDidCreate(this.onGilChanged);
-        this.watcher.onDidChange(this.onGilChanged);
+        this.gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${this.gilFileName}`, false, false, true);
+        this.gilWatcher.onDidCreate(this.onGilChanged);
+        this.gilWatcher.onDidChange(this.onGilChanged);
 
-        context.subscriptions.push(this.watcher);
+        context.subscriptions.push(this.gilWatcher);
     }
 
     private onGilChanged = async () => {
