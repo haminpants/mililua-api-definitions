@@ -36,7 +36,8 @@ export class GilResourceHandler {
             this.hashCache[key] = newHash;
             return true;
         }
-        catch {
+        catch (error) {
+            console.error(`Failed to extract resource ${key}`, error);
             return false;
         }
     }
