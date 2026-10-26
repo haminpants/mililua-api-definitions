@@ -2,10 +2,10 @@ import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import stableStringify from "fast-json-stable-stringify";
 import { GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
+import { BeyondStage } from "@/generated/protobufs/beyond_stage";
 
 
 export class GilResourceHandler {
-    private readonly uri: vscode.Uri;
     private hashFn: ((input: string) => number) | null = null;
     private hashCache: Record<GilResource, number> = {
         ScriptTextVariables: Infinity,
@@ -13,14 +13,15 @@ export class GilResourceHandler {
         ClientControls: Infinity
     };
 
-    constructor(rootUri: vscode.Uri) {
-        this.uri = vscode.Uri.joinPath(rootUri, ".gil_resources");
+    constructor(
+        public readonly uri: vscode.Uri,
+    ) {
         this.getHashFunction();
     }
 
-    async processResource(key: GilResource, value: object, force: boolean = false): Promise<boolean> {
-        const hash = await this.getHashFunction();
-        const newHash = hash(stableStringify(value));
+    async processResource(key: GilResource, gilData: BeyondStage, force: boolean = false): Promise<boolean> {
+        const hashFn = await this.getHashFunction();
+        const newHash = hashFn(stableStringify(gilData));
 
         let fileExists = true;
         try { await fs.access(vscode.Uri.joinPath(this.uri, key).fsPath); }
@@ -29,11 +30,8 @@ export class GilResourceHandler {
         if (!force && newHash === this.hashCache[key] && fileExists) { return false; }
 
         this.hashCache[key] = newHash;
-
-        const formatter = GIL_RESOURCES[key].formatter as (content: any) => string;
-
         await fs.mkdir(this.uri.fsPath, { recursive: true })
-        await fs.writeFile(vscode.Uri.joinPath(this.uri, GIL_RESOURCES[key].fileName).fsPath, formatter(value), "utf-8");
+        await fs.writeFile(vscode.Uri.joinPath(this.uri, GIL_RESOURCES[key].fileName).fsPath, GIL_RESOURCES[key].formatter(gilData), "utf-8");
         return true;
     }
 
@@ -44,9 +42,5 @@ export class GilResourceHandler {
             this.hashFn = (input: string) => h32(input, 0);
         }
         return this.hashFn;
-    }
-
-    getFsPath() {
-        return this.uri.fsPath;
     }
 }
