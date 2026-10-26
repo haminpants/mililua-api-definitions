@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import stableStringify from "fast-json-stable-stringify";
-import { GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
 import { BeyondStage } from "@/generated/protobufs/beyond_stage";
+import { GIL_RESOURCE_DIRECTORY, GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
 
 
 export class GilResourceHandler {
+    private resourceDirectoryUri: vscode.Uri;
     private hashFn: ((input: string) => number) | null = null;
     private hashCache: Record<GilResource, number> = {
         ScriptTextVariables: Infinity,
@@ -13,26 +14,35 @@ export class GilResourceHandler {
         ClientControls: Infinity
     };
 
-    constructor(
-        private readonly uri: vscode.Uri,
-    ) {
+    constructor(rootUri: vscode.Uri) {
+        this.resourceDirectoryUri = vscode.Uri.joinPath(rootUri, GIL_RESOURCE_DIRECTORY);
         this.getHashFunction();
     }
 
-    async processResource(key: GilResource, gilData: BeyondStage, force: boolean = false): Promise<boolean> {
+    private async extractResource(key: GilResource, gilData: BeyondStage, force: boolean = false): Promise<boolean> {
         const hashFn = await this.getHashFunction();
         const newHash = hashFn(stableStringify(gilData));
+        const extractTargetUri = vscode.Uri.joinPath(this.resourceDirectoryUri, GIL_RESOURCES[key].fileName);
 
         let fileExists = true;
-        try { await fs.access(vscode.Uri.joinPath(this.uri, key).fsPath); }
+        try { await fs.access(extractTargetUri.fsPath); }
         catch { fileExists = false; }
 
         if (!force && newHash === this.hashCache[key] && fileExists) { return false; }
 
-        this.hashCache[key] = newHash;
-        await fs.mkdir(this.uri.fsPath, { recursive: true })
-        await fs.writeFile(vscode.Uri.joinPath(this.uri, GIL_RESOURCES[key].fileName).fsPath, GIL_RESOURCES[key].formatter(gilData), "utf-8");
-        return true;
+        try {
+            await fs.mkdir(this.resourceDirectoryUri.fsPath, { recursive: true });
+            await fs.writeFile(extractTargetUri.fsPath, GIL_RESOURCES[key].formatter(gilData), "utf-8");
+            this.hashCache[key] = newHash;
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+
+    async processAll(gilData: BeyondStage) {
+        return Promise.all((Object.keys(GIL_RESOURCES) as GilResource[]).map(async resource => this.extractResource(resource, gilData)));
     }
 
     private async getHashFunction() {
