@@ -17,8 +17,7 @@ export class GilManager {
         this.gilFileName = `${targetWorkspace.name}.gil`;
         this.resourceHandler = new GilResourceHandler(targetWorkspace.uri);
 
-        this.gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${this.gilFileName}`, false, false, true);
-        this.gilWatcher.onDidCreate(this.onGilChanged);
+        this.gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${this.gilFileName}`, true, false, true);
         this.gilWatcher.onDidChange(this.onGilChanged);
 
         context.subscriptions.push(this.gilWatcher);
@@ -26,8 +25,10 @@ export class GilManager {
 
     private onGilChanged = async () => {
         if (!getWorkspaceConfig(CONFIGS.EnableDefinitions) || !getWorkspaceConfig(CONFIGS.ExtractGilResources)) { return; }
-        const gilData = BeyondStage.decode(await stripGilHeader(this.getGilUri()));
-        await this.resourceHandler.processAll(gilData);
+        try {
+            const gilData = BeyondStage.decode(await stripGilHeader(this.getGilUri()));
+            await this.resourceHandler.processAll(gilData);
+        } catch (error) { console.error(`Failed to decode ${this.getGilUri().fsPath}`), error }
     }
 
     getGilUri() {
