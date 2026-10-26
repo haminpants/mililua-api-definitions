@@ -11,20 +11,20 @@ export class GilManager {
     public readonly resourceHandler: GilResourceHandler;
 
     constructor(
-        private readonly context: vscode.ExtensionContext,
+        context: vscode.ExtensionContext,
         private readonly targetWorkspace: vscode.WorkspaceFolder,
     ) {
         this.gilFileName = `${targetWorkspace.name}.gil`;
         this.resourceHandler = new GilResourceHandler(targetWorkspace.uri);
 
-        this.watcher = vscode.workspace.createFileSystemWatcher(this.gilFileName, false, false, true);
+        this.watcher = vscode.workspace.createFileSystemWatcher(`**/${this.gilFileName}`, false, false, true);
         this.watcher.onDidCreate(this.onGilChanged);
         this.watcher.onDidChange(this.onGilChanged);
 
-        this.context.subscriptions.push(this.watcher);
+        context.subscriptions.push(this.watcher);
     }
 
-    private async onGilChanged() {
+    private onGilChanged = async () => {
         if (!getWorkspaceConfig(CONFIGS.EnableDefinitions) || !getWorkspaceConfig(CONFIGS.ExtractGilResources)) { return; }
         const gilData = BeyondStage.decode(await stripGilHeader(this.getGilUri()));
         await this.resourceHandler.processAll(gilData);
