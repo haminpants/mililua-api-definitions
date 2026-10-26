@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { CONFIGS } from "@/constants/config";
+import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
 import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
-import { SHORT_ID } from "../constants/extension";
+import { SHORT_ID } from "@/constants/extension";
 
 const LUA_CONFIG = {
     WorkspaceLibrary: "workspace.library",
@@ -9,6 +9,7 @@ const LUA_CONFIG = {
 } as const;
 
 export class ConfigListener {
+    private extensionConfig = vscode.workspace.getConfiguration(SHORT_ID);
     private luaLibraryPath: string;
     private isMiliLuaLib: RegExp;
     private listener: vscode.Disposable;
@@ -28,15 +29,13 @@ export class ConfigListener {
     }
 
     updateLuaWorkspaceLibrary() {
-        const extensionConfig = vscode.workspace.getConfiguration(SHORT_ID);
         const luaConfig = vscode.workspace.getConfiguration("Lua");
-
         let luaLibs = luaConfig.inspect<string[]>(LUA_CONFIG.WorkspaceLibrary)?.workspaceValue ?? [];
         luaLibs = luaLibs.filter(lib => !this.isMiliLuaLib.test(lib));
 
-        if (extensionConfig.inspect<boolean>(CONFIGS.EnableDefinitions)?.workspaceValue) {
+        if (this.extensionConfig.inspect<boolean>(CONFIGS.EnableDefinitions)?.workspaceValue) {
             if (!luaLibs.includes(this.luaLibraryPath)) { luaLibs.push(this.luaLibraryPath); }
-            if (extensionConfig.inspect<boolean>(CONFIGS.ExtractGilResources)?.workspaceValue && !luaLibs.includes(GIL_RESOURCE_DIRECTORY)) {
+            if (this.extensionConfig.inspect<boolean>(CONFIGS.ExtractGilResources)?.workspaceValue && !luaLibs.includes(GIL_RESOURCE_DIRECTORY)) {
                 luaLibs.push(`./${GIL_RESOURCE_DIRECTORY}`);
             }
 
@@ -47,5 +46,22 @@ export class ConfigListener {
         }
 
         luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined);
+    }
+
+    checkEnabled() {
+        switch (getWorkspaceConfig<boolean>(CONFIGS.EnableDefinitions)) {
+            case true:
+                this.updateLuaWorkspaceLibrary();
+                break;
+            case false:
+                break;
+            default:
+                vscode.window.showInformationMessage("Would you like to enable MiliLua API Definitions for this workspace? Miliastra Lua API definitions and Gil Resource Extraction will be enabled for this workspace.", "Yes", "No")
+                    .then(choice => {
+                        this.extensionConfig.update(CONFIGS.EnableDefinitions, choice === "Yes");
+                        this.extensionConfig.update(CONFIGS.ExtractGilResources, choice === "Yes");
+                    });
+                break;
+        }
     }
 }
