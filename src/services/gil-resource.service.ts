@@ -14,7 +14,7 @@ export class GilResourceHandler {
     };
 
     constructor(
-        public readonly uri: vscode.Uri,
+        private readonly uri: vscode.Uri,
     ) {
         this.getHashFunction();
     }

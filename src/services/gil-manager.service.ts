@@ -30,7 +30,7 @@ class GilManager {
 
     private async onGilChanged() {
         if (!getWorkspaceConfig(CONFIGS.EnableDefinitions) || !getWorkspaceConfig(CONFIGS.ExtractGilResources)) { return; }
-        const gilData = BeyondStage.decode(await stripGilHeader(this.resourceHandler.uri));
+        const gilData = BeyondStage.decode(await stripGilHeader(this.gilUri));
         (Object.keys(GIL_RESOURCES) as GilResource[]).map(async resource => this.resourceHandler.processResource(resource, gilData));
     }
 }
