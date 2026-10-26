@@ -48,7 +48,7 @@ export class ConfigManager {
         luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
     }
 
-    checkEnabled() {
+    checkWorkspaceConfig() {
         switch (getWorkspaceConfig<boolean>(CONFIGS.EnableDefinitions)) {
             case true:
                 this.updateLuaWorkspaceLibrary();
