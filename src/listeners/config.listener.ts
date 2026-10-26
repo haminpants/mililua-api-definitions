@@ -46,6 +46,6 @@ export class ConfigListener {
             luaConfig.update(LUA_CONFIG.RuntimeVersion, undefined);
         }
 
-        luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs);
+        luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined);
     }
 }
