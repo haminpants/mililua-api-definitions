@@ -4,7 +4,7 @@ import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
 import { BeyondStage } from "@/generated/protobufs/beyond_stage";
 import { GilResourceHandler } from "@/services/gil-resource.service";
 
-class GilManager {
+export class GilManager {
     private readonly watcher: vscode.FileSystemWatcher;
 
     public readonly gilFileName: string;
