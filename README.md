@@ -60,13 +60,13 @@ The Save Explorer is the primary view displayed in the Miliastra Toolkit, allowi
 ![A screenshot showing an example of the Save Explorer.](/resources/readme/toolkit_save_explorer.png)
 
 ## Resource Extraction
-When the "Extract Gil Resources" setting is enabled for your current workspace, the extension will automatically attempt to extract resources from the `.gil` file matching the workspace folder name whenever a save occurs in the Miliastra editor.
+When the "Extract Gil Resources" setting is enabled for your current workspace, the extension will automatically attempt to extract resources from the `.gil` file matching the workspace folder name whenever a save occurs in the Miliastra editor. Extracted resources are stored in the `.gil_resources` directory.
 
-|Extracted Resource|Description|File|
-|-|-|-|
-|Client Controls|The index of all Client Control Templates will be extracted to provide autocomplete for the `game.InstantiateClientUIControl` function.<br><br>The name of all Client Controls in the hierarchy and saved Client Control Templates will be extracted to provide autocomplete for the `game.FindClientUIRoot` and `ClientUIBaseControl:GetChild` functions.|`.gil_resources/ClientControls.d.lua`|
-|Script Text Variables|The Mapping ID of Script Text Variables will be extracted to provide autocomplete for the `game.GetText` function.|`.gil_resources/ScriptTextVariables.d.lua`|
-|Signals|The name and typed parameters of all Signals will be extracted to provide Signal name autocomplete for all signal-related functions, as well as type-checking for Signal parameters.|`.gil_resources/Signals.d.lua`|
+|Extracted Resource|Description|
+|-|-|
+|Client Controls|The index of all Client Control Templates will be extracted to provide autocomplete for the `game.InstantiateClientUIControl` function.<br><br>The name of all Client Controls in the hierarchy and saved Client Control Templates will be extracted to provide autocomplete for the `game.FindClientUIRoot` and `ClientUIBaseControl:GetChild` functions.|
+|Script Text Variables|The Mapping ID of Script Text Variables will be extracted to provide autocomplete for the `game.GetText` function.|
+|Signals|The name and typed parameters of all Signals will be extracted to provide Signal name autocomplete for all signal-related functions, as well as type-checking for Signal parameters.|
 
 ## Snippets
 ![GIF demonstrating the use of snippets to quickly generate code.](/resources/readme/example_snippets.gif)
