@@ -1,5 +1,5 @@
-import * as vscode from "vscode";
 import * as os from "os"
+import * as vscode from "vscode";
 
 export function getBeyondLocalUri() {
     return vscode.Uri.joinPath(vscode.Uri.file(os.homedir()), "AppData", "LocalLow", "miHoYo", "Genshin Impact", "BeyondLocal");

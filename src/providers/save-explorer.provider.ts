@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import { isUid } from "@/utils/string.utils";
-import { stripGilHeader } from "@/utils/gil.utils";
-import { GilNamePeek } from "@/generated/protobufs/beyond_stage";
 import { COMMANDS } from "@/constants/commands";
+import { SHORT_ID } from "@/constants/extension";
+import { stripGilHeader } from "@/utils/gil.utils";
+import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
+import { GilNamePeek } from "@/generated/protobufs/beyond_stage";
 import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
-import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
-import { SHORT_ID } from "@/constants/extension";
 
 let isSaveExplorerRegistered = false;
 

@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { formatDate } from "@/utils/date.utils";
 import { COMMANDS } from "@/constants/commands";
 import { SHORT_ID } from "@/constants/extension";
 import { GilManager } from "@/services/gil-manager.service";
