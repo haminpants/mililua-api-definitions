@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
 import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
 import { SHORT_ID } from "@/constants/extension";
+import path from "path";
 
 const LUA_CONFIG = {
     WorkspaceLibrary: "workspace.library",
@@ -9,23 +10,29 @@ const LUA_CONFIG = {
 } as const;
 
 export class ConfigManager {
-    private extensionConfig = vscode.workspace.getConfiguration(SHORT_ID);
-    private luaLibraryPath: string;
-    private isMiliLuaLib: RegExp;
-    private listener: vscode.Disposable;
+    private readonly extensionConfig = vscode.workspace.getConfiguration(SHORT_ID);
+    private readonly luaLibraryPath: string;
+    private readonly isMiliLuaLib: RegExp;
+    private hasCheckedWorkspaceConfig = false;
 
     constructor(
-        context: vscode.ExtensionContext
+        context: vscode.ExtensionContext,
+        private readonly workspaceFolder: vscode.WorkspaceFolder,
     ) {
         this.luaLibraryPath = vscode.Uri.joinPath(context.extensionUri, "resources", "library").fsPath.replace(/\\/g, '/');
         this.isMiliLuaLib = RegExp(`(?:${context.extension.packageJSON.name}|${GIL_RESOURCE_DIRECTORY})`);
 
-        this.listener = vscode.workspace.onDidChangeConfiguration(e => {
-            if (!e.affectsConfiguration(SHORT_ID)) { return; }
-            this.updateLuaWorkspaceLibrary();
-        });
+        this.checkWorkspaceConfig();
 
-        context.subscriptions.push(this.listener);
+        context.subscriptions.push(
+            vscode.workspace.onDidChangeConfiguration(e => {
+                if (!e.affectsConfiguration(SHORT_ID)) { return; }
+                this.updateLuaWorkspaceLibrary();
+            }),
+            vscode.workspace.onDidCreateFiles(e => {
+                this.checkWorkspaceConfig();
+            })
+        );
     }
 
     updateLuaWorkspaceLibrary() {
@@ -48,7 +55,13 @@ export class ConfigManager {
         luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
     }
 
-    checkWorkspaceConfig() {
+    async checkWorkspaceConfig() {
+        if (this.hasCheckedWorkspaceConfig) { return; }
+        const activationFiles = await vscode.workspace.findFiles(new vscode.RelativePattern(this.workspaceFolder, `{**/*.lua,${this.workspaceFolder.name}.gil}`), undefined, 1);
+        console.log(activationFiles.length);
+        if (activationFiles.length === 0) { return; }
+
+        this.hasCheckedWorkspaceConfig = true;
         switch (getWorkspaceConfig<boolean>(CONFIGS.EnableDefinitions)) {
             case true:
                 this.updateLuaWorkspaceLibrary();
