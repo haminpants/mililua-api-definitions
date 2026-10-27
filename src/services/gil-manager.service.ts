@@ -17,7 +17,7 @@ export class GilManager {
         this.gilFileName = `${targetWorkspace.name}.gil`;
         this.resourceHandler = new GilResourceHandler(targetWorkspace.uri);
 
-        this.gilWatcher = vscode.workspace.createFileSystemWatcher(`**/${this.gilFileName}`, true, false, true);
+        this.gilWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(targetWorkspace, this.gilFileName), true, false, true);
         this.gilWatcher.onDidChange(this.onGilChanged);
 
         context.subscriptions.push(this.gilWatcher);
