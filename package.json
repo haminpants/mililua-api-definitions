@@ -2,7 +2,7 @@
   "name": "mililua-api-definitions",
   "displayName": "MiliLua API Definitions",
   "description": "IntelliSense and tooling for the Miliastra Wonderland Lua API.",
-  "version": "2.4.0",
+  "version": "3.0.0",
   "publisher": "haminpants",
   "icon": "resources/icon.png",
   "categories": [
@@ -30,8 +30,7 @@
     "sumneko.lua"
   ],
   "activationEvents": [
-    "workspaceContains:*.gil",
-    "workspaceContains:**/*.lua"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -54,17 +53,9 @@
     },
     "commands": [
       {
-        "command": "haminpants.mililua-api-definitions.refreshSaveExplorer",
+        "command": "mililua.refreshSaveExplorer",
         "title": "Refresh Save Explorer",
         "icon": "$(refresh)"
-      },
-      {
-        "command": "mililua.logGlobalState",
-        "title": "MiliLua: Log Global State"
-      },
-      {
-        "command": "mililua.resetGlobalState",
-        "title": "MiliLua: Reset Global State"
       }
     ],
     "snippets": [
@@ -76,17 +67,17 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "miliastra-save-explorer",
-          "title": "Miliastra Save Explorer",
+          "id": "miliastra-toolkit",
+          "title": "Miliastra Toolkit",
           "icon": "resources/miliastra_save_icon.svg"
         }
       ]
     },
     "views": {
-      "miliastra-save-explorer": [
+      "miliastra-toolkit": [
         {
-          "id": "haminpants.mililua-api-definitions.save-explorer",
-          "name": "Miliastra Save Explorer",
+          "id": "mililua.save-explorer",
+          "name": "Save Explorer",
           "icon": "resources/miliastra_save_icon.svg"
         }
       ]
@@ -94,22 +85,23 @@
     "menus": {
       "view/title": [
         {
-          "command": "haminpants.mililua-api-definitions.refreshSaveExplorer",
-          "when": "view == haminpants.mililua-api-definitions.save-explorer",
+          "command": "mililua.refreshSaveExplorer",
+          "when": "view == mililua.save-explorer",
           "group": "navigation"
         }
       ]
     }
   },
   "scripts": {
-    "generate-ts-protobuf": "protoc --proto_path=.\\protobufs\\ --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\protobufs\\ .\\protobufs\\beyond_stage.proto",
     "check-types": "tsc --noEmit",
-    "compile": "npm run generate-ts-protobuf && npm run check-types && node esbuild.js",
+    "compile": "npm run generate && npm run check-types && node esbuild.js",
+    "generate": "npm-run-all -p generate:*",
+    "generate:protobufs": "shx mkdir -p src\\generated\\protobufs && protoc --proto_path=.\\protobufs\\ --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\src\\generated\\protobufs\\ .\\protobufs\\beyond_stage.proto",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "vscode:prepublish": "npx tsx scripts/fetch-definitions.ts && npm run package",
-    "package": "npm run generate-ts-protobuf && npm run check-types && node esbuild.js --production"
+    "package": "npm run generate && npm run check-types && node esbuild.js --production"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -117,6 +109,8 @@
     "@types/vscode": "^1.134.0",
     "esbuild": "^0.28.2",
     "fast-json-stable-stringify": "^2.1.0",
+    "npm-run-all": "^4.1.5",
+    "shx": "^0.4.0",
     "ts-proto": "^2.15.3",
     "typescript": "^6.0.3",
     "xxhash-wasm": "^1.1.0"

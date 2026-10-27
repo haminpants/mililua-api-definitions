@@ -1,31 +1,35 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import { isUid } from "@/utils/string.utils";
-import { stripGilHeader } from "@/utils/gil.utils";
-import { GilNamePeek } from "@Root/protobufs/beyond_stage";
 import { COMMANDS } from "@/constants/commands";
-import { EXTENSION_ID } from "@/constants/extension";
+import { SHORT_ID } from "@/constants/extension";
+import { stripGilHeader } from "@/utils/gil.utils";
+import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
+import { GilNamePeek } from "@/generated/protobufs/beyond_stage";
 import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
-import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
+
+let isSaveExplorerRegistered = false;
 
 const uidInfoCacheLifetime = 60 * 60 * 1000;
 
 export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
+    if (isSaveExplorerRegistered) { throw new Error("The save explorer view has alredy been registered."); }
+
     const saveExplorer = new SaveExplorerDataProvider(context);
-    const saveExplorerTreeView = vscode.window.createTreeView(`${EXTENSION_ID}.save-explorer`, {
+    const saveExplorerTreeView = vscode.window.createTreeView(`${SHORT_ID}.save-explorer`, {
         treeDataProvider: saveExplorer,
         showCollapseAll: true,
         canSelectMany: false
     });
 
-    const refreshCommand = vscode.commands.registerCommand(COMMANDS.REFRESH_SAVE_EXPLORER, () => {
+    const refreshCommand = vscode.commands.registerCommand(COMMANDS.RefreshSaveExplorer, () => {
         saveExplorer.update();
     });
 
-    const selectCommand = vscode.commands.registerCommand(COMMANDS.SELECT_SAVE_EXPLORER_ITEM, async (item: SaveExplorerItem) => {
+    const selectCommand = vscode.commands.registerCommand(COMMANDS.SelectSaveExplorerItem, async (item: SaveExplorerItem) => {
         if (!item.isSave) { return; }
-        if ((vscode.workspace.workspaceFolders?.length ?? 0 > 0) || vscode.workspace.textDocuments.length > 0) {
+        if ((vscode.workspace.workspaceFolders?.length ?? 0) > 0 || vscode.workspace.textDocuments.length > 0) {
             const choice = await vscode.window.showInformationMessage(
                 `Are you sure you would like to open ${item.label}?\nAny unsaved changes in your current files and workspace will be lost.`,
                 { modal: true },
@@ -42,6 +46,8 @@ export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
         refreshCommand,
         selectCommand
     );
+
+    isSaveExplorerRegistered = true;
 }
 
 export class SaveExplorerItem extends vscode.TreeItem {
@@ -85,7 +91,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
 
                 saveEntry.iconPath = this.icon_save;
                 saveEntry.command = {
-                    command: COMMANDS.SELECT_SAVE_EXPLORER_ITEM,
+                    command: COMMANDS.SelectSaveExplorerItem,
                     title: "Open Save",
                     arguments: [saveEntry],
                 }

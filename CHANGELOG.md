@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0]
+
+### Changed
+- Full extension rewrite.
+
 ## [2.4.0]
 
 ### Added
