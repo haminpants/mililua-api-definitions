@@ -99,3 +99,8 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 - Gil Resource Extraction can be disabled separately from Lua API support.
 - Lua definition files in the `.gil_resources` folder **should not** be mapped in the Client Script Resource Explorer.
 - The `.gil_resources` folder can be safely excluded from a Git repo through `.gitignore`.
+
+## Planned Features
+- Compatability with Shared Creation Mode saves.
+- Built-in utility module management.
+    - Community-driven utility function contributions.
