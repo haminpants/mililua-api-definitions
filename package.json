@@ -30,8 +30,7 @@
     "sumneko.lua"
   ],
   "activationEvents": [
-    "workspaceContains:*.gil",
-    "workspaceContains:**/*.lua"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
