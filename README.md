@@ -101,6 +101,6 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 - The `.gil_resources` folder can be safely excluded from a Git repo through `.gitignore`.
 
 ## Planned Features
-- Compatability with Shared Creation Mode saves.
+- Compatibility with Shared Creation Mode saves.
 - Built-in utility module management.
     - Community-driven utility function contributions.
