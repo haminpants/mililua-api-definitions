@@ -54,6 +54,7 @@ class StatusBarManager implements vscode.Disposable {
         const tooltipNotes: string[] = [];
         let status = isDefinitionsEnabled && extractGilResources ? "✅" : isDefinitionsEnabled || extractGilResources ? "⚠️" : "❌";
 
+        tooltip.isTrusted = true;
         tooltip.appendMarkdown([
             `## MiliLua API Definitions Status`,
             `### Miliastra Lua API Definitions: ${isDefinitionsEnabled ? `✅` : "❌"}`,
