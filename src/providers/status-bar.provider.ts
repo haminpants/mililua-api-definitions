@@ -63,7 +63,7 @@ class StatusBarManager implements vscode.Disposable {
                 tooltipNotes.push(
                     `#### 📄 Listening for changes to \`${this.gilManager.gilFileName}\``,
                     `- Resources extraction will be attempted when a change is detected to \`${this.gilManager.gilFileName}\``,
-                    `- [Force Refresh Gil Resources](command:${COMMANDS.ForceUpdateGilResources}) (Last updated: ${this.gilManager.getLastExtract() > 0 ? formatDate(this.gilManager.getLastExtract()) : "Unknown"})\n`
+                    `- [Force Refresh Gil Resources](command:${COMMANDS.ForceUpdateGilResources})\n`
                 );
             }
             else {
