@@ -9,9 +9,13 @@ import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
 import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
 import { SHORT_ID } from "@/constants/extension";
 
+let isSaveExplorerRegistered = false;
+
 const uidInfoCacheLifetime = 60 * 60 * 1000;
 
 export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
+    if (isSaveExplorerRegistered) { throw new Error("The save explorer view has alredy been registered."); }
+
     const saveExplorer = new SaveExplorerDataProvider(context);
     const saveExplorerTreeView = vscode.window.createTreeView(`${SHORT_ID}.save-explorer`, {
         treeDataProvider: saveExplorer,
@@ -42,6 +46,8 @@ export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
         refreshCommand,
         selectCommand
     );
+
+    isSaveExplorerRegistered = true;
 }
 
 export class SaveExplorerItem extends vscode.TreeItem {
