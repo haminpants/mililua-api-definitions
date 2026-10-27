@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
 import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
 import { SHORT_ID } from "@/constants/extension";
+import { isInMiliLuaWorkspace } from "../utils/extension.utils";
 
 const LUA_CONFIG = {
     WorkspaceLibrary: "workspace.library",
@@ -55,10 +56,7 @@ export class ConfigManager {
     }
 
     async checkWorkspaceConfig() {
-        if (this.hasCheckedWorkspaceConfig) { return; }
-        const activationFiles = await vscode.workspace.findFiles(new vscode.RelativePattern(this.workspaceFolder, `{**/*.lua,${this.workspaceFolder.name}.gil}`), undefined, 1);
-        console.log(activationFiles.length);
-        if (activationFiles.length === 0) { return; }
+        if (this.hasCheckedWorkspaceConfig || !await isInMiliLuaWorkspace(this.workspaceFolder)) { return; }
 
         this.hasCheckedWorkspaceConfig = true;
         switch (getWorkspaceConfig<boolean>(CONFIGS.EnableDefinitions)) {

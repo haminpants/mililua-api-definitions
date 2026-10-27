@@ -4,13 +4,14 @@ import { COMMANDS } from "@/constants/commands";
 import { SHORT_ID } from "@/constants/extension";
 import { GilManager } from "@/services/gil-manager.service";
 import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
+import { isInMiliLuaWorkspace } from "../utils/extension.utils";
 
 let isStatusBarRegistered = false;
 
-export function registerStatusBar(context: vscode.ExtensionContext, gilManager: GilManager) {
+export function registerStatusBar(context: vscode.ExtensionContext, workspaceFolder: vscode.WorkspaceFolder, gilManager: GilManager) {
     if (isStatusBarRegistered) { return; }
 
-    const statusBarManager = new StatusBarManager(gilManager);
+    const statusBarManager = new StatusBarManager(workspaceFolder, gilManager);
 
     const configChangeListener = vscode.workspace.onDidChangeConfiguration(e => {
         if (!e.affectsConfiguration(SHORT_ID)) { return; }
@@ -44,14 +45,19 @@ class StatusBarManager implements vscode.Disposable {
     private readonly statusBarItem: vscode.StatusBarItem;
 
     constructor(
+        private readonly workspaceFolder: vscode.WorkspaceFolder,
         private readonly gilManager: GilManager,
     ) {
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
-        this.statusBarItem.show();
         this.update();
     }
 
-    update() {
+    async update() {
+        if (!await isInMiliLuaWorkspace(this.workspaceFolder)) {
+            this.statusBarItem.hide();
+            return;
+        }
+
         const isDefinitionsEnabled = getWorkspaceConfig("enableDefinitions");
         const extractGilResources = getWorkspaceConfig("extractGilResources");
         const tooltip = new vscode.MarkdownString();
@@ -100,6 +106,7 @@ class StatusBarManager implements vscode.Disposable {
 
         this.statusBarItem.text = `Miliastra ${status}`;
         this.statusBarItem.tooltip = tooltip;
+        this.statusBarItem.show();
     }
 
     dispose() {
