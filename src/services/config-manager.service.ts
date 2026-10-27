@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
 import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
 import { SHORT_ID } from "@/constants/extension";
-import path from "path";
 
 const LUA_CONFIG = {
     WorkspaceLibrary: "workspace.library",
