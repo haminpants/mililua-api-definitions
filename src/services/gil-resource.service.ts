@@ -19,7 +19,7 @@ export class GilResourceHandler {
         this.getHashFunction();
     }
 
-    private async extractResource(key: GilResource, gilData: BeyondStage, force: boolean = false): Promise<boolean> {
+    async extractResource(key: GilResource, gilData: BeyondStage, force: boolean = false): Promise<boolean> {
         const hashFn = await this.getHashFunction();
         const newHash = hashFn(stableStringify(gilData));
         const extractTargetUri = vscode.Uri.joinPath(this.resourceDirectoryUri, GIL_RESOURCES[key].fileName);
@@ -40,10 +40,6 @@ export class GilResourceHandler {
             console.error(`Failed to extract resource ${key}`, error);
             return false;
         }
-    }
-
-    async processAll(gilData: BeyondStage) {
-        return Promise.all((Object.keys(GIL_RESOURCES) as GilResource[]).map(async resource => this.extractResource(resource, gilData)));
     }
 
     private async getHashFunction() {
