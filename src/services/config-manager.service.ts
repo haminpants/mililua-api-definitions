@@ -69,9 +69,10 @@ export class ConfigManager {
             case false:
                 break;
             default:
-                vscode.window.showInformationMessage("Would you like to enable MiliLua API Definitions for this workspace? Miliastra Lua API definitions and Gil Resource Extraction will be enabled for this workspace.", "Yes", "No")
+                vscode.window.showInformationMessage("Would you like to enable MiliLua API Definitions for this workspace? Miliastra Lua API definitions and Gil Resource Extraction will be enabled for this workspace.",
+                    "Yes", "Lua API Only", "No")
                     .then(choice => {
-                        this.extensionConfig.update(CONFIGS.EnableDefinitions, choice === "Yes");
+                        this.extensionConfig.update(CONFIGS.EnableDefinitions, choice === "Yes" || choice === "Lua API Only");
                         this.extensionConfig.update(CONFIGS.ExtractGilResources, choice === "Yes");
                     });
                 break;
