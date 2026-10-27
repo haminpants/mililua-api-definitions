@@ -1,14 +1,16 @@
 import * as vscode from "vscode";
-import { SHORT_ID } from "@/constants/extension";
+import { formatDate } from "@/utils/date.utils";
 import { COMMANDS } from "@/constants/commands";
+import { SHORT_ID } from "@/constants/extension";
+import { GilManager } from "@/services/gil-manager.service";
 import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
 
 let isStatusBarRegistered = false;
 
-export function registerStatusBar(context: vscode.ExtensionContext) {
+export function registerStatusBar(context: vscode.ExtensionContext, gilManager: GilManager) {
     if (isStatusBarRegistered) { return; }
 
-    const statusBarManager = new StatusBarManager();
+    const statusBarManager = new StatusBarManager(gilManager);
 
     const configChangeListener = vscode.workspace.onDidChangeConfiguration(e => {
         if (!e.affectsConfiguration(SHORT_ID)) { return; }
@@ -39,9 +41,11 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
 }
 
 class StatusBarManager implements vscode.Disposable {
-    private statusBarItem: vscode.StatusBarItem;
+    private readonly statusBarItem: vscode.StatusBarItem;
 
-    constructor() {
+    constructor(
+        private readonly gilManager: GilManager,
+    ) {
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
         this.statusBarItem.show();
         this.update();
@@ -53,6 +57,36 @@ class StatusBarManager implements vscode.Disposable {
         const tooltip = new vscode.MarkdownString();
         const tooltipNotes: string[] = [];
         let status = isDefinitionsEnabled && extractGilResources ? "✅" : isDefinitionsEnabled || extractGilResources ? "⚠️" : "❌";
+
+        if (isDefinitionsEnabled) {
+            if (extractGilResources) {
+                tooltipNotes.push(
+                    `#### 📄 Listening for changes to \`${this.gilManager.gilFileName}\``,
+                    `- Resources extraction will be attempted when a change is detected to \`${this.gilManager.gilFileName}\``,
+                    `- [Force Refresh Gil Resources](command:${COMMANDS.ForceUpdateGilResources}) (Last updated: ${this.gilManager.getLastExtract() > 0 ? formatDate(this.gilManager.getLastExtract()) : "Unknown"})\n`
+                );
+            }
+            else {
+                tooltipNotes.push(
+                    `#### ⚠️ Gil Resource Extraction is disabled`,
+                    `- [Enable Gil Resource Extraction](command:${COMMANDS.EnableGilResourceExtraction})\n`
+                );
+            }
+        }
+        else {
+            if (extractGilResources) {
+                tooltipNotes.push(
+                    `#### ⚠️ Gil Resource Extraction will only work if Miliastra Lua API Definitions are enabled`,
+                    `- [Enable Miliastra Lua API Definitions](command:${COMMANDS.EnableDefinitions})\n`
+                );
+            }
+            else {
+                tooltipNotes.push(
+                    `#### ❌ Miliastra Lua API Definitions are disabled`,
+                    `- [Enable Miliastra Lua API Definitions](command:${COMMANDS.EnableDefinitions})\n`
+                );
+            }
+        }
 
         tooltip.isTrusted = true;
         tooltip.appendMarkdown([
