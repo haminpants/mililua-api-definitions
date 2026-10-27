@@ -67,17 +67,17 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "miliastra-save-explorer",
-          "title": "Miliastra Save Explorer",
+          "id": "miliastra-toolkit",
+          "title": "Miliastra Toolkit",
           "icon": "resources/miliastra_save_icon.svg"
         }
       ]
     },
     "views": {
-      "miliastra-save-explorer": [
+      "miliastra-toolkit": [
         {
           "id": "mililua.save-explorer",
-          "name": "Miliastra Save Explorer",
+          "name": "Save Explorer",
           "icon": "resources/miliastra_save_icon.svg"
         }
       ]
