@@ -4,7 +4,7 @@ import { GilManager } from "@/services/gil-manager.service";
 
 export function registerForceUpdateGilResourcesCommand(context: vscode.ExtensionContext, gilManager: GilManager) {
     const cmd = vscode.commands.registerCommand(COMMANDS.ForceUpdateGilResources, async args => {
-        gilManager.extractAllResources();
+        gilManager.extractAllResources(true);
     });
     context.subscriptions.push(cmd);
 }
