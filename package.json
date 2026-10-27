@@ -56,14 +56,6 @@
         "command": "mililua.refreshSaveExplorer",
         "title": "Refresh Save Explorer",
         "icon": "$(refresh)"
-      },
-      {
-        "command": "mililua.logGlobalState",
-        "title": "MiliLua: Log Global State"
-      },
-      {
-        "command": "mililua.resetGlobalState",
-        "title": "MiliLua: Reset Global State"
       }
     ],
     "snippets": [
