@@ -1,0 +1,1 @@
+export * from "@/commands/force-update-gil-resources.command";
