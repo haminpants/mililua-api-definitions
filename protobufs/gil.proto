@@ -1,20 +1,23 @@
 syntax = "proto3";
 
+// Used for fast .gil inspection
 message GilFileHeader {
   string name = 2;
 }
 
+// Used for .gil resource extraction
 message GilFile {
   uint32 save_id = 1;
   string name = 2;
   UIWrapper ui_asset_wrapper = 9;
   UnknownStageData unk_stage_data = 10;
   MultiLanguageText multi_language_text = 35;
+  ScriptMappingBlock script_mapping_block = 50;
 }
 
-// =============================================
+// ======================================================================
 // STAGE TEXT
-// =============================================
+// ======================================================================
 message MultiLanguageText {
   MLTWrapper mlt_wrapper = 1;
 }
@@ -47,9 +50,9 @@ message TranslationEntry {
   string value = 2;
 }
 
-// =============================================
+// ======================================================================
 // SIGNALS
-// =============================================
+// ======================================================================
 message UnknownStageData {
   UnkonwnSignalWrapper signal_wrapper = 5;
 }
@@ -90,9 +93,9 @@ enum SignalParamType {
   SIGNAL_PARAM_TYPE_PREFAB_ID_LIST = 23;
 }
 
-// =============================================
+// ======================================================================
 // CLIENT CONTROL TEMPLATES
-// =============================================
+// ======================================================================
 message UIWrapper {
   repeated UIComponent asset = 502;
 }
@@ -123,4 +126,19 @@ message UIComponentMetaNameWrapper {
 enum UIComponentTypeIdentifier {
   UI_COMPONENT_TYPE_IDENTIFIER_UNSPECIFIED = 0;
   UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
+}
+
+// ======================================================================
+// 50. Script Mappings
+// ======================================================================
+message ScriptMappingBlock {
+  repeated ScriptTextVariable script_text_variables = 1;
+}
+
+message ScriptMapping {
+  repeated ScriptVariable script_variables = 7;
+}
+
+message ScriptVariable {
+  string name = 2;
 }
