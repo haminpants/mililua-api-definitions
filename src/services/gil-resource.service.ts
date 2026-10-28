@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import stableStringify from "fast-json-stable-stringify";
-import { BeyondStage } from "@/generated/protobufs/beyond_stage";
+import { GilFile } from "@/generated/protobufs/gil";
 import { GIL_RESOURCE_DIRECTORY, GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
 
 
@@ -19,7 +19,7 @@ export class GilResourceHandler {
         this.getHashFunction();
     }
 
-    async extractResource(key: GilResource, gilData: BeyondStage, force: boolean = false): Promise<boolean> {
+    async extractResource(key: GilResource, gilData: GilFile, force: boolean = false): Promise<boolean> {
         const hashFn = await this.getHashFunction();
         const newHash = hashFn(stableStringify(gilData));
         const extractTargetUri = vscode.Uri.joinPath(this.resourceDirectoryUri, GIL_RESOURCES[key].fileName);

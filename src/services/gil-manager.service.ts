@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { stripGilHeader } from "@/utils/gil.utils";
 import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
-import { BeyondStage } from "@/generated/protobufs/beyond_stage";
+import { GilFile } from "@/generated/protobufs/gil";
 import { GilResourceHandler } from "@/services/gil-resource.service";
 import { GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
 
@@ -24,7 +24,7 @@ export class GilManager {
     }
 
     async extractAllResources(force = false) {
-        const gilData = BeyondStage.decode(await stripGilHeader(this.getGilUri()));
+        const gilData = GilFile.decode(await stripGilHeader(this.getGilUri()));
         this.lastExtract = Date.now();
         return Promise.all((Object.keys(GIL_RESOURCES) as GilResource[]).map(async resource => this.resourceHandler.extractResource(resource, gilData, force)));
     }
