@@ -101,5 +101,19 @@ export const GIL_RESOURCES = {
                 ...clientControlNames
             ].join("\n");
         }
+    },
+    ScriptVariables: {
+        fileName: "ScriptVariables.d.lua",
+        formatter: (gilData: GilFile) => {
+            const scriptVariableNames = [...new Set(
+                gilData.scriptMappingBlock?.scriptMappings.flatMap(mapping => mapping.scriptVariables.map(variable => `---| "${variable.name}"`)) ?? []
+            )];
+
+            return [
+                ...FILE_HEADER,
+                `---@alias ScriptVariableName`,
+                ...scriptVariableNames
+            ].join("\n");
+        }
     }
 } as const;

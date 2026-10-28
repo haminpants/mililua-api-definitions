@@ -11,7 +11,8 @@ export class GilResourceHandler {
     private hashCache: Record<GilResource, number> = {
         ScriptTextVariables: Infinity,
         Signals: Infinity,
-        ClientControls: Infinity
+        ClientControls: Infinity,
+        ScriptVariables: Infinity,
     };
 
     constructor(rootUri: vscode.Uri) {
