@@ -96,7 +96,7 @@
     "check-types": "tsc --noEmit",
     "compile": "npm run generate && npm run check-types && node esbuild.js",
     "generate": "npm-run-all -p generate:*",
-    "generate:protobufs": "shx mkdir -p src\\generated\\protobufs && protoc --proto_path=.\\protobufs\\ --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\src\\generated\\protobufs\\ .\\protobufs\\beyond_stage.proto",
+    "generate:protobufs": "shx mkdir -p src\\generated\\protobufs && protoc --proto_path=.\\protobufs\\ --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\src\\generated\\protobufs\\ .\\protobufs\\gil.proto",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
