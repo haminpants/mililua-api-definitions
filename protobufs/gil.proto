@@ -9,10 +9,45 @@ message GilFileHeader {
 message GilFile {
   uint32 save_id = 1;
   string name = 2;
-  UIWrapper ui_asset_wrapper = 9;
+  UIComponentBlock ui_component_block = 9;
   UnknownStageData unk_stage_data = 10;
   MultiLanguageText multi_language_text = 35;
   ScriptMappingBlock script_mapping_block = 50;
+}
+
+// ======================================================================
+// 9. UI Components
+// ======================================================================
+message UIComponentBlock {
+  repeated UIComponent ui_components = 502;
+}
+
+message UIComponent {
+  uint32 index = 501;
+  repeated UIComponentIdentifierMeta identifier_meta = 502;
+  repeated UIComponentMeta meta = 505;
+}
+
+message UIComponentIdentifierMeta {
+  UIComponentIdentifierWrapper identifer_wrapper = 14;
+}
+
+message UIComponentIdentifierWrapper {
+  bytes identifier_bytes = 501;
+}
+
+message UIComponentMeta {
+  UIComponentMetaNameWrapper name_wrapper = 12;
+  UIComponentTypeIdentifier type_identifier = 502;
+}
+
+message UIComponentMetaNameWrapper {
+  string name = 501;
+}
+
+enum UIComponentTypeIdentifier {
+  UI_COMPONENT_TYPE_IDENTIFIER_UNSPECIFIED = 0;
+  UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
 }
 
 // ======================================================================
@@ -91,41 +126,6 @@ enum SignalParamType {
   SIGNAL_PARAM_TYPE_PREFAB_ID = 21;
   SIGNAL_PARAM_TYPE_CONFIG_ID_LIST = 22;
   SIGNAL_PARAM_TYPE_PREFAB_ID_LIST = 23;
-}
-
-// ======================================================================
-// CLIENT CONTROL TEMPLATES
-// ======================================================================
-message UIWrapper {
-  repeated UIComponent asset = 502;
-}
-
-message UIComponent {
-  uint32 index = 501;
-  repeated UIComponentIdentifierMeta identifier_meta = 502;
-  repeated UIComponentMeta meta = 505;
-}
-
-message UIComponentIdentifierMeta {
-  UIComponentIdentifierWrapper identifer_wrapper = 14;
-}
-
-message UIComponentIdentifierWrapper {
-  bytes identifier_bytes = 501;
-}
-
-message UIComponentMeta {
-  UIComponentMetaNameWrapper name_wrapper = 12;
-  UIComponentTypeIdentifier type_identifier = 502;
-}
-
-message UIComponentMetaNameWrapper {
-  string name = 501;
-}
-
-enum UIComponentTypeIdentifier {
-  UI_COMPONENT_TYPE_IDENTIFIER_UNSPECIFIED = 0;
-  UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
 }
 
 // ======================================================================
