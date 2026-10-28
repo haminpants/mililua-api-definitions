@@ -52,26 +52,6 @@ enum UIComponentTypeIdentifier {
 }
 
 // ======================================================================
-// 35. Multi-Language Text
-// ======================================================================
-
-message MultiLanguageTextBlock {
-  MultiLanguageTextWrapper multi_language_text_wrapper = 1;
-}
-
-message MultiLanguageTextWrapper {
-  ScriptTextVariableContainer script_text_variable_container = 2;
-}
-
-message ScriptTextVariableContainer {
-  repeated ScriptTextVariable script_text_variables = 1;
-}
-
-message ScriptTextVariable {
-  string name = 1;
-}
-
-// ======================================================================
 // 10. Stage Data / Signals
 // ======================================================================
 
@@ -113,6 +93,26 @@ enum SignalParamType {
   SIGNAL_PARAM_TYPE_PREFAB_ID = 21;
   SIGNAL_PARAM_TYPE_CONFIG_ID_LIST = 22;
   SIGNAL_PARAM_TYPE_PREFAB_ID_LIST = 23;
+}
+
+// ======================================================================
+// 35. Multi-Language Text
+// ======================================================================
+
+message MultiLanguageTextBlock {
+  MultiLanguageTextWrapper multi_language_text_wrapper = 1;
+}
+
+message MultiLanguageTextWrapper {
+  ScriptTextVariableContainer script_text_variable_container = 2;
+}
+
+message ScriptTextVariableContainer {
+  repeated ScriptTextVariable script_text_variables = 1;
+}
+
+message ScriptTextVariable {
+  string name = 1;
 }
 
 // ======================================================================
