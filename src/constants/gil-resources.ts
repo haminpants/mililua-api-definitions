@@ -1,4 +1,4 @@
-import { BeyondStage, SignalParamType, UIComponentTypeIdentifier } from "@/generated/protobufs/beyond_stage";
+import { GilFile, SignalParamType, UIComponentTypeIdentifier } from "@/generated/protobufs/gil";
 
 export const GIL_RESOURCE_DIRECTORY = ".gil_resources" as const;
 
@@ -36,8 +36,8 @@ export type GilResource = keyof typeof GIL_RESOURCES;
 export const GIL_RESOURCES = {
     ScriptTextVariables: {
         fileName: "ScriptTextVariables.d.lua",
-        formatter: (gilData: BeyondStage) => {
-            const scriptTextVariables = gilData.multiLanguageText?.mltWrapper?.stvWrapper?.scriptTextVariables ?? [];
+        formatter: (gilData: GilFile) => {
+            const scriptTextVariables = gilData.multiLanguageText?.multiLanguageTextWrapper?.scriptTextVariableContainer?.scriptTextVariables ?? [];
             return [
                 ...FILE_HEADER,
                 "---@alias ScriptTextVariable",
@@ -47,8 +47,8 @@ export const GIL_RESOURCES = {
     },
     Signals: {
         fileName: "Signals.d.lua",
-        formatter: (gilData: BeyondStage) => {
-            const signals = gilData.unkStageData?.signalWrapper?.signals ?? [];
+        formatter: (gilData: GilFile) => {
+            const signals = gilData.unkStageData?.signalContainer?.signals ?? [];
 
             const signalNames = [
                 "---@alias SignalName"
@@ -75,8 +75,8 @@ export const GIL_RESOURCES = {
     },
     ClientControls: {
         fileName: "ClientControls.d.lua",
-        formatter: (gilData: BeyondStage) => {
-            const uiComponents = gilData.uiAssetWrapper?.asset ?? [];
+        formatter: (gilData: GilFile) => {
+            const uiComponents = gilData.uiComponentBlock?.uiComponents ?? [];
 
             const clientControlNames = new Set<string>();
             const templateIndexes = [
@@ -99,6 +99,20 @@ export const GIL_RESOURCES = {
                 ...templateIndexes,
                 `---@alias ClientControlName`,
                 ...clientControlNames
+            ].join("\n");
+        }
+    },
+    ScriptVariables: {
+        fileName: "ScriptVariables.d.lua",
+        formatter: (gilData: GilFile) => {
+            const scriptVariableNames = [...new Set(
+                gilData.scriptMappingBlock?.scriptMappings.flatMap(mapping => mapping.scriptVariables.map(variable => `---| "${variable.name}"`)) ?? []
+            )];
+
+            return [
+                ...FILE_HEADER,
+                `---@alias ScriptVariableName`,
+                ...scriptVariableNames
             ].join("\n");
         }
     }

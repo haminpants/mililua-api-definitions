@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+// Used for fast .gil inspection
+message GilFileHeader {
+  string name = 2;
+}
+
+// Used for .gil resource extraction
+message GilFile {
+  uint32 save_id = 1;
+  string name = 2;
+  UIComponentBlock ui_component_block = 9;
+  UnknownStageData unk_stage_data = 10;
+  MultiLanguageTextBlock multi_language_text = 35;
+  ScriptMappingBlock script_mapping_block = 50;
+}
+
+// ======================================================================
+// 9. UI Components
+// ======================================================================
+
+message UIComponentBlock {
+  repeated UIComponent ui_components = 502;
+}
+
+message UIComponent {
+  uint32 index = 501;
+  repeated UIComponentIdentifierMeta identifier_meta = 502;
+  repeated UIComponentMeta meta = 505;
+}
+
+message UIComponentIdentifierMeta {
+  UIComponentIdentifierWrapper identifer_wrapper = 14;
+}
+
+message UIComponentIdentifierWrapper {
+  bytes identifier_bytes = 501;
+}
+
+message UIComponentMeta {
+  UIComponentMetaNameWrapper name_wrapper = 12;
+  UIComponentTypeIdentifier type_identifier = 502;
+}
+
+message UIComponentMetaNameWrapper {
+  string name = 501;
+}
+
+enum UIComponentTypeIdentifier {
+  UI_COMPONENT_TYPE_IDENTIFIER_UNSPECIFIED = 0;
+  UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
+}
+
+// ======================================================================
+// 10. Stage Data / Signals
+// ======================================================================
+
+message UnknownStageData {
+  SignalContainer signal_container = 5;
+}
+
+message SignalContainer {
+  repeated Signal signals = 3;
+}
+
+message Signal {
+  string name = 3;
+  repeated SignalParameter parameters = 4;
+}
+
+message SignalParameter {
+  string name = 1;
+  SignalParamType type = 2;
+}
+
+enum SignalParamType {
+  SIGNAL_PARAM_TYPE_UNSPECIFIED = 0;
+  SIGNAL_PARAM_TYPE_ENTITY = 1;
+  SIGNAL_PARAM_TYPE_GUID = 2;
+  SIGNAL_PARAM_TYPE_INTEGER = 3;
+  SIGNAL_PARAM_TYPE_BOOLEAN = 4;
+  SIGNAL_PARAM_TYPE_FLOATING_POINT_NUMBER = 5;
+  SIGNAL_PARAM_TYPE_STRING = 6;
+  SIGNAL_PARAM_TYPE_GUID_LIST = 7;
+  SIGNAL_PARAM_TYPE_INTEGER_LIST = 8;
+  SIGNAL_PARAM_TYPE_BOOLEAN_LIST = 9;
+  SIGNAL_PARAM_TYPE_FLOATING_POINT_LIST = 10;
+  SIGNAL_PARAM_TYPE_STRING_LIST = 11;
+  SIGNAL_PARAM_TYPE_3D_VECTOR = 12;
+  SIGNAL_PARAM_TYPE_ENTITY_LIST = 13;
+  SIGNAL_PARAM_TYPE_3D_VECTOR_LIST = 15;
+  SIGNAL_PARAM_TYPE_CONFIG_ID = 20;
+  SIGNAL_PARAM_TYPE_PREFAB_ID = 21;
+  SIGNAL_PARAM_TYPE_CONFIG_ID_LIST = 22;
+  SIGNAL_PARAM_TYPE_PREFAB_ID_LIST = 23;
+}
+
+// ======================================================================
+// 35. Multi-Language Text
+// ======================================================================
+
+message MultiLanguageTextBlock {
+  MultiLanguageTextWrapper multi_language_text_wrapper = 1;
+}
+
+message MultiLanguageTextWrapper {
+  ScriptTextVariableContainer script_text_variable_container = 2;
+}
+
+message ScriptTextVariableContainer {
+  repeated ScriptTextVariable script_text_variables = 1;
+}
+
+message ScriptTextVariable {
+  string name = 1;
+}
+
+// ======================================================================
+// 50. Script Mappings
+// ======================================================================
+message ScriptMappingBlock {
+  repeated ScriptMapping script_mappings = 1;
+}
+
+message ScriptMapping {
+  repeated ScriptVariable script_variables = 7;
+}
+
+message ScriptVariable {
+  string name = 2;
+}

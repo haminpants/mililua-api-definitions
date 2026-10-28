@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0]
+
+### Added
+- Gil Resource Extraction for Script Variable names.
+
 ## [3.0.0]
 
 ### Changed

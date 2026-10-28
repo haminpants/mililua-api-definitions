@@ -5,7 +5,7 @@ import { COMMANDS } from "@/constants/commands";
 import { SHORT_ID } from "@/constants/extension";
 import { stripGilHeader } from "@/utils/gil.utils";
 import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
-import { GilNamePeek } from "@/generated/protobufs/beyond_stage";
+import { GilFileHeader } from "@/generated/protobufs/gil";
 import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
 import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
 
@@ -221,7 +221,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
                 .filter((r): r is PromiseFulfilledResult<{ saveId: string, saveUri: vscode.Uri, isValidSave: boolean }> => {
                     return r.status === "fulfilled" && r.value.isValidSave;
                 }).map(async r => {
-                    const saveData = GilNamePeek.decode(await stripGilHeader(r.value.saveUri));
+                    const saveData = GilFileHeader.decode(await stripGilHeader(r.value.saveUri));
                     return { saveId: r.value.saveId, saveName: saveData.name }
                 });
 
