@@ -18,6 +18,7 @@ message GilFile {
 // ======================================================================
 // 9. UI Components
 // ======================================================================
+
 message UIComponentBlock {
   repeated UIComponent ui_components = 502;
 }
@@ -53,6 +54,7 @@ enum UIComponentTypeIdentifier {
 // ======================================================================
 // 35. Multi-Language Text
 // ======================================================================
+
 message MultiLanguageTextBlock {
   MultiLanguageTextWrapper multi_language_text_wrapper = 1;
 }
@@ -70,13 +72,14 @@ message ScriptTextVariable {
 }
 
 // ======================================================================
-// SIGNALS
+// 10. Stage Data / Signals
 // ======================================================================
+
 message UnknownStageData {
-  UnkonwnSignalWrapper signal_wrapper = 5;
+  SignalContainer signal_container = 5;
 }
 
-message UnkonwnSignalWrapper {
+message SignalContainer {
   repeated Signal signals = 3;
 }
 
