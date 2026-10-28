@@ -119,7 +119,7 @@ message ScriptTextVariable {
 // 50. Script Mappings
 // ======================================================================
 message ScriptMappingBlock {
-  repeated ScriptMapping script_text_variables = 1;
+  repeated ScriptMapping script_mappings = 1;
 }
 
 message ScriptMapping {
