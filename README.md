@@ -53,7 +53,7 @@ Hover over the "Miliastra" status bar entry to diagnose common issues. Click the
 |`mililua.extractGilResources`|`boolean`|(Workspace only) Whether to attempt resource extraction from the `.gil` file matching the current workspace folder name.|
 
 ## Miliastra Toolkit
-The Miliastra Toolkit is a view added to the activity, enabling quick access to saves on the local device.
+The Miliastra Toolkit is a view added to the activity bar, enabling quick access to saves on the local device.
 ### Save Explorer
 The Save Explorer is the primary view displayed in the Miliastra Toolkit, allowing you to quickly open  saves on your device. Clicking a stage entry will automatically open that save in VS Code. Use the refresh button to update the listed stages.
 
