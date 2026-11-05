@@ -65,6 +65,7 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 |Extracted Resource|Description|
 |-|-|
 |Client Controls|The index of all Client Control Templates will be extracted to provide autocomplete for the `game.InstantiateClientUIControl` function.<br><br>The name of all Client Controls in the hierarchy and saved Client Control Templates will be extracted to provide autocomplete for the `game.FindClientUIRoot` and `ClientUIBaseControl:GetChild` functions.|
+|Custom Variables|The name of Custom Variables set in the Custom Variable component of the Stage Entity, Player Templates, Character Templates, Class Templates, placed entities, and prefabs will be extracted to provide autocomplete for the `game:GetGlobalCustomVariableValue` and Custom Variable listener related functions.|
 |Script Text Variables|The Mapping ID of Script Text Variables will be extracted to provide autocomplete for the `game.GetText` function.|
 |Script Variables|The name of Script Variables defined in your Script Mappings will be extracted to provide autocomplete for the `script:GetParam` function.|
 |Signals|The name and typed parameters of all Signals will be extracted to provide Signal name autocomplete for all signal-related functions, as well as type-checking for Signal parameters.|
@@ -102,7 +103,8 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 - The `.gil_resources` folder can be safely excluded from a Git repo through `.gitignore`.
 
 ## Planned Features
-- Custom Variable name extraction.
+- Script Variable typing.
+- Custom Variable typing.
 - Compatibility with Shared Creation Mode saves.
 - Built-in utility module management.
     - Community-driven utility function contributions.
