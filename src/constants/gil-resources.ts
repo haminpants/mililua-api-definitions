@@ -1,4 +1,4 @@
-import { GilFile, SignalParamType, UIComponentTypeIdentifier } from "@/generated/protobufs/gil";
+import { GilFile, VariableType, UIComponentTypeIdentifier } from "@/generated/protobufs/gil";
 
 export const GIL_RESOURCE_DIRECTORY = ".gil_resources" as const;
 
@@ -9,27 +9,32 @@ const FILE_HEADER = [
     ""
 ] as const;
 
-const signalParamTypeAnnotationMapping: Record<SignalParamType, string> = {
-    [SignalParamType.SIGNAL_PARAM_TYPE_UNSPECIFIED]: "nil",
-    [SignalParamType.SIGNAL_PARAM_TYPE_ENTITY]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_GUID]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_INTEGER]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_BOOLEAN]: "boolean",
-    [SignalParamType.SIGNAL_PARAM_TYPE_FLOATING_POINT_NUMBER]: "number",
-    [SignalParamType.SIGNAL_PARAM_TYPE_STRING]: "string",
-    [SignalParamType.SIGNAL_PARAM_TYPE_GUID_LIST]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_INTEGER_LIST]: "integer[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_BOOLEAN_LIST]: "boolean[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_FLOATING_POINT_LIST]: "number[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_STRING_LIST]: "string[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_3D_VECTOR]: "Vector3",
-    [SignalParamType.SIGNAL_PARAM_TYPE_ENTITY_LIST]: "integer[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_3D_VECTOR_LIST]: "Vector3[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_CONFIG_ID]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_PREFAB_ID]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_CONFIG_ID_LIST]: "integer[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_PREFAB_ID_LIST]: "integer[]",
-    [SignalParamType.UNRECOGNIZED]: "nil"
+const variableTypeAnnotations: Record<VariableType, string> = {
+    [VariableType.VARIABLE_TYPE_UNSPECIFIED]: "nil",
+    [VariableType.VARIABLE_TYPE_ENTITY]: "integer",
+    [VariableType.VARIABLE_TYPE_GUID]: "integer",
+    [VariableType.VARIABLE_TYPE_INTEGER]: "integer",
+    [VariableType.VARIABLE_TYPE_BOOLEAN]: "boolean",
+    [VariableType.VARIABLE_TYPE_FLOATING_POINT_NUMBER]: "number",
+    [VariableType.VARIABLE_TYPE_STRING]: "string",
+    [VariableType.VARIABLE_TYPE_GUID_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_INTEGER_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_BOOLEAN_LIST]: "boolean[]",
+    [VariableType.VARIABLE_TYPE_FLOATING_POINT_LIST]: "number[]",
+    [VariableType.VARIABLE_TYPE_STRING_LIST]: "string[]",
+    [VariableType.VARIABLE_TYPE_3D_VECTOR]: "Vector3",
+    [VariableType.VARIABLE_TYPE_ENTITY_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_3D_VECTOR_LIST]: "Vector3[]",
+    [VariableType.VARIABLE_TYPE_FACTION]: "integer",
+    [VariableType.VARIABLE_TYPE_CONFIG_ID]: "integer",
+    [VariableType.VARIABLE_TYPE_PREFAB_ID]: "integer",
+    [VariableType.VARIABLE_TYPE_CONFIG_ID_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_PREFAB_ID_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_FACTION_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_STRUCTURE]: "table",
+    [VariableType.VARIABLE_TYPE_STRUCTURE_LIST]: "table[]",
+    [VariableType.VARIABLE_TYPE_DICTIONARY]: "table",
+    [VariableType.UNRECOGNIZED]: "nil",
 } as const;
 
 export type GilResource = keyof typeof GIL_RESOURCES;
@@ -61,7 +66,7 @@ export const GIL_RESOURCES = {
                 signalClasses.push(
                     `---@class ${signal.name}`,
                     ...signal.parameters.flatMap(p => {
-                        return `---@field [${++i}] ${signalParamTypeAnnotationMapping[p.type]} # ${p.name}`;
+                        return `---@field [${++i}] ${variableTypeAnnotations[p.type]} # ${p.name}`;
                     })
                 );
             });
