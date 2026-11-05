@@ -9,10 +9,59 @@ message GilFileHeader {
 message GilFile {
   uint32 save_id = 1;
   string name = 2;
+  PrefabAssetContainer prefab_assets = 4;
+  StageAssetContainer stage_assets = 5;
   UIComponentBlock ui_component_block = 9;
   UnknownStageData unk_stage_data = 10;
   MultiLanguageTextBlock multi_language_text = 35;
   ScriptMappingBlock script_mapping_block = 50;
+}
+
+// ======================================================================
+// General Comopnents
+// ======================================================================
+
+enum EntityComponentType {
+  ENTITY_COMPONENT_TYPE_UNSPECIFIED = 0;
+  ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE = 1;
+}
+
+message EntityComponent {
+  EntityComponentType type = 1;
+  CustomVariableContainer custom_variables = 11;
+}
+
+message CustomVariableContainer {
+  repeated CustomVariableEntry entries = 1;
+}
+
+message CustomVariableEntry {
+  string name = 2;
+}
+
+// ======================================================================
+// 4. Prefabs
+// ======================================================================
+
+message PrefabAssetContainer {
+  repeated PrefabAsset assets = 1;
+}
+
+message PrefabAsset {
+  uint32 index = 1;
+  repeated EntityComponent components = 8;
+}
+
+// ======================================================================
+// 5. Stage Assets (Placed Entities / Templates)
+// ======================================================================
+
+message StageAssetContainer {
+  repeated StageAsset assets = 1;
+}
+
+message StageAsset {
+  repeated EntityComponent components = 7;
 }
 
 // ======================================================================
