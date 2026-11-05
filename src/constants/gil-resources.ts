@@ -1,4 +1,4 @@
-import { GilFile, VariableType, UIComponentTypeIdentifier } from "@/generated/protobufs/gil";
+import { GilFile, VariableType, UIComponentTypeIdentifier, EntityComponentType } from "@/generated/protobufs/gil";
 
 export const GIL_RESOURCE_DIRECTORY = ".gil_resources" as const;
 
@@ -110,14 +110,41 @@ export const GIL_RESOURCES = {
     ScriptVariables: {
         fileName: "ScriptVariables.d.lua",
         formatter: (gilData: GilFile) => {
-            const scriptVariableNames = [...new Set(
+            const scriptVariableAliases = [...new Set(
                 gilData.scriptMappingBlock?.scriptMappings.flatMap(mapping => mapping.scriptVariables.map(variable => `---| "${variable.name}"`)) ?? []
             )];
 
             return [
                 ...FILE_HEADER,
                 `---@alias ScriptVariableName`,
-                ...scriptVariableNames
+                ...scriptVariableAliases
+            ].join("\n");
+        }
+    },
+    CustomVariables: {
+        fileName: "CustomVariables.d.lua",
+        formatter: (gilData: GilFile) => {
+            const customVariableAliases = [... new Set([
+                ...gilData.prefabAssets?.assets.flatMap(asset => {
+                    return asset.components.filter(component => {
+                        return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
+                    }).flatMap(customVariableComponent => {
+                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? []
+                    });
+                }) ?? [],
+                ...gilData.stageAssets?.assets.flatMap(asset => {
+                    return asset.components.filter(component => {
+                        return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
+                    }).flatMap(customVariableComponent => {
+                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? [];
+                    })
+                }) ?? []
+            ])];
+
+            return [
+                ...FILE_HEADER,
+                `---@alias CustomVariableName`,
+                ...customVariableAliases
             ].join("\n");
         }
     }

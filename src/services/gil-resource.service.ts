@@ -13,6 +13,7 @@ export class GilResourceHandler {
         Signals: Infinity,
         ClientControls: Infinity,
         ScriptVariables: Infinity,
+        CustomVariables: Infinity,
     };
 
     constructor(rootUri: vscode.Uri) {
