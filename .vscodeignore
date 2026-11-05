@@ -11,6 +11,7 @@ src/**
 **/*.map
 **/*.ts
 **/.vscode-test.*
+**/gil_dump.*
 *.gitignore
 
 .yarnrc

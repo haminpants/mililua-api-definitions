@@ -1,4 +1,4 @@
-import { GilFile, SignalParamType, UIComponentTypeIdentifier } from "@/generated/protobufs/gil";
+import { GilFile, VariableType, UIComponentTypeIdentifier, EntityComponentType } from "@/generated/protobufs/gil";
 
 export const GIL_RESOURCE_DIRECTORY = ".gil_resources" as const;
 
@@ -9,70 +9,36 @@ const FILE_HEADER = [
     ""
 ] as const;
 
-const signalParamTypeAnnotationMapping: Record<SignalParamType, string> = {
-    [SignalParamType.SIGNAL_PARAM_TYPE_UNSPECIFIED]: "nil",
-    [SignalParamType.SIGNAL_PARAM_TYPE_ENTITY]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_GUID]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_INTEGER]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_BOOLEAN]: "boolean",
-    [SignalParamType.SIGNAL_PARAM_TYPE_FLOATING_POINT_NUMBER]: "number",
-    [SignalParamType.SIGNAL_PARAM_TYPE_STRING]: "string",
-    [SignalParamType.SIGNAL_PARAM_TYPE_GUID_LIST]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_INTEGER_LIST]: "integer[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_BOOLEAN_LIST]: "boolean[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_FLOATING_POINT_LIST]: "number[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_STRING_LIST]: "string[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_3D_VECTOR]: "Vector3",
-    [SignalParamType.SIGNAL_PARAM_TYPE_ENTITY_LIST]: "integer[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_3D_VECTOR_LIST]: "Vector3[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_CONFIG_ID]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_PREFAB_ID]: "integer",
-    [SignalParamType.SIGNAL_PARAM_TYPE_CONFIG_ID_LIST]: "integer[]",
-    [SignalParamType.SIGNAL_PARAM_TYPE_PREFAB_ID_LIST]: "integer[]",
-    [SignalParamType.UNRECOGNIZED]: "nil"
+const variableTypeAnnotations: Record<VariableType, string> = {
+    [VariableType.VARIABLE_TYPE_UNSPECIFIED]: "nil",
+    [VariableType.VARIABLE_TYPE_ENTITY]: "integer",
+    [VariableType.VARIABLE_TYPE_GUID]: "integer",
+    [VariableType.VARIABLE_TYPE_INTEGER]: "integer",
+    [VariableType.VARIABLE_TYPE_BOOLEAN]: "boolean",
+    [VariableType.VARIABLE_TYPE_FLOATING_POINT_NUMBER]: "number",
+    [VariableType.VARIABLE_TYPE_STRING]: "string",
+    [VariableType.VARIABLE_TYPE_GUID_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_INTEGER_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_BOOLEAN_LIST]: "boolean[]",
+    [VariableType.VARIABLE_TYPE_FLOATING_POINT_LIST]: "number[]",
+    [VariableType.VARIABLE_TYPE_STRING_LIST]: "string[]",
+    [VariableType.VARIABLE_TYPE_3D_VECTOR]: "Vector3",
+    [VariableType.VARIABLE_TYPE_ENTITY_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_3D_VECTOR_LIST]: "Vector3[]",
+    [VariableType.VARIABLE_TYPE_FACTION]: "integer",
+    [VariableType.VARIABLE_TYPE_CONFIG_ID]: "integer",
+    [VariableType.VARIABLE_TYPE_PREFAB_ID]: "integer",
+    [VariableType.VARIABLE_TYPE_CONFIG_ID_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_PREFAB_ID_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_FACTION_LIST]: "integer[]",
+    [VariableType.VARIABLE_TYPE_STRUCTURE]: "table",
+    [VariableType.VARIABLE_TYPE_STRUCTURE_LIST]: "table[]",
+    [VariableType.VARIABLE_TYPE_DICTIONARY]: "table",
+    [VariableType.UNRECOGNIZED]: "nil",
 } as const;
 
 export type GilResource = keyof typeof GIL_RESOURCES;
 export const GIL_RESOURCES = {
-    ScriptTextVariables: {
-        fileName: "ScriptTextVariables.d.lua",
-        formatter: (gilData: GilFile) => {
-            const scriptTextVariables = gilData.multiLanguageText?.multiLanguageTextWrapper?.scriptTextVariableContainer?.scriptTextVariables ?? [];
-            return [
-                ...FILE_HEADER,
-                "---@alias ScriptTextVariable",
-                ...scriptTextVariables.map(stv => { return `---| "${stv.name}"` })
-            ].join("\n");
-        }
-    },
-    Signals: {
-        fileName: "Signals.d.lua",
-        formatter: (gilData: GilFile) => {
-            const signals = gilData.unkStageData?.signalContainer?.signals ?? [];
-
-            const signalNames = [
-                "---@alias SignalName"
-            ];
-            const signalClasses: string[] = [];
-
-            signals.forEach(signal => {
-                let i = 0;
-                signalNames.push(`---| "${signal.name}"`);
-                signalClasses.push(
-                    `---@class ${signal.name}`,
-                    ...signal.parameters.flatMap(p => {
-                        return `---@field [${++i}] ${signalParamTypeAnnotationMapping[p.type]} # ${p.name}`;
-                    })
-                );
-            });
-
-            return [
-                ...FILE_HEADER,
-                ...signalNames,
-                ...signalClasses
-            ].join("\n");
-        }
-    },
     ClientControls: {
         fileName: "ClientControls.d.lua",
         formatter: (gilData: GilFile) => {
@@ -102,18 +68,84 @@ export const GIL_RESOURCES = {
             ].join("\n");
         }
     },
+    CustomVariables: {
+        fileName: "CustomVariables.d.lua",
+        formatter: (gilData: GilFile) => {
+            const customVariableAliases = [... new Set([
+                ...gilData.prefabAssets?.assets.flatMap(asset => {
+                    return asset.components.filter(component => {
+                        return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
+                    }).flatMap(customVariableComponent => {
+                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? []
+                    });
+                }) ?? [],
+                ...gilData.stageAssets?.assets.flatMap(asset => {
+                    return asset.components.filter(component => {
+                        return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
+                    }).flatMap(customVariableComponent => {
+                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? [];
+                    })
+                }) ?? []
+            ])];
+
+            return [
+                ...FILE_HEADER,
+                `---@alias CustomVariableName`,
+                ...customVariableAliases
+            ].join("\n");
+        }
+    },
+    ScriptTextVariables: {
+        fileName: "ScriptTextVariables.d.lua",
+        formatter: (gilData: GilFile) => {
+            const scriptTextVariables = gilData.multiLanguageText?.multiLanguageTextWrapper?.scriptTextVariableContainer?.scriptTextVariables ?? [];
+            return [
+                ...FILE_HEADER,
+                "---@alias ScriptTextVariable",
+                ...scriptTextVariables.map(stv => { return `---| "${stv.name}"` })
+            ].join("\n");
+        }
+    },
     ScriptVariables: {
         fileName: "ScriptVariables.d.lua",
         formatter: (gilData: GilFile) => {
-            const scriptVariableNames = [...new Set(
+            const scriptVariableAliases = [...new Set(
                 gilData.scriptMappingBlock?.scriptMappings.flatMap(mapping => mapping.scriptVariables.map(variable => `---| "${variable.name}"`)) ?? []
             )];
 
             return [
                 ...FILE_HEADER,
                 `---@alias ScriptVariableName`,
-                ...scriptVariableNames
+                ...scriptVariableAliases
             ].join("\n");
         }
-    }
+    },
+    Signals: {
+        fileName: "Signals.d.lua",
+        formatter: (gilData: GilFile) => {
+            const signals = gilData.unkStageData?.signalContainer?.signals ?? [];
+
+            const signalNames = [
+                "---@alias SignalName"
+            ];
+            const signalClasses: string[] = [];
+
+            signals.forEach(signal => {
+                let i = 0;
+                signalNames.push(`---| "${signal.name}"`);
+                signalClasses.push(
+                    `---@class ${signal.name}`,
+                    ...signal.parameters.flatMap(p => {
+                        return `---@field [${++i}] ${variableTypeAnnotations[p.type]} # ${p.name}`;
+                    })
+                );
+            });
+
+            return [
+                ...FILE_HEADER,
+                ...signalNames,
+                ...signalClasses
+            ].join("\n");
+        }
+    },
 } as const;

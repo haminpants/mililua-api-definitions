@@ -9,10 +9,86 @@ message GilFileHeader {
 message GilFile {
   uint32 save_id = 1;
   string name = 2;
+  PrefabAssetContainer prefab_assets = 4;
+  StageAssetContainer stage_assets = 5;
   UIComponentBlock ui_component_block = 9;
   UnknownStageData unk_stage_data = 10;
   MultiLanguageTextBlock multi_language_text = 35;
   ScriptMappingBlock script_mapping_block = 50;
+}
+
+// ======================================================================
+// General Comopnents
+// ======================================================================
+
+enum VariableType {
+  VARIABLE_TYPE_UNSPECIFIED = 0;
+  VARIABLE_TYPE_ENTITY = 1;
+  VARIABLE_TYPE_GUID = 2;
+  VARIABLE_TYPE_INTEGER = 3;
+  VARIABLE_TYPE_BOOLEAN = 4;
+  VARIABLE_TYPE_FLOATING_POINT_NUMBER = 5;
+  VARIABLE_TYPE_STRING = 6;
+  VARIABLE_TYPE_GUID_LIST = 7;
+  VARIABLE_TYPE_INTEGER_LIST = 8;
+  VARIABLE_TYPE_BOOLEAN_LIST = 9;
+  VARIABLE_TYPE_FLOATING_POINT_LIST = 10;
+  VARIABLE_TYPE_STRING_LIST = 11;
+  VARIABLE_TYPE_3D_VECTOR = 12;
+  VARIABLE_TYPE_ENTITY_LIST = 13;
+  VARIABLE_TYPE_3D_VECTOR_LIST = 15;
+  VARIABLE_TYPE_FACTION = 17;
+  VARIABLE_TYPE_CONFIG_ID = 20;
+  VARIABLE_TYPE_PREFAB_ID = 21;
+  VARIABLE_TYPE_CONFIG_ID_LIST = 22;
+  VARIABLE_TYPE_PREFAB_ID_LIST = 23;
+  VARIABLE_TYPE_FACTION_LIST = 24;
+  VARIABLE_TYPE_STRUCTURE = 25;
+  VARIABLE_TYPE_STRUCTURE_LIST = 26;
+  VARIABLE_TYPE_DICTIONARY = 27;
+}
+
+enum EntityComponentType {
+  ENTITY_COMPONENT_TYPE_UNSPECIFIED = 0;
+  ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE = 1;
+}
+
+message EntityComponent {
+  EntityComponentType type = 1;
+  CustomVariableContainer custom_variables = 11;
+}
+
+message CustomVariableContainer {
+  repeated CustomVariableEntry entries = 1;
+}
+
+message CustomVariableEntry {
+  string name = 2;
+}
+
+// ======================================================================
+// 4. Prefabs
+// ======================================================================
+
+message PrefabAssetContainer {
+  repeated PrefabAsset assets = 1;
+}
+
+message PrefabAsset {
+  uint32 index = 1;
+  repeated EntityComponent components = 8;
+}
+
+// ======================================================================
+// 5. Stage Assets (Placed Entities / Templates)
+// ======================================================================
+
+message StageAssetContainer {
+  repeated StageAsset assets = 1;
+}
+
+message StageAsset {
+  repeated EntityComponent components = 7;
 }
 
 // ======================================================================
@@ -70,29 +146,7 @@ message Signal {
 
 message SignalParameter {
   string name = 1;
-  SignalParamType type = 2;
-}
-
-enum SignalParamType {
-  SIGNAL_PARAM_TYPE_UNSPECIFIED = 0;
-  SIGNAL_PARAM_TYPE_ENTITY = 1;
-  SIGNAL_PARAM_TYPE_GUID = 2;
-  SIGNAL_PARAM_TYPE_INTEGER = 3;
-  SIGNAL_PARAM_TYPE_BOOLEAN = 4;
-  SIGNAL_PARAM_TYPE_FLOATING_POINT_NUMBER = 5;
-  SIGNAL_PARAM_TYPE_STRING = 6;
-  SIGNAL_PARAM_TYPE_GUID_LIST = 7;
-  SIGNAL_PARAM_TYPE_INTEGER_LIST = 8;
-  SIGNAL_PARAM_TYPE_BOOLEAN_LIST = 9;
-  SIGNAL_PARAM_TYPE_FLOATING_POINT_LIST = 10;
-  SIGNAL_PARAM_TYPE_STRING_LIST = 11;
-  SIGNAL_PARAM_TYPE_3D_VECTOR = 12;
-  SIGNAL_PARAM_TYPE_ENTITY_LIST = 13;
-  SIGNAL_PARAM_TYPE_3D_VECTOR_LIST = 15;
-  SIGNAL_PARAM_TYPE_CONFIG_ID = 20;
-  SIGNAL_PARAM_TYPE_PREFAB_ID = 21;
-  SIGNAL_PARAM_TYPE_CONFIG_ID_LIST = 22;
-  SIGNAL_PARAM_TYPE_PREFAB_ID_LIST = 23;
+  VariableType type = 2;
 }
 
 // ======================================================================
