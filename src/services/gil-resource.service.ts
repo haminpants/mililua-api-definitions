@@ -9,11 +9,11 @@ export class GilResourceHandler {
     private resourceDirectoryUri: vscode.Uri;
     private hashFn: ((input: string) => number) | null = null;
     private hashCache: Record<GilResource, number> = {
-        ScriptTextVariables: Infinity,
-        Signals: Infinity,
         ClientControls: Infinity,
-        ScriptVariables: Infinity,
         CustomVariables: Infinity,
+        ScriptTextVariables: Infinity,
+        ScriptVariables: Infinity,
+        Signals: Infinity,
     };
 
     constructor(rootUri: vscode.Uri) {

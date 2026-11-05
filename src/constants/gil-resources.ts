@@ -39,6 +39,62 @@ const variableTypeAnnotations: Record<VariableType, string> = {
 
 export type GilResource = keyof typeof GIL_RESOURCES;
 export const GIL_RESOURCES = {
+    ClientControls: {
+        fileName: "ClientControls.d.lua",
+        formatter: (gilData: GilFile) => {
+            const uiComponents = gilData.uiComponentBlock?.uiComponents ?? [];
+
+            const clientControlNames = new Set<string>();
+            const templateIndexes = [
+                "---@alias ClientControlTemplateIndex"
+            ]
+
+            uiComponents.forEach(component => {
+                const name = component.meta[0]?.nameWrapper?.name;
+                const typeIdentifier = component.meta[1]?.typeIdentifier;
+                const identifierBytes = component.identifierMeta[2]?.identiferWrapper?.identifierBytes;
+
+                if (name && typeIdentifier === UIComponentTypeIdentifier.UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL) {
+                    clientControlNames.add(`---| "${name}"`);
+                    if (identifierBytes) { templateIndexes.push(`---| ${component.index} # ${name}`); }
+                }
+            })
+
+            return [
+                ...FILE_HEADER,
+                ...templateIndexes,
+                `---@alias ClientControlName`,
+                ...clientControlNames
+            ].join("\n");
+        }
+    },
+    CustomVariables: {
+        fileName: "CustomVariables.d.lua",
+        formatter: (gilData: GilFile) => {
+            const customVariableAliases = [... new Set([
+                ...gilData.prefabAssets?.assets.flatMap(asset => {
+                    return asset.components.filter(component => {
+                        return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
+                    }).flatMap(customVariableComponent => {
+                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? []
+                    });
+                }) ?? [],
+                ...gilData.stageAssets?.assets.flatMap(asset => {
+                    return asset.components.filter(component => {
+                        return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
+                    }).flatMap(customVariableComponent => {
+                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? [];
+                    })
+                }) ?? []
+            ])];
+
+            return [
+                ...FILE_HEADER,
+                `---@alias CustomVariableName`,
+                ...customVariableAliases
+            ].join("\n");
+        }
+    },
     ScriptTextVariables: {
         fileName: "ScriptTextVariables.d.lua",
         formatter: (gilData: GilFile) => {
@@ -47,6 +103,20 @@ export const GIL_RESOURCES = {
                 ...FILE_HEADER,
                 "---@alias ScriptTextVariable",
                 ...scriptTextVariables.map(stv => { return `---| "${stv.name}"` })
+            ].join("\n");
+        }
+    },
+    ScriptVariables: {
+        fileName: "ScriptVariables.d.lua",
+        formatter: (gilData: GilFile) => {
+            const scriptVariableAliases = [...new Set(
+                gilData.scriptMappingBlock?.scriptMappings.flatMap(mapping => mapping.scriptVariables.map(variable => `---| "${variable.name}"`)) ?? []
+            )];
+
+            return [
+                ...FILE_HEADER,
+                `---@alias ScriptVariableName`,
+                ...scriptVariableAliases
             ].join("\n");
         }
     },
@@ -78,74 +148,4 @@ export const GIL_RESOURCES = {
             ].join("\n");
         }
     },
-    ClientControls: {
-        fileName: "ClientControls.d.lua",
-        formatter: (gilData: GilFile) => {
-            const uiComponents = gilData.uiComponentBlock?.uiComponents ?? [];
-
-            const clientControlNames = new Set<string>();
-            const templateIndexes = [
-                "---@alias ClientControlTemplateIndex"
-            ]
-
-            uiComponents.forEach(component => {
-                const name = component.meta[0]?.nameWrapper?.name;
-                const typeIdentifier = component.meta[1]?.typeIdentifier;
-                const identifierBytes = component.identifierMeta[2]?.identiferWrapper?.identifierBytes;
-
-                if (name && typeIdentifier === UIComponentTypeIdentifier.UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL) {
-                    clientControlNames.add(`---| "${name}"`);
-                    if (identifierBytes) { templateIndexes.push(`---| ${component.index} # ${name}`); }
-                }
-            })
-
-            return [
-                ...FILE_HEADER,
-                ...templateIndexes,
-                `---@alias ClientControlName`,
-                ...clientControlNames
-            ].join("\n");
-        }
-    },
-    ScriptVariables: {
-        fileName: "ScriptVariables.d.lua",
-        formatter: (gilData: GilFile) => {
-            const scriptVariableAliases = [...new Set(
-                gilData.scriptMappingBlock?.scriptMappings.flatMap(mapping => mapping.scriptVariables.map(variable => `---| "${variable.name}"`)) ?? []
-            )];
-
-            return [
-                ...FILE_HEADER,
-                `---@alias ScriptVariableName`,
-                ...scriptVariableAliases
-            ].join("\n");
-        }
-    },
-    CustomVariables: {
-        fileName: "CustomVariables.d.lua",
-        formatter: (gilData: GilFile) => {
-            const customVariableAliases = [... new Set([
-                ...gilData.prefabAssets?.assets.flatMap(asset => {
-                    return asset.components.filter(component => {
-                        return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
-                    }).flatMap(customVariableComponent => {
-                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? []
-                    });
-                }) ?? [],
-                ...gilData.stageAssets?.assets.flatMap(asset => {
-                    return asset.components.filter(component => {
-                        return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
-                    }).flatMap(customVariableComponent => {
-                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? [];
-                    })
-                }) ?? []
-            ])];
-
-            return [
-                ...FILE_HEADER,
-                `---@alias CustomVariableName`,
-                ...customVariableAliases
-            ].join("\n");
-        }
-    }
 } as const;
