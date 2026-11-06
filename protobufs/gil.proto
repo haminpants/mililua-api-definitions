@@ -25,12 +25,12 @@ enum VariableType {
   VARIABLE_TYPE_UNSPECIFIED = 0;
   VARIABLE_TYPE_ENTITY = 1;
   VARIABLE_TYPE_GUID = 2;
-  VARIABLE_TYPE_INTEGER = 3;
+  VARIABLE_TYPE_INTEGER = 3; // Shared by the Client Control Id type for Script Variables.
   VARIABLE_TYPE_BOOLEAN = 4;
   VARIABLE_TYPE_FLOATING_POINT_NUMBER = 5;
   VARIABLE_TYPE_STRING = 6;
   VARIABLE_TYPE_GUID_LIST = 7;
-  VARIABLE_TYPE_INTEGER_LIST = 8;
+  VARIABLE_TYPE_INTEGER_LIST = 8; // Shared by the Client Control Id List type for Script Variables.
   VARIABLE_TYPE_BOOLEAN_LIST = 9;
   VARIABLE_TYPE_FLOATING_POINT_LIST = 10;
   VARIABLE_TYPE_STRING_LIST = 11;
@@ -182,4 +182,5 @@ message ScriptMapping {
 
 message ScriptVariable {
   string name = 2;
+  VariableType type = 3;
 }
