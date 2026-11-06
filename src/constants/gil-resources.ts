@@ -109,14 +109,23 @@ export const GIL_RESOURCES = {
     ScriptVariables: {
         fileName: "ScriptVariables.d.lua",
         formatter: (gilData: GilFile) => {
-            const scriptVariableAliases = [...new Set(
-                gilData.scriptMappingBlock?.scriptMappings.flatMap(mapping => mapping.scriptVariables.map(variable => `---| "${variable.name}"`)) ?? []
-            )];
+            const scriptVariablesByType: Record<string, Set<string>> = {};
+            for (const mapping of gilData.scriptMappingBlock?.scriptMappings ?? []) {
+                for (const variable of mapping.scriptVariables) {
+                    (scriptVariablesByType[variableTypeAnnotations[variable.type]] ??= new Set()).add(variable.name);
+                }
+            }
 
             return [
                 ...FILE_HEADER,
                 `---@alias ScriptVariableName`,
-                ...scriptVariableAliases
+                ...Object.values(scriptVariablesByType).flatMap(varNames => [...varNames].map(varName => `---| "${varName}"`)),
+                ``,
+                `---@class Script`,
+                `local Script = {}`,
+                ``,
+                ...Object.entries(scriptVariablesByType).map(typeEntry => `---@overload fun(self: Script, varName: ${[...typeEntry[1]].map(varName => `"${varName}"`).join("|")}): ${typeEntry[0]}`),
+                `function Script:GetParam(varName) end`
             ].join("\n");
         }
     },
