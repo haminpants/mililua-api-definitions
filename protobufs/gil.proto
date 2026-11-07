@@ -12,7 +12,7 @@ message GilFile {
   PrefabAssetContainer prefab_assets = 4;
   StageAssetContainer stage_assets = 5;
   UIComponentBlock ui_component_block = 9;
-  UnknownStageData unk_stage_data = 10;
+  NodeGraphData node_graph_data = 10;
   MultiLanguageTextBlock multi_language_text = 35;
   ScriptMappingBlock script_mapping_block = 50;
 }
@@ -128,11 +128,12 @@ enum UIComponentTypeIdentifier {
 }
 
 // ======================================================================
-// 10. Stage Data / Signals
+// 10. Node Graphs / Composite Nodes / Signals / Structures
 // ======================================================================
 
-message UnknownStageData {
+message NodeGraphData {
   SignalContainer signal_container = 5;
+  repeated StructureContainer structures = 6;
 }
 
 message SignalContainer {
@@ -147,6 +148,26 @@ message Signal {
 message SignalParameter {
   string name = 1;
   VariableType type = 2;
+}
+
+message StructureContainer {
+  Structure structure = 1;
+}
+
+message Structure {
+  uint32 id = 1;
+  repeated StructureVariable variables = 3;
+  string name = 501;
+}
+
+message StructureVariable {
+  message TypeDefinition {
+    VariableType type = 1;
+    uint32 structure_id = 2;
+    VariableType dictionary_key_type = 502;
+    VariableType dictionary_value_type = 503;
+    uint32 dictionary_value_structure_id = 504;
+  }
 }
 
 // ======================================================================
