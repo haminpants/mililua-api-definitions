@@ -1,5 +1,5 @@
 import { GilResourceExtractFormat, StructureConfigIdMap } from "@/types";
-import { GilFile, VariableType, UIComponentTypeIdentifier, EntityComponentType, VariableDefinition } from "@/generated/protobufs/gil";
+import { GilFile, VariableType, UIComponentTypeIdentifier, EntityComponentType, VariableDefinition, TemplateAssetType, TemplateComponentType } from "@/generated/protobufs/gil";
 
 export const GIL_RESOURCE_DIRECTORY = ".gil_resources" as const;
 
@@ -61,7 +61,25 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                             return `---| "${cv.name}"`
                         }) ?? [];
                     });
-                }) ?? []
+                }) ?? [],
+                ...(gilData.templateAssets?.assets.filter(asset => {
+                    return asset.type === TemplateAssetType.TEMPLATE_ASSET_TYPE_CLASS
+                }) ?? []).flatMap(assets => {
+                    return assets.components.filter(templateComponent => {
+                        return templateComponent.type === TemplateComponentType.TEMPLATE_COMPONENT_TYPE_PLAYER || templateComponent.type === TemplateComponentType.TEMPLATE_COMPONENT_TYPE_CHARACTER;
+                    }).flatMap(templateComponent => {
+                        return [templateComponent.characterClassTemplateComponentsContainer?.component, templateComponent.playerClassTemplateComponentsContainer?.component]
+                    }).flatMap(classTemplateComponent => {
+                        return classTemplateComponent?.flatMap(c => c.customVariables?.entries)
+                    }).filter(customVariableEntry => {
+                        return customVariableEntry !== undefined
+                    }).map(customVariableEntry => {
+                        const type = resolveVariableDefinition(customVariableEntry.variableDefinitionWrapper?.variableDefinition, structureConfigIdMap);
+                        (customVariablesByType[type] ??= new Set()).add(customVariableEntry.name);
+                        console.log(customVariableEntry.name);
+                        return `---| "${customVariableEntry.name}"`;
+                    });
+                })
             ])];
 
             return [
