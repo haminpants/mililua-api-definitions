@@ -64,6 +64,23 @@ message CustomVariableContainer {
 
 message CustomVariableEntry {
   string name = 2;
+  VariableDefinitionWrapper variable_definition_wrapper = 4;
+
+  message VariableDefinitionWrapper {
+    VariableDefinition variable_definition = 2;
+  }
+}
+
+message VariableDefinition {
+  VariableType type = 1;
+  Definition definition = 2;
+
+  message Definition {
+    uint32 structure_id = 2;
+    VariableType dictionary_key_type = 502;
+    VariableType dictionary_value_type = 503;
+    uint32 dictionary_value_structure_id = 504;
+  }
 }
 
 // ======================================================================
@@ -161,20 +178,8 @@ message Structure {
 }
 
 message StructureVariable {
-  TypeDefinition type_definition = 1;
+  VariableDefinition type_definition = 1;
   string name = 501;
-
-  message TypeDefinition {
-    VariableType type = 1;
-    DefinitionWrapper definition_wrapper = 2;
-
-    message DefinitionWrapper {
-      uint32 structure_id = 2;
-      VariableType dictionary_key_type = 502;
-      VariableType dictionary_value_type = 503;
-      uint32 dictionary_value_structure_id = 504;
-    }
-  }
 }
 
 // ======================================================================
