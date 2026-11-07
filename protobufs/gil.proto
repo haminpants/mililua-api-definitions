@@ -133,7 +133,7 @@ enum UIComponentTypeIdentifier {
 
 message NodeGraphData {
   SignalContainer signal_container = 5;
-  repeated StructureContainer structures = 6;
+  repeated StructureBlock structure_blocks = 6;
 }
 
 message SignalContainer {
@@ -150,7 +150,7 @@ message SignalParameter {
   VariableType type = 2;
 }
 
-message StructureContainer {
+message StructureBlock {
   Structure structure = 1;
 }
 
