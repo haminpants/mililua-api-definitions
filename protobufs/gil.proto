@@ -13,6 +13,7 @@ message GilFile {
   StageAssetContainer stage_assets = 5;
   UIComponentBlock ui_component_block = 9;
   NodeGraphData node_graph_data = 10;
+  TemplateAssetContainer template_assets = 15;
   MultiLanguageTextBlock multi_language_text = 35;
   ScriptMappingBlock script_mapping_block = 50;
 }
