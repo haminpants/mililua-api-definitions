@@ -12,14 +12,15 @@ message GilFile {
   PrefabAssetContainer prefab_assets = 4;
   StageAssetContainer stage_assets = 5;
   UIComponentBlock ui_component_block = 9;
-  UnknownStageData unk_stage_data = 10;
+  NodeGraphData node_graph_data = 10;
+  TemplateAssetContainer template_assets = 15;
   MultiLanguageTextBlock multi_language_text = 35;
   ScriptMappingBlock script_mapping_block = 50;
 }
 
-// ======================================================================
+// ================================================================================
 // General Comopnents
-// ======================================================================
+// ================================================================================
 
 enum VariableType {
   VARIABLE_TYPE_UNSPECIFIED = 0;
@@ -64,11 +65,28 @@ message CustomVariableContainer {
 
 message CustomVariableEntry {
   string name = 2;
+  VariableDefinitionWrapper variable_definition_wrapper = 4;
+
+  message VariableDefinitionWrapper {
+    VariableDefinition variable_definition = 2;
+  }
 }
 
-// ======================================================================
+message VariableDefinition {
+  VariableType type = 1;
+  Definition definition = 2;
+
+  message Definition {
+    uint32 structure_id = 2;
+    VariableType dictionary_key_type = 502;
+    VariableType dictionary_value_type = 503;
+    uint32 dictionary_value_structure_id = 504;
+  }
+}
+
+// ================================================================================
 // 4. Prefabs
-// ======================================================================
+// ================================================================================
 
 message PrefabAssetContainer {
   repeated PrefabAsset assets = 1;
@@ -79,9 +97,9 @@ message PrefabAsset {
   repeated EntityComponent components = 8;
 }
 
-// ======================================================================
+// ================================================================================
 // 5. Stage Assets (Placed Entities / Templates)
-// ======================================================================
+// ================================================================================
 
 message StageAssetContainer {
   repeated StageAsset assets = 1;
@@ -91,9 +109,9 @@ message StageAsset {
   repeated EntityComponent components = 7;
 }
 
-// ======================================================================
+// ================================================================================
 // 9. UI Components
-// ======================================================================
+// ================================================================================
 
 message UIComponentBlock {
   repeated UIComponent ui_components = 502;
@@ -127,12 +145,13 @@ enum UIComponentTypeIdentifier {
   UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
 }
 
-// ======================================================================
-// 10. Stage Data / Signals
-// ======================================================================
+// ================================================================================
+// 10. Node Graphs / Composite Nodes / Signals / Structures
+// ================================================================================
 
-message UnknownStageData {
+message NodeGraphData {
   SignalContainer signal_container = 5;
+  repeated StructureBlock structure_blocks = 6;
 }
 
 message SignalContainer {
@@ -149,9 +168,63 @@ message SignalParameter {
   VariableType type = 2;
 }
 
-// ======================================================================
+message StructureBlock {
+  Structure structure = 1;
+}
+
+message Structure {
+  uint32 id = 1;
+  repeated StructureVariable variables = 3;
+  string name = 501;
+}
+
+message StructureVariable {
+  VariableDefinition type_definition = 1;
+  string name = 501;
+}
+
+// ================================================================================
+// 15. Templates & Configurations (Inventory, Environment, Classes, Growth Curves)
+// ================================================================================
+
+message TemplateAssetContainer {
+  repeated TemplateAsset assets = 1;
+}
+
+message TemplateAsset {
+  TemplateAssetType type = 2;
+  repeated TemplateAssetComponent components = 4;
+}
+
+message TemplateAssetComponent {
+  TemplateComponentType type = 1;
+  ClassTemplateComponentContainer player_class_template_components_container = 90;
+  ClassTemplateComponentContainer character_class_template_components_container = 91;
+}
+
+message ClassTemplateComponentContainer {
+  repeated ClassTemplateComponent component = 1;
+}
+
+message ClassTemplateComponent {
+  EntityComponentType type = 1;
+  CustomVariableContainer custom_variables = 11;
+}
+
+enum TemplateAssetType {
+  TEMPLATE_ASSET_TYPE_UNSPECIFIED = 0;
+  TEMPLATE_ASSET_TYPE_CLASS = 4;
+}
+
+enum TemplateComponentType {
+  TEMPLATE_COMPONENT_TYPE_UNSPECIFIED = 0;
+  TEMPLATE_COMPONENT_TYPE_PLAYER = 101;
+  TEMPLATE_COMPONENT_TYPE_CHARACTER = 102;
+}
+
+// ================================================================================
 // 35. Multi-Language Text
-// ======================================================================
+// ================================================================================
 
 message MultiLanguageTextBlock {
   MultiLanguageTextWrapper multi_language_text_wrapper = 1;
@@ -169,9 +242,9 @@ message ScriptTextVariable {
   string name = 1;
 }
 
-// ======================================================================
+// ================================================================================
 // 50. Script Mappings
-// ======================================================================
+// ================================================================================
 message ScriptMappingBlock {
   repeated ScriptMapping script_mappings = 1;
 }
