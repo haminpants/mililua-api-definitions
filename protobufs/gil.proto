@@ -17,9 +17,9 @@ message GilFile {
   ScriptMappingBlock script_mapping_block = 50;
 }
 
-// ======================================================================
+// ================================================================================
 // General Comopnents
-// ======================================================================
+// ================================================================================
 
 enum VariableType {
   VARIABLE_TYPE_UNSPECIFIED = 0;
@@ -83,9 +83,9 @@ message VariableDefinition {
   }
 }
 
-// ======================================================================
+// ================================================================================
 // 4. Prefabs
-// ======================================================================
+// ================================================================================
 
 message PrefabAssetContainer {
   repeated PrefabAsset assets = 1;
@@ -96,9 +96,9 @@ message PrefabAsset {
   repeated EntityComponent components = 8;
 }
 
-// ======================================================================
+// ================================================================================
 // 5. Stage Assets (Placed Entities / Templates)
-// ======================================================================
+// ================================================================================
 
 message StageAssetContainer {
   repeated StageAsset assets = 1;
@@ -108,9 +108,9 @@ message StageAsset {
   repeated EntityComponent components = 7;
 }
 
-// ======================================================================
+// ================================================================================
 // 9. UI Components
-// ======================================================================
+// ================================================================================
 
 message UIComponentBlock {
   repeated UIComponent ui_components = 502;
@@ -144,9 +144,9 @@ enum UIComponentTypeIdentifier {
   UI_COMPONENT_TYPE_IDENTIFIER_CLIENT_CONTROL = 86;
 }
 
-// ======================================================================
+// ================================================================================
 // 10. Node Graphs / Composite Nodes / Signals / Structures
-// ======================================================================
+// ================================================================================
 
 message NodeGraphData {
   SignalContainer signal_container = 5;
@@ -182,9 +182,48 @@ message StructureVariable {
   string name = 501;
 }
 
-// ======================================================================
+// ================================================================================
+// 15. Templates & Configurations (Inventory, Environment, Classes, Growth Curves)
+// ================================================================================
+
+message TemplateAssetContainer {
+  repeated TemplateAsset assets = 1;
+}
+
+message TemplateAsset {
+  TemplateAssetType type = 2;
+  repeated TemplateAssetComponent components = 4;
+}
+
+message TemplateAssetComponent {
+  TemplateComponentType type = 1;
+  ClassTemplateComponentContainer player_class_template_components_container = 90;
+  ClassTemplateComponentContainer character_class_template_components_container = 91;
+}
+
+message ClassTemplateComponentContainer {
+  repeated ClassTemplateComponent component = 1;
+}
+
+message ClassTemplateComponent {
+  EntityComponentType type = 1;
+  CustomVariableContainer custom_variables = 11;
+}
+
+enum TemplateAssetType {
+  TEMPLATE_ASSET_TYPE_UNSPECIFIED = 0;
+  TEMPLATE_ASSET_TYPE_CLASS = 4;
+}
+
+enum TemplateComponentType {
+  TEMPLATE_COMPONENT_TYPE_UNSPECIFIED = 0;
+  TEMPLATE_COMPONENT_TYPE_PLAYER = 101;
+  TEMPLATE_COMPONENT_TYPE_CHARACTER = 102;
+}
+
+// ================================================================================
 // 35. Multi-Language Text
-// ======================================================================
+// ================================================================================
 
 message MultiLanguageTextBlock {
   MultiLanguageTextWrapper multi_language_text_wrapper = 1;
@@ -202,9 +241,9 @@ message ScriptTextVariable {
   string name = 1;
 }
 
-// ======================================================================
+// ================================================================================
 // 50. Script Mappings
-// ======================================================================
+// ================================================================================
 message ScriptMappingBlock {
   repeated ScriptMapping script_mappings = 1;
 }
