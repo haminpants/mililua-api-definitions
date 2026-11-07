@@ -78,7 +78,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
             const scriptVariablesByType: Record<string, Set<string>> = {};
             for (const mapping of gilData.scriptMappingBlock?.scriptMappings ?? []) {
                 for (const variable of mapping.scriptVariables) {
-                    (scriptVariablesByType[VARIABLE_TYPE_ANNOTATIONS[variable.type]] ??= new Set()).add(variable.name);
+                    (scriptVariablesByType[resolveTypeAnnotation({ base: variable.type })] ??= new Set()).add(variable.name);
                 }
             }
 
@@ -111,7 +111,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                 signalClasses.push(
                     `---@class ${signal.name}`,
                     ...signal.parameters.flatMap(p => {
-                        return `---@field [${++i}] ${VARIABLE_TYPE_ANNOTATIONS[p.type]} # ${p.name}`;
+                        return `---@field [${++i}] ${resolveTypeAnnotation({ base: p.type })} # ${p.name}`;
                     })
                 );
             });
@@ -127,17 +127,26 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
         fileName: "Structures.d.lua",
         format: (gilData: GilFile) => {
             const structureIdMappings = getStructureIdMappings(gilData);
-
-            gilData.nodeGraphData?.structureBlocks.flatMap(block => {
+            const structures = gilData.nodeGraphData?.structureBlocks.flatMap(block => {
                 if (!block.structure) { return [] };
                 return [
                     `---@class ${block.structure?.name}`,
-                    ...block.structure.variables.map(structureVariable => `---@field ["${structureVariable.name}"] ${structureVariable.typeDefinition}`)
-                ]
-            })
+                    ...block.structure.variables.map(variable => {
+                        const type = resolveTypeAnnotation({
+                            base: variable.typeDefinition?.type ?? VariableType.UNRECOGNIZED,
+                            baseStructureId: variable.typeDefinition?.definitionWrapper?.structureId,
+                            keyType: variable.typeDefinition?.definitionWrapper?.dictionaryKeyType,
+                            valueType: variable.typeDefinition?.definitionWrapper?.dictionaryValueType,
+                            valueStructureId: variable.typeDefinition?.definitionWrapper?.dictionaryValueStructureId
+                        }, structureIdMappings);
+                        return `---@field ["${variable.name}"] ${type}`;
+                    })
+                ];
+            }) ?? [];
 
             return [
-
+                ...FILE_HEADER,
+                ...structures
             ].join("\n");
         }
     }
@@ -200,7 +209,7 @@ function resolveTypeAnnotation(type: {
         case VariableType.VARIABLE_TYPE_STRUCTURE_LIST:
             return `${(structureConfigIdMap ?? {})[type.baseStructureId ?? -1] ?? "table"}[]`;
         case VariableType.VARIABLE_TYPE_DICTIONARY:
-            return `table<${VARIABLE_TYPE_ANNOTATIONS[type.base]}, ${resolveTypeAnnotation({ base: type.valueType ?? VariableType.UNRECOGNIZED, baseStructureId: type.valueStructureId }, structureConfigIdMap)}>`
+            return `table<${VARIABLE_TYPE_ANNOTATIONS[type.keyType ?? VariableType.UNRECOGNIZED]}, ${resolveTypeAnnotation({ base: type.valueType ?? VariableType.UNRECOGNIZED, baseStructureId: type.valueStructureId }, structureConfigIdMap)}>`
         default:
             return VARIABLE_TYPE_ANNOTATIONS[type.base];
     }

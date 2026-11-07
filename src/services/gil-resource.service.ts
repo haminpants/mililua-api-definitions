@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
-import stableStringify from "fast-json-stable-stringify";
 import { GilFile } from "@/generated/protobufs/gil";
 import { GIL_RESOURCE_DIRECTORY, GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
+import stableStringify from "fast-json-stable-stringify";
 
 
 export class GilResourceHandler {
@@ -14,6 +14,7 @@ export class GilResourceHandler {
         ScriptTextVariables: Infinity,
         ScriptVariables: Infinity,
         Signals: Infinity,
+        Structures: Infinity,
     };
 
     constructor(rootUri: vscode.Uri) {
@@ -34,7 +35,7 @@ export class GilResourceHandler {
 
         try {
             await fs.mkdir(this.resourceDirectoryUri.fsPath, { recursive: true });
-            await fs.writeFile(extractTargetUri.fsPath, GIL_RESOURCES[key].formatter(gilData), "utf-8");
+            await fs.writeFile(extractTargetUri.fsPath, GIL_RESOURCES[key].format(gilData), "utf-8");
             this.hashCache[key] = newHash;
             return true;
         }
