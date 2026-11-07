@@ -161,6 +161,9 @@ message Structure {
 }
 
 message StructureVariable {
+  TypeDefinition type_definition = 1;
+  string name = 501;
+
   message TypeDefinition {
     VariableType type = 1;
     uint32 structure_id = 2;
