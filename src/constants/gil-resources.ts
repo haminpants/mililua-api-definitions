@@ -68,15 +68,14 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                     return assets.components.filter(templateComponent => {
                         return templateComponent.type === TemplateComponentType.TEMPLATE_COMPONENT_TYPE_PLAYER || templateComponent.type === TemplateComponentType.TEMPLATE_COMPONENT_TYPE_CHARACTER;
                     }).flatMap(templateComponent => {
-                        return [templateComponent.characterClassTemplateComponentsContainer?.component, templateComponent.playerClassTemplateComponentsContainer?.component]
+                        return [templateComponent.characterClassTemplateComponentsContainer?.component, templateComponent.playerClassTemplateComponentsContainer?.component];
                     }).flatMap(classTemplateComponent => {
-                        return classTemplateComponent?.flatMap(c => c.customVariables?.entries)
+                        return classTemplateComponent?.flatMap(c => c.customVariables?.entries ?? []) ?? [];
                     }).filter(customVariableEntry => {
-                        return customVariableEntry !== undefined
+                        return customVariableEntry !== undefined;
                     }).map(customVariableEntry => {
                         const type = resolveVariableDefinition(customVariableEntry.variableDefinitionWrapper?.variableDefinition, structureConfigIdMap);
                         (customVariablesByType[type] ??= new Set()).add(customVariableEntry.name);
-                        console.log(customVariableEntry.name);
                         return `---| "${customVariableEntry.name}"`;
                     });
                 })
