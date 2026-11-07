@@ -40,7 +40,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
             const structureConfigIdMap = getStructureConfigIdMappings(gilData);
             const customVariablesByType: Record<string, Set<string>> = {};
             const customVariableAliases = [... new Set([
-                ...gilData.prefabAssets?.assets.flatMap(asset => {
+                ...(gilData.prefabAssets?.assets ?? []).flatMap(asset => {
                     return asset.components.filter(component => {
                         return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
                     }).flatMap(customVariableComponent => {
@@ -51,7 +51,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                         }) ?? [];
                     });
                 }) ?? [],
-                ...gilData.stageAssets?.assets.flatMap(asset => {
+                ...(gilData.stageAssets?.assets ?? []).flatMap(asset => {
                     return asset.components.filter(component => {
                         return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
                     }).flatMap(customVariableComponent => {
@@ -160,19 +160,17 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
         fileName: "Structures.d.lua",
         format: (gilData: GilFile) => {
             const structureIdMappings = getStructureConfigIdMappings(gilData);
-            const structures = gilData.nodeGraphData?.structureBlocks.flatMap(block => {
-                if (!block.structure) { return [] };
-                return [
-                    `---@class ${block.structure?.name}`,
-                    ...block.structure.variables.map(variable => {
-                        return `---@field ["${variable.name}"] ${resolveVariableDefinition(variable.typeDefinition, structureIdMappings)}`;
-                    })
-                ];
-            }) ?? [];
-
             return [
                 ...FILE_HEADER,
-                ...structures
+                ...(gilData.nodeGraphData?.structureBlocks ?? []).flatMap(block => {
+                    if (!block.structure) { return [] };
+                    return [
+                        `---@class ${block.structure?.name}`,
+                        ...block.structure.variables.map(variable => {
+                            return `---@field ["${variable.name}"] ${resolveVariableDefinition(variable.typeDefinition, structureIdMappings)}`;
+                        })
+                    ];
+                }) ?? []
             ].join("\n");
         }
     }
