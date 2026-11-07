@@ -2,10 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## (Unreleased)
+
+### Added
+- Gil Resource Extraction for Structures.
+
+### Changed
+- Added type-checking for Custom Variables through `game.GetGlobalCustomVariableValue`
+
 ## [3.3.0]
 
 ### Changed
-- Type-checking for Script Variables through `script:GetParam`
+- Added type-checking for Script Variables through `script:GetParam`
 
 ## [3.2.0]
 
