@@ -132,7 +132,7 @@ export const GIL_RESOURCES = {
     Signals: {
         fileName: "Signals.d.lua",
         formatter: (gilData: GilFile) => {
-            const signals = gilData.unkStageData?.signalContainer?.signals ?? [];
+            const signals = gilData.nodeGraphData?.signalContainer?.signals ?? [];
 
             const signalNames = [
                 "---@alias SignalName"
