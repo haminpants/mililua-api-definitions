@@ -1,5 +1,5 @@
-import { GilFile, VariableType, UIComponentTypeIdentifier, EntityComponentType } from "@/generated/protobufs/gil";
 import { GilResourceExtractFormat, StructureConfigIdMap } from "@/types";
+import { GilFile, VariableType, UIComponentTypeIdentifier, EntityComponentType, VariableDefinition } from "@/generated/protobufs/gil";
 
 export const GIL_RESOURCE_DIRECTORY = ".gil_resources" as const;
 
@@ -37,27 +37,42 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
     CustomVariables: {
         fileName: "CustomVariables.d.lua",
         format: (gilData: GilFile) => {
+            const structureConfigIdMap = getStructureConfigIdMappings(gilData);
+            const customVariablesByType: Record<string, Set<string>> = {};
             const customVariableAliases = [... new Set([
                 ...gilData.prefabAssets?.assets.flatMap(asset => {
                     return asset.components.filter(component => {
                         return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
                     }).flatMap(customVariableComponent => {
-                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? []
+                        return customVariableComponent.customVariables?.entries.map(cv => {
+                            const type = resolveVariableDefinition(cv.variableDefinitionWrapper?.variableDefinition, structureConfigIdMap);
+                            (customVariablesByType[type] ??= new Set()).add(cv.name);
+                            return `---| "${cv.name}"`
+                        }) ?? [];
                     });
                 }) ?? [],
                 ...gilData.stageAssets?.assets.flatMap(asset => {
                     return asset.components.filter(component => {
                         return component.type === EntityComponentType.ENTITY_COMPONENT_TYPE_CUSTOM_VARIABLE;
                     }).flatMap(customVariableComponent => {
-                        return customVariableComponent.customVariables?.entries.map(cv => `---| "${cv.name}"`) ?? [];
-                    })
+                        return customVariableComponent.customVariables?.entries.map(cv => {
+                            const type = resolveVariableDefinition(cv.variableDefinitionWrapper?.variableDefinition, structureConfigIdMap);
+                            (customVariablesByType[type] ??= new Set()).add(cv.name);
+                            return `---| "${cv.name}"`
+                        }) ?? [];
+                    });
                 }) ?? []
             ])];
 
             return [
                 ...FILE_HEADER,
                 `---@alias CustomVariableName`,
-                ...customVariableAliases
+                ...customVariableAliases,
+                ``,
+                `game = game or {}`,
+                ``,
+                ...Object.entries(customVariablesByType).map(typeEntry => `---@overload fun(entity: EnumItem.CustomVariableEntityType, varName: ${[...typeEntry[1]].map(varName => `"${varName}"`).join("|")}): ${typeEntry[0]}`),
+                `function game.GetGlobalCustomVariableValue(entity, varName) end`
             ].join("\n");
         }
     },
@@ -126,20 +141,13 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
     Structures: {
         fileName: "Structures.d.lua",
         format: (gilData: GilFile) => {
-            const structureIdMappings = getStructureIdMappings(gilData);
+            const structureIdMappings = getStructureConfigIdMappings(gilData);
             const structures = gilData.nodeGraphData?.structureBlocks.flatMap(block => {
                 if (!block.structure) { return [] };
                 return [
                     `---@class ${block.structure?.name}`,
                     ...block.structure.variables.map(variable => {
-                        const type = resolveTypeAnnotation({
-                            base: variable.typeDefinition?.type ?? VariableType.UNRECOGNIZED,
-                            baseStructureId: variable.typeDefinition?.definitionWrapper?.structureId,
-                            keyType: variable.typeDefinition?.definitionWrapper?.dictionaryKeyType,
-                            valueType: variable.typeDefinition?.definitionWrapper?.dictionaryValueType,
-                            valueStructureId: variable.typeDefinition?.definitionWrapper?.dictionaryValueStructureId
-                        }, structureIdMappings);
-                        return `---@field ["${variable.name}"] ${type}`;
+                        return `---@field ["${variable.name}"] ${resolveVariableDefinition(variable.typeDefinition, structureIdMappings)}`;
                     })
                 ];
             }) ?? [];
@@ -187,13 +195,23 @@ const VARIABLE_TYPE_ANNOTATIONS: Record<VariableType, string> = {
     [VariableType.UNRECOGNIZED]: "nil",
 } as const;
 
-function getStructureIdMappings(gilData: GilFile) {
+function getStructureConfigIdMappings(gilData: GilFile) {
     const structures: Record<number, string> = {}
     for (const block of gilData.nodeGraphData?.structureBlocks ?? []) {
         if (!block.structure) { continue; }
         structures[block.structure.id] = block.structure.name;
     }
     return structures;
+}
+
+function resolveVariableDefinition(variableDefinition?: VariableDefinition, structureConfigIdMap?: StructureConfigIdMap) {
+    return resolveTypeAnnotation({
+        base: variableDefinition?.type ?? VariableType.UNRECOGNIZED,
+        baseStructureId: variableDefinition?.definition?.structureId,
+        keyType: variableDefinition?.definition?.dictionaryKeyType,
+        valueType: variableDefinition?.definition?.dictionaryValueType,
+        valueStructureId: variableDefinition?.definition?.dictionaryValueStructureId
+    }, structureConfigIdMap);
 }
 
 function resolveTypeAnnotation(type: {
