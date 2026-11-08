@@ -89,10 +89,16 @@ export class ConfigManager {
     }
 
     toggleLuaDiagnostic(diagnostic: LuaDiagnostic, set?: boolean) {
-        const luaDiagnostics = new Set(this.luaConfig.get<string[]>(LUA_CONFIG.DIAGNOSTICS_DIABLE, []));
-        if (set === false || (set === undefined && luaDiagnostics.has(diagnostic))) { luaDiagnostics.delete(diagnostic); }
-        else if (set || !luaDiagnostics.has(diagnostic)) { luaDiagnostics.add(diagnostic); }
-        this.luaConfig.update(LUA_CONFIG.DIAGNOSTICS_DIABLE, luaDiagnostics.size > 0 ? [...luaDiagnostics] : undefined);
+        const luaDiagnostics = new Set(this.getLuaConfig<string[]>(LUA_CONFIG.DIAGNOSTICS_DISABLE) ?? []);
+        if (set !== undefined) {
+            if (set) { luaDiagnostics.add(diagnostic); }
+            else { luaDiagnostics.delete(diagnostic); }
+        }
+        else {
+            if (luaDiagnostics.has(diagnostic)) { luaDiagnostics.delete(diagnostic); }
+            else { luaDiagnostics.add(diagnostic); };
+        }
+        this.luaConfig.update(LUA_CONFIG.DIAGNOSTICS_DISABLE, luaDiagnostics.size > 0 ? [...luaDiagnostics] : undefined, vscode.ConfigurationTarget.Workspace);
     }
 
     getExtensionConfig<T>(config: ExtensionConfig) {
@@ -104,6 +110,6 @@ export class ConfigManager {
     }
 
     isLuaDiagnosticEnabled(diagnostic: LuaDiagnostic) {
-        return (this.getLuaConfig<string[]>(LUA_CONFIG.DIAGNOSTICS_DIABLE) ?? []).includes(diagnostic);
+        return (this.getLuaConfig<string[]>(LUA_CONFIG.DIAGNOSTICS_DISABLE) ?? []).includes(diagnostic);
     }
 }
