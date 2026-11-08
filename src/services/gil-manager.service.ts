@@ -8,7 +8,6 @@ import { GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
 export class GilManager {
     public readonly gilFileName: string;
     public readonly resourceHandler: GilResourceHandler;
-    private lastExtract = -1;
 
     constructor(
         context: vscode.ExtensionContext,
@@ -25,7 +24,6 @@ export class GilManager {
 
     async extractAllResources(force = false) {
         const gilData = GilFile.decode(await stripGilHeader(this.getGilUri()));
-        this.lastExtract = Date.now();
         return Promise.all((Object.keys(GIL_RESOURCES) as GilResource[]).map(async resource => this.resourceHandler.extractResource(resource, gilData, force)));
     }
 
@@ -38,9 +36,5 @@ export class GilManager {
 
     getGilUri() {
         return vscode.Uri.joinPath(this.targetWorkspace.uri, this.gilFileName);
-    }
-
-    getLastExtract() {
-        return this.lastExtract;
     }
 }
