@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import { stripGilHeader } from "@/utils/gil.utils";
-import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
 import { GilFile } from "@/generated/protobufs/gil";
+import { EXTENSION_CONFIG } from "@/constants/config";
+import { ConfigManager } from "@/services/config-manager.service";
 import { GilResourceHandler } from "@/services/gil-resource.service";
 import { GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
 
@@ -12,6 +13,7 @@ export class GilManager {
     constructor(
         context: vscode.ExtensionContext,
         private readonly targetWorkspace: vscode.WorkspaceFolder,
+        private readonly configManager: ConfigManager
     ) {
         this.gilFileName = `${targetWorkspace.name}.gil`;
         this.resourceHandler = new GilResourceHandler(targetWorkspace.uri);
@@ -28,7 +30,7 @@ export class GilManager {
     }
 
     private onGilChanged = async () => {
-        if (!getWorkspaceConfig(CONFIGS.EnableDefinitions) || !getWorkspaceConfig(CONFIGS.ExtractGilResources)) { return; }
+        if (!this.configManager.getExtensionConfig(EXTENSION_CONFIG.ENABLE_DEFINITIONS) || !this.configManager.getExtensionConfig(EXTENSION_CONFIG.EXTRACT_GIL_RESOURCES)) { return; }
         try {
             await this.extractAllResources();
         } catch (error) { console.error(`Failed to decode ${this.getGilUri().fsPath}`), error }
