@@ -1,20 +1,8 @@
 import * as vscode from "vscode";
 import { SHORT_ID } from "@/constants/extension";
 import { isInMiliLuaWorkspace } from "../utils/extension.utils";
-import { CONFIGS, getWorkspaceConfig } from "@/constants/config";
 import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
-
-const LUA_CONFIG = {
-    WorkspaceLibrary: "workspace.library",
-    RuntimeVersion: "runtime.version",
-    CompletionShowWord: "completion.showWord",
-    DiagnosticsDisable: "diagnostics.disable"
-} as const;
-
-type LuaDiagnostic = (typeof LUA_DIAGNOSTICS)[keyof typeof LUA_DIAGNOSTICS];
-const LUA_DIAGNOSTICS = {
-    NeedCheckNil: "need-check-nil",
-} as const;
+import { ExtensionConfig, EXTENSION_CONFIG, LuaConfig, LUA_CONFIG, LuaDiagnostic, LUA_DIAGNOSTIC } from "@/constants/config";
 
 export class ConfigManager {
     private readonly extensionConfig = vscode.workspace.getConfiguration(SHORT_ID);
@@ -44,32 +32,32 @@ export class ConfigManager {
     }
 
     updateLuaWorkspaceLibrary() {
-        let luaLibs = this.luaConfig.inspect<string[]>(LUA_CONFIG.WorkspaceLibrary)?.workspaceValue ?? [];
+        let luaLibs = this.luaConfig.inspect<string[]>(LUA_CONFIG.WORKSPACE_LIBRARY)?.workspaceValue ?? [];
         luaLibs = luaLibs.filter(lib => !this.isMiliLuaLib.test(lib));
 
-        if (this.extensionConfig.inspect<boolean>(CONFIGS.EnableDefinitions)?.workspaceValue) {
+        if (this.extensionConfig.inspect<boolean>(EXTENSION_CONFIG.ENABLE_DEFINITIONS)?.workspaceValue) {
             if (!luaLibs.includes(this.luaLibraryPath)) { luaLibs.push(this.luaLibraryPath); }
-            if (this.extensionConfig.inspect<boolean>(CONFIGS.ExtractGilResources)?.workspaceValue && !luaLibs.includes(GIL_RESOURCE_DIRECTORY)) {
+            if (this.extensionConfig.inspect<boolean>(EXTENSION_CONFIG.EXTRACT_GIL_RESOURCES)?.workspaceValue && !luaLibs.includes(GIL_RESOURCE_DIRECTORY)) {
                 luaLibs.push(`./${GIL_RESOURCE_DIRECTORY}`);
             }
 
-            this.luaConfig.update(LUA_CONFIG.RuntimeVersion, "Lua 5.3", vscode.ConfigurationTarget.Workspace);
-            this.luaConfig.update(LUA_CONFIG.CompletionShowWord, "Disable");
+            this.luaConfig.update(LUA_CONFIG.RUNTIME_VERSION, "Lua 5.3", vscode.ConfigurationTarget.Workspace);
+            this.luaConfig.update(LUA_CONFIG.COMPLETION_SHOW_WORD, "Disable");
         }
         else {
-            this.luaConfig.update(LUA_CONFIG.RuntimeVersion, undefined, vscode.ConfigurationTarget.Workspace);
-            this.luaConfig.update(LUA_CONFIG.CompletionShowWord, undefined, vscode.ConfigurationTarget.Workspace);
-            this.toggleLuaDiagnostic(LUA_DIAGNOSTICS.NeedCheckNil, false);
+            this.luaConfig.update(LUA_CONFIG.RUNTIME_VERSION, undefined, vscode.ConfigurationTarget.Workspace);
+            this.luaConfig.update(LUA_CONFIG.COMPLETION_SHOW_WORD, undefined, vscode.ConfigurationTarget.Workspace);
+            this.toggleLuaDiagnostic(LUA_DIAGNOSTIC.NEED_CHECK_NIL, false);
         }
 
-        this.luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
+        this.luaConfig.update(LUA_CONFIG.WORKSPACE_LIBRARY, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
     }
 
     async checkWorkspaceConfig() {
         if (this.hasCheckedWorkspaceConfig || !await isInMiliLuaWorkspace(this.workspaceFolder)) { return; }
 
         this.hasCheckedWorkspaceConfig = true;
-        switch (getWorkspaceConfig<boolean>(CONFIGS.EnableDefinitions)) {
+        switch (this.getExtensionConfig<boolean>(EXTENSION_CONFIG.ENABLE_DEFINITIONS)) {
             case true:
                 this.updateLuaWorkspaceLibrary();
                 break;
@@ -79,17 +67,25 @@ export class ConfigManager {
                 vscode.window.showInformationMessage("Would you like to enable MiliLua API Definitions for this workspace? Miliastra Lua API definitions and Gil Resource Extraction will be enabled for this workspace.",
                     "Yes", "Lua API Only", "No")
                     .then(choice => {
-                        this.extensionConfig.update(CONFIGS.EnableDefinitions, choice === "Yes" || choice === "Lua API Only");
-                        this.extensionConfig.update(CONFIGS.ExtractGilResources, choice === "Yes");
+                        this.extensionConfig.update(EXTENSION_CONFIG.ENABLE_DEFINITIONS, choice === "Yes" || choice === "Lua API Only");
+                        this.extensionConfig.update(EXTENSION_CONFIG.EXTRACT_GIL_RESOURCES, choice === "Yes");
                     });
                 break;
         }
     }
 
     toggleLuaDiagnostic(diagnostic: LuaDiagnostic, set?: boolean) {
-        const luaDiagnostics = new Set(this.luaConfig.get<string[]>(LUA_CONFIG.DiagnosticsDisable, []));
+        const luaDiagnostics = new Set(this.luaConfig.get<string[]>(LUA_CONFIG.DIAGNOSTICS_DIABLE, []));
         if (set === false || (set === undefined && luaDiagnostics.has(diagnostic))) { luaDiagnostics.delete(diagnostic); }
         else if (set || !luaDiagnostics.has(diagnostic)) { luaDiagnostics.add(diagnostic); }
-        this.luaConfig.update(LUA_CONFIG.DiagnosticsDisable, luaDiagnostics.size > 0 ? [...luaDiagnostics] : undefined);
+        this.luaConfig.update(LUA_CONFIG.DIAGNOSTICS_DIABLE, luaDiagnostics.size > 0 ? [...luaDiagnostics] : undefined);
+    }
+
+    getExtensionConfig<T>(config: ExtensionConfig) {
+        return this.extensionConfig.inspect<T>(config)?.workspaceValue;
+    }
+
+    getLuaConfig<T>(config: LuaConfig) {
+        return this.luaConfig.inspect<T>(config)?.workspaceValue;
     }
 }
