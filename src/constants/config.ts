@@ -1,12 +1,18 @@
-import * as vscode from "vscode";
-import { SHORT_ID } from "./extension";
-
-export type ConfigKey = typeof CONFIGS[keyof typeof CONFIGS];
-export const CONFIGS = {
+export type ExtensionConfig = typeof EXTENSION_CONFIG[keyof typeof EXTENSION_CONFIG];
+export const EXTENSION_CONFIG = {
     EnableDefinitions: "enableDefinitions",
     ExtractGilResources: "extractGilResources",
 } as const;
 
-export function getWorkspaceConfig<T>(config: ConfigKey): T | undefined {
-    return vscode.workspace.getConfiguration(SHORT_ID).inspect<T>(config)?.workspaceValue;
-}
+export type LuaConfig = typeof LUA_CONFIG[keyof typeof LUA_CONFIG];
+export const LUA_CONFIG = {
+    WorkspaceLibrary: "workspace.library",
+    RuntimeVersion: "runtime.version",
+    CompletionShowWord: "completion.showWord",
+    DiagnosticsDisable: "diagnostics.disable"
+} as const;
+
+export type LuaDiagnostic = typeof LUA_DIAGNOSTIC[keyof typeof LUA_DIAGNOSTIC];
+export const LUA_DIAGNOSTIC = {
+    NeedCheckNil: "need-check-nil",
+} as const;
