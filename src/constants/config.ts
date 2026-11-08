@@ -9,7 +9,7 @@ export const LUA_CONFIG = {
     WORKSPACE_LIBRARY: "workspace.library",
     RUNTIME_VERSION: "runtime.version",
     COMPLETION_SHOW_WORD: "completion.showWord",
-    DIAGNOSTICS_DIABLE: "diagnostics.disable"
+    DIAGNOSTICS_DISABLE: "diagnostics.disable"
 } as const;
 
 export type LuaDiagnostic = typeof LUA_DIAGNOSTIC[keyof typeof LUA_DIAGNOSTIC];
