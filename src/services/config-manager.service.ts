@@ -6,11 +6,14 @@ import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
 
 const LUA_CONFIG = {
     WorkspaceLibrary: "workspace.library",
-    RuntimeVersion: "runtime.version"
+    RuntimeVersion: "runtime.version",
+    CompletionShowWord: "completion.showWord",
+    NeedCheckNil: "need-check-nil"
 } as const;
 
 export class ConfigManager {
     private readonly extensionConfig = vscode.workspace.getConfiguration(SHORT_ID);
+    private readonly luaConfig = vscode.workspace.getConfiguration("Lua");
     private readonly luaLibraryPath: string;
     private readonly isMiliLuaLib: RegExp;
     private hasCheckedWorkspaceConfig = false;
@@ -36,8 +39,7 @@ export class ConfigManager {
     }
 
     updateLuaWorkspaceLibrary() {
-        const luaConfig = vscode.workspace.getConfiguration("Lua");
-        let luaLibs = luaConfig.inspect<string[]>(LUA_CONFIG.WorkspaceLibrary)?.workspaceValue ?? [];
+        let luaLibs = this.luaConfig.inspect<string[]>(LUA_CONFIG.WorkspaceLibrary)?.workspaceValue ?? [];
         luaLibs = luaLibs.filter(lib => !this.isMiliLuaLib.test(lib));
 
         if (this.extensionConfig.inspect<boolean>(CONFIGS.EnableDefinitions)?.workspaceValue) {
@@ -46,13 +48,13 @@ export class ConfigManager {
                 luaLibs.push(`./${GIL_RESOURCE_DIRECTORY}`);
             }
 
-            luaConfig.update(LUA_CONFIG.RuntimeVersion, "Lua 5.3", vscode.ConfigurationTarget.Workspace);
+            this.luaConfig.update(LUA_CONFIG.RuntimeVersion, "Lua 5.3", vscode.ConfigurationTarget.Workspace);
         }
         else {
-            luaConfig.update(LUA_CONFIG.RuntimeVersion, undefined, vscode.ConfigurationTarget.Workspace);
+            this.luaConfig.update(LUA_CONFIG.RuntimeVersion, undefined, vscode.ConfigurationTarget.Workspace);
         }
 
-        luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
+        this.luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
     }
 
     async checkWorkspaceConfig() {
