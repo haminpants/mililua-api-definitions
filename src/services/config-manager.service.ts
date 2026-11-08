@@ -74,8 +74,11 @@ export class ConfigManager {
         }
     }
 
-    toggleExtensionConfig(config: ExtensionConfig, set?: boolean) {
-        this.extensionConfig.update(config, set !== undefined ? set : !this.getExtensionConfig<boolean>(config), vscode.ConfigurationTarget.Workspace);
+    toggleExtensionConfig<T = boolean>(config: ExtensionConfig, set?: boolean, trueValue: T = true as unknown as T, falseValue: T = false as unknown as T) {
+        const value = set !== undefined
+            ? set ? trueValue : falseValue
+            : this.getExtensionConfig<T>(config) === trueValue ? falseValue : trueValue;
+        this.extensionConfig.update(config, value, vscode.ConfigurationTarget.Workspace);
     }
 
     toggleLuaConfig<T = boolean>(config: LuaConfig, set?: boolean, trueValue: T = true as unknown as T, falseValue: T = false as unknown as T) {
