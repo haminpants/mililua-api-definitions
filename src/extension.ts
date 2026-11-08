@@ -11,9 +11,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     if (!vscode.workspace.workspaceFolders) { return; }
     const rootWorkspace = vscode.workspace.workspaceFolders[0];
-    const gilManager = new GilManager(context, rootWorkspace);
     const configManager = new ConfigManager(context, rootWorkspace);
-    registerStatusBar(context, rootWorkspace, gilManager);
+    const gilManager = new GilManager(context, rootWorkspace, configManager);
+    registerStatusBar(context, rootWorkspace, configManager, gilManager);
 
     extensionCommand.registerForceUpdateGilResourcesCommand(context, gilManager);
 }
