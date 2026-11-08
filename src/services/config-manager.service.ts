@@ -74,6 +74,14 @@ export class ConfigManager {
         }
     }
 
+    toggleExtensionConfig(config: ExtensionConfig, set?: boolean) {
+        this.extensionConfig.update(config, set !== undefined ? set : !this.getExtensionConfig<boolean>(config), vscode.ConfigurationTarget.Workspace);
+    }
+
+    toggleLuaConfig(config: LuaConfig, set?: boolean) {
+        this.luaConfig.update(config, set !== undefined ? set : !this.getLuaConfig<boolean>(config), vscode.ConfigurationTarget.Workspace);
+    }
+
     toggleLuaDiagnostic(diagnostic: LuaDiagnostic, set?: boolean) {
         const luaDiagnostics = new Set(this.luaConfig.get<string[]>(LUA_CONFIG.DIAGNOSTICS_DIABLE, []));
         if (set === false || (set === undefined && luaDiagnostics.has(diagnostic))) { luaDiagnostics.delete(diagnostic); }
