@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { SHORT_ID } from "@/constants/extension";
-import { isInMiliLuaWorkspace } from "../utils/extension.utils";
+import { isInMiliLuaWorkspace } from "@/utils/extension.utils";
 import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
 import { ExtensionConfig, EXTENSION_CONFIG, LuaConfig, LUA_CONFIG, LuaDiagnostic, LUA_DIAGNOSTIC } from "@/constants/config";
 
