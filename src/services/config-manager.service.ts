@@ -96,4 +96,8 @@ export class ConfigManager {
     getLuaConfig<T>(config: LuaConfig) {
         return this.luaConfig.inspect<T>(config)?.workspaceValue;
     }
+
+    isLuaDiagnosticEnabled(diagnostic: LuaDiagnostic) {
+        return (this.getLuaConfig<string[]>(LUA_CONFIG.DIAGNOSTICS_DIABLE) ?? []).includes(diagnostic);
+    }
 }
