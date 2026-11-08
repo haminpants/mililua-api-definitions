@@ -8,7 +8,12 @@ const LUA_CONFIG = {
     WorkspaceLibrary: "workspace.library",
     RuntimeVersion: "runtime.version",
     CompletionShowWord: "completion.showWord",
-    NeedCheckNil: "need-check-nil"
+    DiagnosticsDisable: "diagnostics.disable"
+} as const;
+
+type LuaDiagnostic = (typeof LUA_DIAGNOSTICS)[keyof typeof LUA_DIAGNOSTICS];
+const LUA_DIAGNOSTICS = {
+    NeedCheckNil: "need-check-nil",
 } as const;
 
 export class ConfigManager {
@@ -49,9 +54,12 @@ export class ConfigManager {
             }
 
             this.luaConfig.update(LUA_CONFIG.RuntimeVersion, "Lua 5.3", vscode.ConfigurationTarget.Workspace);
+            this.luaConfig.update(LUA_CONFIG.CompletionShowWord, "Disable");
         }
         else {
             this.luaConfig.update(LUA_CONFIG.RuntimeVersion, undefined, vscode.ConfigurationTarget.Workspace);
+            this.luaConfig.update(LUA_CONFIG.CompletionShowWord, undefined, vscode.ConfigurationTarget.Workspace);
+            this.toggleLuaDiagnostic(LUA_DIAGNOSTICS.NeedCheckNil, false);
         }
 
         this.luaConfig.update(LUA_CONFIG.WorkspaceLibrary, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
@@ -76,5 +84,12 @@ export class ConfigManager {
                     });
                 break;
         }
+    }
+
+    toggleLuaDiagnostic(diagnostic: LuaDiagnostic, set?: boolean) {
+        const luaDiagnostics = new Set(this.luaConfig.get<string[]>(LUA_CONFIG.DiagnosticsDisable, []));
+        if (set === false || (set === undefined && luaDiagnostics.has(diagnostic))) { luaDiagnostics.delete(diagnostic); }
+        else if (set || !luaDiagnostics.has(diagnostic)) { luaDiagnostics.add(diagnostic); }
+        this.luaConfig.update(LUA_CONFIG.DiagnosticsDisable, luaDiagnostics.size > 0 ? [...luaDiagnostics] : undefined);
     }
 }
