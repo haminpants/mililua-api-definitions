@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as extensionCommand from "@/commands/index";
 import { GilManager } from "@/services/gil-manager.service";
-import { registerStatusBar } from "./providers/status-bar.provider";
+import { registerStatusBar } from "@/providers/status-bar.provider";
 import { ConfigManager } from "@Root/src/services/config-manager.service";
 import { registerSaveExplorerTreeView } from "@/providers/save-explorer.provider";
 
