@@ -49,6 +49,7 @@ export class ConfigManager {
             this.luaConfig.update(LUA_CONFIG.COMPLETION_SHOW_WORD, "Disable");
 
             readonlyFiles[`${this.luaLibraryPath}/**`] = true;
+            readonlyFiles[`${GIL_RESOURCE_DIRECTORY}/**`] = true;
         }
         else {
             this.luaConfig.update(LUA_CONFIG.RUNTIME_VERSION, undefined, vscode.ConfigurationTarget.Workspace);
