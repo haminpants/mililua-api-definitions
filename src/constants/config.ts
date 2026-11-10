@@ -16,3 +16,10 @@ export type LuaDiagnostic = typeof LUA_DIAGNOSTIC[keyof typeof LUA_DIAGNOSTIC];
 export const LUA_DIAGNOSTIC = {
     NEED_CHECK_NIL: "need-check-nil",
 } as const;
+
+export const VSCODE_CONFIG = {
+    FILES: {
+        SECTION: "files",
+        READONLY_INCLUDE: "readonlyInclude",
+    }
+} as const;
