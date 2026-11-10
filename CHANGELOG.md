@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## (Unreleased)
+
+## Added
+- Add documentation to overloaded functions created for typed return values.
+
 ## [3.4.2]
 
 ## Added
