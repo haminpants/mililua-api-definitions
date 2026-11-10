@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { readFile } from "fs/promises";
 import { getLuaLibraryUri } from "@/utils/uri.utils";
-import { LUA_API_REGISTRY, LuaApiNamespace } from "@/constants/lua-api-registry";
+import { LuaApiNamespace } from "@/constants/lua-api-registry";
 
 export class LuaApiSearch {
     private readonly luaLibraryUri: vscode.Uri;
