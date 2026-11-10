@@ -1,14 +1,16 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import { GilFile } from "@/generated/protobufs/gil";
+import { LuaApiSearch } from "@/services/api-search.service";
 import { GIL_RESOURCE_DIRECTORY, GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
 import stableStringify from "fast-json-stable-stringify";
 
 
 export class GilResourceHandler {
-    private resourceDirectoryUri: vscode.Uri;
+    private readonly resourceDirectoryUri: vscode.Uri;
+    private readonly luaApiSearch: LuaApiSearch;
     private hashFn: ((input: string) => number) | null = null;
-    private hashCache: Record<GilResource, number> = {
+    private readonly hashCache: Record<GilResource, number> = {
         ClientControls: Infinity,
         CustomVariables: Infinity,
         ScriptTextVariables: Infinity,
@@ -17,9 +19,13 @@ export class GilResourceHandler {
         Structures: Infinity,
     };
 
-    constructor(rootUri: vscode.Uri) {
+    constructor(
+        context: vscode.ExtensionContext,
+        rootUri: vscode.Uri
+    ) {
         this.resourceDirectoryUri = vscode.Uri.joinPath(rootUri, GIL_RESOURCE_DIRECTORY);
         this.getHashFunction();
+        this.luaApiSearch = new LuaApiSearch(context);
     }
 
     async extractResource(key: GilResource, gilData: GilFile, force: boolean = false): Promise<boolean> {
@@ -35,7 +41,7 @@ export class GilResourceHandler {
 
         try {
             await fs.mkdir(this.resourceDirectoryUri.fsPath, { recursive: true });
-            await fs.writeFile(extractTargetUri.fsPath, GIL_RESOURCES[key].format(gilData), "utf-8");
+            await fs.writeFile(extractTargetUri.fsPath, await GIL_RESOURCES[key].format(gilData, this.luaApiSearch), "utf-8");
             this.hashCache[key] = newHash;
             return true;
         }

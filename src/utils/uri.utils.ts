@@ -8,3 +8,7 @@ export function getBeyondLocalUri() {
 export function getBeyondLocalSaveUri(uid: string) {
     return vscode.Uri.joinPath(getBeyondLocalUri(), uid, "Beyond_Local_Save_Level");
 }
+
+export function getLuaLibraryUri(context: vscode.ExtensionContext) {
+    return vscode.Uri.joinPath(context.extensionUri, "resources", "library");
+}

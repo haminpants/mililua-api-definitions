@@ -1,3 +1,4 @@
+import { LUA_API_REGISTRY } from "@/constants/lua-api-registry";
 import { GilResourceExtractFormat, StructureConfigIdMap } from "@/types";
 import { GilFile, VariableType, UIComponentTypeIdentifier, EntityComponentType, VariableDefinition, TemplateAssetType, TemplateComponentType } from "@/generated/protobufs/gil";
 
@@ -7,7 +8,7 @@ export type GilResource = keyof typeof GIL_RESOURCES;
 export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
     ClientControls: {
         fileName: "ClientControls.d.lua",
-        format: (gilData: GilFile) => {
+        format: async (gilData, luaApiSearch) => {
             const uiComponents = gilData.uiComponentBlock?.uiComponents ?? [];
 
             const clientControlNames = new Set<string>();
@@ -36,9 +37,10 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
     },
     CustomVariables: {
         fileName: "CustomVariables.d.lua",
-        format: (gilData: GilFile) => {
+        format: async (gilData, luaApiSearch) => {
             const structureConfigIdMap = getStructureConfigIdMappings(gilData);
             const customVariablesByType: Record<string, Set<string>> = {};
+
             const customVariableAliases = [... new Set([
                 ...(gilData.prefabAssets?.assets ?? []).flatMap(asset => {
                     return asset.components.filter(component => {
@@ -81,6 +83,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                 })
             ])];
 
+            const getGlobalCVDocs = await luaApiSearch.findFunctionDocumentation(LUA_API_REGISTRY.GAME, "GetGlobalCustomVariableValue");
             return [
                 ...FILE_HEADER,
                 `---@alias CustomVariableName`,
@@ -88,14 +91,15 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                 ``,
                 `game = game or {}`,
                 ``,
+                ...getGlobalCVDocs.documentation,
                 ...Object.entries(customVariablesByType).map(typeEntry => `---@overload fun(entity: EnumItem.CustomVariableEntityType, varName: ${[...typeEntry[1]].map(varName => `"${varName}"`).join("|")}): ${typeEntry[0]}`),
-                `function game.GetGlobalCustomVariableValue(entity, varName) end`
+                getGlobalCVDocs.functionDefinition
             ].join("\n");
         }
     },
     ScriptTextVariables: {
         fileName: "ScriptTextVariables.d.lua",
-        format: (gilData: GilFile) => {
+        format: async (gilData, luaApiSearch) => {
             const scriptTextVariables = gilData.multiLanguageText?.multiLanguageTextWrapper?.scriptTextVariableContainer?.scriptTextVariables ?? [];
             return [
                 ...FILE_HEADER,
@@ -106,7 +110,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
     },
     ScriptVariables: {
         fileName: "ScriptVariables.d.lua",
-        format: (gilData: GilFile) => {
+        format: async (gilData, luaApiSearch) => {
             const scriptVariablesByType: Record<string, Set<string>> = {};
             for (const mapping of gilData.scriptMappingBlock?.scriptMappings ?? []) {
                 for (const variable of mapping.scriptVariables) {
@@ -114,6 +118,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                 }
             }
 
+            const getParamDocs = await luaApiSearch.findFunctionDocumentation(LUA_API_REGISTRY.SCRIPT, "GetParam");
             return [
                 ...FILE_HEADER,
                 `---@alias ScriptVariableName`,
@@ -122,14 +127,15 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                 `---@class Script`,
                 `local Script = {}`,
                 ``,
+                ...getParamDocs.documentation,
                 ...Object.entries(scriptVariablesByType).map(typeEntry => `---@overload fun(self: Script, varName: ${[...typeEntry[1]].map(varName => `"${varName}"`).join("|")}): ${typeEntry[0]}`),
-                `function Script:GetParam(varName) end`
+                getParamDocs.functionDefinition
             ].join("\n");
         }
     },
     Signals: {
         fileName: "Signals.d.lua",
-        format: (gilData: GilFile) => {
+        format: async (gilData, luaApiSearch) => {
             const signals = gilData.nodeGraphData?.signalContainer?.signals ?? [];
 
             const signalNames = [
@@ -157,7 +163,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
     },
     Structures: {
         fileName: "Structures.d.lua",
-        format: (gilData: GilFile) => {
+        format: async (gilData, luaApiSearch) => {
             const structureIdMappings = getStructureConfigIdMappings(gilData);
             return [
                 ...FILE_HEADER,

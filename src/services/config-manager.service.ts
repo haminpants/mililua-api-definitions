@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { SHORT_ID } from "@/constants/extension";
+import { getLuaLibraryUri } from "@/utils/uri.utils";
 import { isInMiliLuaWorkspace } from "@/utils/extension.utils";
 import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
 import { ExtensionConfig, EXTENSION_CONFIG, LuaConfig, LUA_CONFIG, LuaDiagnostic, LUA_DIAGNOSTIC, VSCODE_CONFIG } from "@/constants/config";
@@ -15,7 +16,7 @@ export class ConfigManager {
         private readonly context: vscode.ExtensionContext,
         private readonly workspaceFolder: vscode.WorkspaceFolder,
     ) {
-        this.luaLibraryPath = vscode.Uri.joinPath(context.extensionUri, "resources", "library").fsPath.replace(/\\/g, '/');
+        this.luaLibraryPath = getLuaLibraryUri(context).fsPath.replace(/\\/g, '/');
         this.isMiliLuaLib = RegExp(`(?:${context.extension.packageJSON.name}|${GIL_RESOURCE_DIRECTORY})`);
 
         this.checkWorkspaceConfig();
