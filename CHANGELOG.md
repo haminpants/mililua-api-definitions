@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## (Unreleased)
+## [3.4.2]
 
 ## Added
 - Read-only workspace settings to prevent accidental editing of the internal API definitions.
