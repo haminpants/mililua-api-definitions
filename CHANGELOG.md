@@ -2,18 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## (Unreleased)
+
+## Added
+- Read-only workspace settings to prevent accidental editing of the internal API definitions.
+
+## [3.4.1]
+
+### Added
+- Word Completion is automatically disabled for new projects.
+- Quick access buttons in the status bar hover menu to toggle Word Completions and the Need Nil Check lint.
+
 ## [3.4.0]
 
 ### Added
 - Gil Resource Extraction for Structures.
 
 ### Changed
-- Added type-checking for Custom Variables through `game.GetGlobalCustomVariableValue`
+- Added type-checking for Custom Variables through `game.GetGlobalCustomVariableValue`.
 
 ## [3.3.0]
 
 ### Changed
-- Added type-checking for Script Variables through `script:GetParam`
+- Added type-checking for Script Variables through `script:GetParam`.
 
 ## [3.2.0]
 

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { SHORT_ID } from "@/constants/extension";
 import { isInMiliLuaWorkspace } from "@/utils/extension.utils";
 import { GIL_RESOURCE_DIRECTORY } from "@/constants/gil-resources";
-import { ExtensionConfig, EXTENSION_CONFIG, LuaConfig, LUA_CONFIG, LuaDiagnostic, LUA_DIAGNOSTIC } from "@/constants/config";
+import { ExtensionConfig, EXTENSION_CONFIG, LuaConfig, LUA_CONFIG, LuaDiagnostic, LUA_DIAGNOSTIC, VSCODE_CONFIG } from "@/constants/config";
 
 export class ConfigManager {
     private readonly extensionConfig = vscode.workspace.getConfiguration(SHORT_ID);
@@ -12,7 +12,7 @@ export class ConfigManager {
     private hasCheckedWorkspaceConfig = false;
 
     constructor(
-        context: vscode.ExtensionContext,
+        private readonly context: vscode.ExtensionContext,
         private readonly workspaceFolder: vscode.WorkspaceFolder,
     ) {
         this.luaLibraryPath = vscode.Uri.joinPath(context.extensionUri, "resources", "library").fsPath.replace(/\\/g, '/');
@@ -32,6 +32,9 @@ export class ConfigManager {
     }
 
     updateLuaWorkspaceLibrary() {
+        let readonlyFiles = vscode.workspace.getConfiguration(VSCODE_CONFIG.FILES.SECTION).inspect<Record<string, boolean>>(VSCODE_CONFIG.FILES.READONLY_INCLUDE)?.workspaceValue ?? {};
+        readonlyFiles = Object.fromEntries(Object.entries(readonlyFiles).filter(([key]) => !this.isMiliLuaLib.test(key)));
+
         let luaLibs = this.luaConfig.inspect<string[]>(LUA_CONFIG.WORKSPACE_LIBRARY)?.workspaceValue ?? [];
         luaLibs = luaLibs.filter(lib => !this.isMiliLuaLib.test(lib));
 
@@ -43,6 +46,8 @@ export class ConfigManager {
 
             this.luaConfig.update(LUA_CONFIG.RUNTIME_VERSION, "Lua 5.3", vscode.ConfigurationTarget.Workspace);
             this.luaConfig.update(LUA_CONFIG.COMPLETION_SHOW_WORD, "Disable");
+
+            readonlyFiles[`${this.luaLibraryPath}/**`] = true;
         }
         else {
             this.luaConfig.update(LUA_CONFIG.RUNTIME_VERSION, undefined, vscode.ConfigurationTarget.Workspace);
@@ -51,6 +56,7 @@ export class ConfigManager {
         }
 
         this.luaConfig.update(LUA_CONFIG.WORKSPACE_LIBRARY, luaLibs.length > 0 ? luaLibs : undefined, vscode.ConfigurationTarget.Workspace);
+        vscode.workspace.getConfiguration(VSCODE_CONFIG.FILES.SECTION).update(VSCODE_CONFIG.FILES.READONLY_INCLUDE, readonlyFiles, vscode.ConfigurationTarget.Workspace);
     }
 
     async checkWorkspaceConfig() {
