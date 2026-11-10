@@ -184,6 +184,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
 const FILE_HEADER = [
     "---This file should not be mapped in the Client Script Resource Explorer.",
     "---@meta",
+    "---@diagnostic disable: undefined-doc-name",
     "---@diagnostic disable: luadoc-miss-type-name",
     ""
 ] as const;
