@@ -170,7 +170,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                 ...(gilData.nodeGraphData?.structureBlocks ?? []).flatMap(block => {
                     if (!block.structure) { return [] };
                     return [
-                        `---@class ${block.structure?.name}`,
+                        `---@class ${structureIdMappings[block.structure?.id]}`,
                         ...block.structure.variables.map(variable => {
                             return `---@field ["${variable.name}"] ${resolveVariableDefinition(variable.typeDefinition, structureIdMappings)}`;
                         })
@@ -221,7 +221,7 @@ function getStructureConfigIdMappings(gilData: GilFile) {
     const structures: Record<number, string> = {}
     for (const block of gilData.nodeGraphData?.structureBlocks ?? []) {
         if (!block.structure) { continue; }
-        structures[block.structure.id] = block.structure.name;
+        structures[block.structure.id] = block.structure.name.replaceAll(/\s/g, "_");
     }
     return structures;
 }
