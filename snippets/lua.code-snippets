@@ -97,7 +97,7 @@
         ]
     },
     "Create Tween": {
-        "prefix": ["mili-tween", "game.Tween"],
+        "prefix": ["game-tween"],
         "description": "Generates Tween starter code.",
         "body": [
             "game.Tween(${1:script.object}, {$0}, ${2:duration})",
