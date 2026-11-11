@@ -11,7 +11,7 @@ import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
 
 let isSaveExplorerRegistered = false;
 
-const uidInfoCacheLifetime = 60 * 60 * 1000;
+const uidInfoCacheLifetimeMs = 24 * 60 * 60 * 1000; // h * m * s * ms
 
 export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
     if (isSaveExplorerRegistered) { throw new Error("The save explorer view has alredy been registered."); }
@@ -143,7 +143,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
 
         const staleUids = validUids.filter(uid => {
             const cachedUid = uidInfoCache[uid];
-            if (cachedUid && cachedUid.lastUpdate >= now - uidInfoCacheLifetime) {
+            if (cachedUid && cachedUid.lastUpdate >= now - uidInfoCacheLifetimeMs) {
                 results[uid] = cachedUid;
                 return false;
             }
