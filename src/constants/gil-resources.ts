@@ -170,7 +170,7 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                 ...(gilData.nodeGraphData?.structureBlocks ?? []).flatMap(block => {
                     if (!block.structure) { return [] };
                     return [
-                        `---@class ${block.structure?.name}`,
+                        `---@class ${structureIdMappings[block.structure?.id]}`,
                         ...block.structure.variables.map(variable => {
                             return `---@field ["${variable.name}"] ${resolveVariableDefinition(variable.typeDefinition, structureIdMappings)}`;
                         })
@@ -217,13 +217,19 @@ const VARIABLE_TYPE_ANNOTATIONS: Record<VariableType, string> = {
     [VariableType.UNRECOGNIZED]: "nil",
 } as const;
 
-function getStructureConfigIdMappings(gilData: GilFile) {
-    const structures: Record<number, string> = {}
+function getStructureConfigIdMappings(gilData: GilFile, minNameLength = 3) {
+    const structureNames: Record<string, number[]> = {}
     for (const block of gilData.nodeGraphData?.structureBlocks ?? []) {
         if (!block.structure) { continue; }
-        structures[block.structure.id] = block.structure.name;
+        const formattedStructureName = block.structure.name.trim()
+            .replace(/\s+/g, "")
+            .replace(/[^a-zA-Z0-9]/g, "");
+        (structureNames[formattedStructureName] ??= []).push(block.structure.id);
     }
-    return structures;
+    return Object.fromEntries(Object.entries(structureNames).flatMap(([formattedName, configIds]) => configIds.map(configId => {
+        const name = (configIds.length > 1 || formattedName.length <= minNameLength ? `s_${configId}` + (formattedName.length > 0 ? "_" : "") : "") + formattedName;
+        return [configId, name];
+    })));
 }
 
 function resolveVariableDefinition(variableDefinition?: VariableDefinition, structureConfigIdMap?: StructureConfigIdMap) {

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## (Unreleased)
+
+### Changed
+- Fixed Structure name extraction for structures with conflicting names, short names, or names containing special characters and whitespaces.
+
 ## [v3.4.3]
 
 ## Added
