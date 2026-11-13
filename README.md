@@ -69,14 +69,15 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 |Script Text Variables|The Mapping ID of Script Text Variables will be extracted to provide autocomplete for the `game.GetText` function.|
 |Script Variables|The name and type of Script Variables defined in your Script Mappings will be extracted to provide autocomplete and type-checking for the `script:GetParam` function. A union type will be provided in scenarios where the same variable name is used in multiple Script Mappings with different types.|
 |Signals|The name and typed parameters of all Signals will be extracted to provide Signal name autocomplete for all signal-related functions, as well as type-checking for Signal parameters.|
-|Structures|The name, variables, and variable types of all Structures will be extracted to provide type-checking for the `game.GetGlobalCustomVariableValue` function.<br>Whitespaces and special characters will be stripped from structure names when extracted; structure names that conflict or are too short will be prepended with `s_<STRUCTURE_CONFIG_ID>`|
+|Structures|The name, variables, and variable types of all Structures will be extracted to provide type-checking for the `game.GetGlobalCustomVariableValue` function.<br>Whitespaces and special characters will be stripped from structure names when extracted; structure names that conflict or are 3 characters or less will be formatted as `s_<STRUCTURE_CONFIG_ID>_<STRUCTURE_NAME>`.|
 
 ## Snippets
+Snippets can be used to quickly insert commonly used blocks of code. An example and full list of snippet prefixes can be found below.
+
 ![GIF demonstrating the use of snippets to quickly generate code.](/resources/readme/example_snippets.gif)
 
 |Prefix|Description|
 |-|-|
-|`mili-lifecycle`|Generates all lifecycle functions.|
 |`function OnInit()`<br>`OnInit`|Generates the OnInit lifecycle function.|
 |`function OnEnable()`<br>`OnEnable`|Generates the OnEnable lifecycle function.|
 |`function OnStart()`<br>`OnStart`|Generates the OnStart lifecycle function.|
@@ -84,7 +85,8 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 |`function OnLevelUpdate()`<br>`OnLevelUpdate`|Generates the OnLevelUpdate lifecycle function.|
 |`function OnDisable()`<br>`OnDisable`|Generates the OnDisable lifecycle function.|
 |`function OnDestroy()`<br>`OnDestroy`|Generates the OnDestroy lifecycle function.|
-|`mili-tween`<br>`game.Tween`|Generates Tween starter code.|
+|`game-tween`|Generates Tween starter code.|
+|`mili-lifecycle`|Generates all lifecycle functions.|
 |`mili-tween-one-shot`|Generates a Tween that calls Kill when completed.|
 |`mili-tween-sequence-one-shot`|Generates a Tween Sequence that calls Kill when completed.|
 
