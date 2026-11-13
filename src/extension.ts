@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as extensionCommand from "@/commands/index";
 import { GilManager } from "@/services/gil-manager.service";
+import { LuaApiSearch } from "@/services/api-search.service";
 import { registerStatusBar } from "@/providers/status-bar.provider";
 import { ConfigManager } from "@Root/src/services/config-manager.service";
 import { registerSaveExplorerTreeView } from "@/providers/save-explorer.provider";
@@ -11,8 +12,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     if (!vscode.workspace.workspaceFolders) { return; }
     const rootWorkspace = vscode.workspace.workspaceFolders[0];
+    const luaApiSearch = new LuaApiSearch(context);
     const configManager = new ConfigManager(context, rootWorkspace);
-    const gilManager = new GilManager(context, rootWorkspace, configManager);
+    const gilManager = new GilManager(context, rootWorkspace, configManager, luaApiSearch);
     registerStatusBar(context, rootWorkspace, configManager, gilManager);
 
     extensionCommand.registerForceUpdateGilResourcesCommand(context, gilManager);
