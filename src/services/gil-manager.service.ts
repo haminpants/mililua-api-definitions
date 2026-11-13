@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { stripGilHeader } from "@/utils/gil.utils";
 import { GilFile } from "@/generated/protobufs/gil";
 import { EXTENSION_CONFIG } from "@/constants/config";
+import { LuaApiSearch } from "@/services/api-search.service";
 import { ConfigManager } from "@/services/config-manager.service";
 import { GilResourceHandler } from "@/services/gil-resource.service";
 import { GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
@@ -13,10 +14,11 @@ export class GilManager {
     constructor(
         context: vscode.ExtensionContext,
         private readonly targetWorkspace: vscode.WorkspaceFolder,
-        private readonly configManager: ConfigManager
+        private readonly configManager: ConfigManager,
+        luaApiSearch: LuaApiSearch
     ) {
         this.gilFileName = `${targetWorkspace.name}.gil`;
-        this.resourceHandler = new GilResourceHandler(context, targetWorkspace.uri);
+        this.resourceHandler = new GilResourceHandler(context, targetWorkspace.uri, luaApiSearch);
 
         const gilWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(targetWorkspace, this.gilFileName), true, false, true);
         gilWatcher.onDidChange(this.onGilChanged);

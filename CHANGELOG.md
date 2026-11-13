@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## (Unreleased)
+
+### Added
+- Autocomplete Enum suggestions for functions with Enum parameters.
+
 ## [3.4.7]
 
 ### Changed

@@ -8,7 +8,6 @@ import stableStringify from "fast-json-stable-stringify";
 
 export class GilResourceHandler {
     private readonly resourceDirectoryUri: vscode.Uri;
-    private readonly luaApiSearch: LuaApiSearch;
     private hashFn: ((input: string) => number) | null = null;
     private readonly hashCache: Record<GilResource, number> = {
         ClientControls: Infinity,
@@ -21,11 +20,11 @@ export class GilResourceHandler {
 
     constructor(
         context: vscode.ExtensionContext,
-        rootUri: vscode.Uri
+        rootUri: vscode.Uri,
+        private readonly luaApiSearch: LuaApiSearch
     ) {
         this.resourceDirectoryUri = vscode.Uri.joinPath(rootUri, GIL_RESOURCE_DIRECTORY);
         this.getHashFunction();
-        this.luaApiSearch = new LuaApiSearch(context);
     }
 
     async extractResource(key: GilResource, gilData: GilFile, force: boolean = false): Promise<boolean> {
