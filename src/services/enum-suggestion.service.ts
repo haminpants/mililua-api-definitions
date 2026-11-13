@@ -17,7 +17,7 @@ export class FunctionEnumSuggestor {
                 if (!functionMatch) { return; }
 
                 const paramIndex = findFunctionParameterIndex(currentLine.substring(precedingText.openParenthesisIndex + 1));
-                if (paramIndex.activeParamText !== "") { return; }
+                if (paramIndex.activeParamText.includes(".")) { return; }
 
                 const suggestions = await luaApiSearch.findFunctionEnumCompletions(functionMatch[0]);
                 return suggestions.filter(s => s.paramIndex === paramIndex.index).map(s => {
