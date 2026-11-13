@@ -3,8 +3,8 @@ import { FunctionDocumentation, FunctionEnumCompletion } from "@/types";
 import { getLuaLibraryUri } from "@/utils/uri.utils";
 import { LuaApiNamespace } from "@/constants/lua-api-registry";
 
-const functionRegex = /((?:---.*\r?\n)*)\s*(?:function\s+[a-zA-Z0-9_]+([.:][a-zA-Z0-9_]+)\(([^)]*)\))/g;
-const paramAnnotationRegex = /---@param\s+([a-zA-Z0-9_]+)\s+EnumItem.([a-zA-Z0-9_]+)/g;
+const functionRegex = /((?:---.*\r?\n)*)\s*(?:function\s+\w+([.:]\w+)\(([^)]*)\))/g;
+const paramAnnotationRegex = /---@param\s+(\w+)\s+EnumItem.(\w+)/g;
 
 export class LuaApiSearch {
     private isInitialized = false;
