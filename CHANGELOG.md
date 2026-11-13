@@ -2,12 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## (Unreleased)
+## [3.4.7]
 
 ### Changed
 - Fixed Structure name extraction for structures with conflicting names, short names, or names containing special characters and whitespaces.
 
-## [v3.4.3]
+## [3.4.3]
 
 ## Added
 - Add documentation to overloaded functions created for typed return values.
