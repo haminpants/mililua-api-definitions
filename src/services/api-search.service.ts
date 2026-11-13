@@ -42,7 +42,6 @@ export class LuaApiSearch {
             this.initializationPromise = null;
         })();
 
-        console.log(this.functionEnumCompletionCache);
         return this.initializationPromise;
     }
 
