@@ -108,7 +108,7 @@
         "description": "Generates Custom Variable changed handler starter code.",
         "body": [
             "script:RegisterCustomVariableChangedHandler(Enum.CustomVariableEntityType.${1}, ${2}, function (entity, varName)",
-            "\tlocal value = game.GetGlobalCustomVariableValue(entity, varName)",
+            "\tlocal value = game.GetGlobalCustomVariableValue(entity, ${2})",
             "\t$0",
             "end)"
         ]
