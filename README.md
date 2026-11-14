@@ -86,6 +86,7 @@ Snippets can be used to quickly insert commonly used blocks of code. An example 
 |`function OnDisable()`<br>`OnDisable`|Generates the OnDisable lifecycle function.|
 |`function OnDestroy()`<br>`OnDestroy`|Generates the OnDestroy lifecycle function.|
 |`game-tween`|Generates Tween starter code.|
+|`script-register-custom-variable-changed-handler`|Generates Custom Variable changed handler starter code.|
 |`mili-lifecycle`|Generates all lifecycle functions.|
 |`mili-tween-one-shot`|Generates a Tween that calls Kill when completed.|
 |`mili-tween-sequence-one-shot`|Generates a Tween Sequence that calls Kill when completed.|
