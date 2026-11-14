@@ -124,4 +124,14 @@
             "$0",
         ]
     },
+    "Register Custom Variable Changed Handler": {
+        "prefix": ["script-register-custom-variable-changed-handler"],
+        "description": "Generates a code block for a custom variable changed handler.",
+        "body": [
+            "script:RegisterCustomVariableChangedHandler(Enum.CustomVariableEntityType.${1}, ${2}, function (entity, varName)",
+            "\tlocal value = game.GetGlobalCustomVariableValue(entity, varName)",
+            "\t$0",
+            "end)"
+        ]
+    }
 }
