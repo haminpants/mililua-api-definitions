@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
+import * as fs from "fs/promises";
 import { stripGilHeader } from "@/utils/gil.utils";
 import { GilFile } from "@/generated/protobufs/gil";
 import { EXTENSION_CONFIG } from "@/constants/config";
 import { LuaApiSearch } from "@/services/api-search.service";
 import { ConfigManager } from "@/services/config-manager.service";
 import { GilResourceHandler } from "@/services/gil-resource.service";
-import { GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
+import { GIL_RESOURCE_DIRECTORY, GIL_RESOURCES, GilResource } from "@/constants/gil-resources";
 
 export class GilManager {
     public readonly gilFileName: string;
@@ -28,6 +29,7 @@ export class GilManager {
 
     async extractAllResources(force = false) {
         const gilData = GilFile.decode(await stripGilHeader(this.getGilUri()));
+        if (force) { await fs.rm(vscode.Uri.joinPath(this.targetWorkspace.uri, GIL_RESOURCE_DIRECTORY).fsPath, { recursive: true, force: true }); }
         return Promise.all((Object.keys(GIL_RESOURCES) as GilResource[]).map(async resource => this.resourceHandler.extractResource(resource, gilData, force)));
     }
 
