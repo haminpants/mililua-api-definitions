@@ -71,6 +71,10 @@ When the "Extract Gil Resources" setting is enabled for your current workspace, 
 |Signals|The name and typed parameters of all Signals will be extracted to provide Signal name autocomplete for all signal-related functions, as well as type-checking for Signal parameters.|
 |Structures|The name, variables, and variable types of all Structures will be extracted to provide type-checking for the `game.GetGlobalCustomVariableValue` function.<br>Whitespaces and special characters will be stripped from structure names when extracted; structure names that conflict or are 3 characters or less will be formatted as `s_<STRUCTURE_CONFIG_ID>_<STRUCTURE_NAME>`.|
 
+When enabled, a "Force Refresh Gil Resources" quick link can be found in the Status Bar hover menu to regenerate the `.gil_resources` directory in case of errors or incompatibilities with previous versions of the extension.
+
+![A screenshot that highlights where to find the "Force Refresh Gil Resources" link in the extension's status bar menu.](/resources/readme/status_bar_force_refresh.png)
+
 ## Snippets
 Snippets can be used to quickly insert commonly used blocks of code. An example and full list of snippet prefixes can be found below.
 
