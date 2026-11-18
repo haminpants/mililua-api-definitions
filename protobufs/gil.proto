@@ -250,6 +250,9 @@ message ScriptMappingBlock {
 }
 
 message ScriptMapping {
+  uint32 script_mapping_id = 1;
+  string name = 2;
+  string reference_path = 3;
   repeated ScriptVariable script_variables = 7;
 }
 

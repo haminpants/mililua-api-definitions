@@ -109,10 +109,14 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
         }
     },
     ScriptVariables: {
-        fileName: "ScriptVariables.d.lua",
+        fileName: "ScriptMappings.d.lua",
         format: async (gilData, luaApiSearch) => {
+            const scriptMappingIds: Record<number, string> = {};
+            const scriptReferencePaths: string[] = [];
             const scriptVariablesByType: Record<string, Set<string>> = {};
             for (const mapping of gilData.scriptMappingBlock?.scriptMappings ?? []) {
+                scriptMappingIds[mapping.scriptMappingId] = `${mapping.name} (${mapping.referencePath})`;
+                scriptReferencePaths.push(mapping.referencePath.replace(/\.lua$/, ""));
                 for (const variable of mapping.scriptVariables) {
                     (scriptVariablesByType[resolveTypeAnnotation({ base: variable.type })] ??= new Set()).add(variable.name);
                 }
@@ -123,6 +127,12 @@ export const GIL_RESOURCES: Record<string, GilResourceExtractFormat> = {
                 ...FILE_HEADER,
                 `---@alias ScriptVariableName`,
                 ...Object.values(scriptVariablesByType).flatMap(varNames => [...varNames].map(varName => `---| "${varName}"`)),
+                ``,
+                `---@alias ScriptMappingId`,
+                ...Object.entries(scriptMappingIds).map(([mappingId, description]) => `---| ${mappingId} # ${description}`),
+                ``,
+                `---@alias ScriptReferencePath`,
+                ...scriptReferencePaths.map(path => `---| "${path}"`),
                 ``,
                 `---@class Script`,
                 `local Script = {}`,
