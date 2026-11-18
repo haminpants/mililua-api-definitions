@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## (Unreleased)
+## [3.6.0]
 
 ### Added
 - Gil Resource Extraction for Script Mapping identifiers and reference paths.
