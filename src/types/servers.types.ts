@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UidInfo } from "./extension.types";
+import { UidInfo } from "@/types";
 
 export type ServerType = "GLOBAL" | "CN";
 
