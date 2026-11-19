@@ -12,6 +12,9 @@ export async function activate(context: vscode.ExtensionContext) {
     registerSaveExplorerTreeView(context, "GLOBAL");
     registerSaveExplorerTreeView(context, "CN");
 
+    extensionCommand.registerRefreshSaveExplorerCommand(context);
+    extensionCommand.registerSelectSaveExplorerItemCommand(context);
+
     if (!vscode.workspace.workspaceFolders) { return; }
     const rootWorkspace = vscode.workspace.workspaceFolders[0];
     const luaApiSearch = new LuaApiSearch(context);
@@ -20,7 +23,5 @@ export async function activate(context: vscode.ExtensionContext) {
     const gilManager = new GilManager(context, rootWorkspace, configManager, luaApiSearch);
     registerStatusBar(context, rootWorkspace, configManager, gilManager);
 
-    extensionCommand.registerRefreshSaveExplorerCommand(context);
-    extensionCommand.registerSelectSaveExplorerItemCommand(context);
     extensionCommand.registerForceUpdateGilResourcesCommand(context, gilManager);
 }
