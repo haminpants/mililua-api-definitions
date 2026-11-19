@@ -9,7 +9,8 @@ import { registerSaveExplorerTreeView } from "@/providers/save-explorer.provider
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating MiliLua API Definitions...");
-    registerSaveExplorerTreeView(context);
+    registerSaveExplorerTreeView(context, "GLOBAL");
+    registerSaveExplorerTreeView(context, "CN");
 
     if (!vscode.workspace.workspaceFolders) { return; }
     const rootWorkspace = vscode.workspace.workspaceFolders[0];
@@ -19,5 +20,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const gilManager = new GilManager(context, rootWorkspace, configManager, luaApiSearch);
     registerStatusBar(context, rootWorkspace, configManager, gilManager);
 
+    extensionCommand.registerRefreshSaveExplorerCommand(context);
+    extensionCommand.registerSelectSaveExplorerItemCommand(context);
     extensionCommand.registerForceUpdateGilResourcesCommand(context, gilManager);
 }
