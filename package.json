@@ -53,7 +53,12 @@
     },
     "commands": [
       {
-        "command": "mililua.refreshSaveExplorer",
+        "command": "mililua.refreshGlobalSaveExplorer",
+        "title": "Refresh Save Explorer",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "mililua.refreshCnSaveExplorer",
         "title": "Refresh Save Explorer",
         "icon": "$(refresh)"
       }
@@ -90,8 +95,13 @@
     "menus": {
       "view/title": [
         {
-          "command": "mililua.refreshSaveExplorer",
+          "command": "mililua.refreshGlobalSaveExplorer",
           "when": "view == mililua.save-explorer-global",
+          "group": "navigation"
+        },
+        {
+          "command": "mililua.refreshCnSaveExplorer",
+          "when": "view == mililua.save-explorer-cn",
           "group": "navigation"
         }
       ]
