@@ -2,50 +2,37 @@ import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import { SERVER } from "@/constants/servers";
 import { COMMANDS } from "@/constants/commands";
-import { SHORT_ID } from "@/constants/extension";
 import { stripGilHeader } from "@/utils/gil.utils";
 import { GilFileHeader } from "@/generated/protobufs/gil";
 import { getBeyondLocalSaveUri } from "@/utils/uri.utils";
 import { getServerTypeFromUid } from "@/utils/string.utils";
 import { ServerType, StageSaveData, UidSaveData } from "@/types";
 
-let isSaveExplorerRegistered = false;
+const serverSaveExplorers: Record<ServerType, SaveExplorerDataProvider | undefined> = {
+    GLOBAL: undefined,
+    CN: undefined
+}
 
-export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
-    if (isSaveExplorerRegistered) { throw new Error("The save explorer view has alredy been registered."); }
+export function getSaveExplorer(serverType: ServerType) {
+    return serverSaveExplorers[serverType];
+}
 
-    const saveExplorer = new SaveExplorerDataProvider(context);
-    const saveExplorerTreeView = vscode.window.createTreeView(`${SHORT_ID}.save-explorer`, {
+export function getAllSaveExplorers() {
+    return Object.values(serverSaveExplorers).filter(e => e !== undefined);
+}
+
+export function registerSaveExplorerTreeView(context: vscode.ExtensionContext, serverType: ServerType) {
+    if (serverSaveExplorers[serverType]) { throw new Error(`A save explorer view has already been registered for server type: ${serverType}`); }
+
+    const saveExplorer = new SaveExplorerDataProvider(context, serverType);
+    const saveExplorerTreeView = vscode.window.createTreeView(SERVER[serverType].treeViewId, {
         treeDataProvider: saveExplorer,
         showCollapseAll: true,
         canSelectMany: false
     });
 
-    const refreshCommand = vscode.commands.registerCommand(COMMANDS.REFRESH_SAVE_EXPLORER, () => {
-        saveExplorer.update();
-    });
-
-    const selectCommand = vscode.commands.registerCommand(COMMANDS.SELECT_SAVE_EXPLORER_ITEM, async (item: SaveExplorerItem) => {
-        if (!item.isSave) { return; }
-        if ((vscode.workspace.workspaceFolders?.length ?? 0) > 0 || vscode.workspace.textDocuments.length > 0) {
-            const choice = await vscode.window.showInformationMessage(
-                `Are you sure you would like to open ${item.label}?\nAny unsaved changes in your current files and workspace will be lost.`,
-                { modal: true },
-                "Yes"
-            );
-
-            if (choice !== "Yes") { return; }
-        }
-        vscode.commands.executeCommand(`vscode.openFolder`, item.uri, { forceNewWindow: false })
-    })
-
-    context.subscriptions.push(
-        saveExplorerTreeView,
-        refreshCommand,
-        selectCommand
-    );
-
-    isSaveExplorerRegistered = true;
+    context.subscriptions.push(saveExplorerTreeView);
+    serverSaveExplorers[serverType] = saveExplorer;
 }
 
 export class SaveExplorerItem extends vscode.TreeItem {
@@ -70,7 +57,8 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
     private data: SaveExplorerItem[] = [];
 
     constructor(
-        private readonly context: vscode.ExtensionContext
+        private readonly context: vscode.ExtensionContext,
+        private readonly serverType: ServerType
     ) {
         this.icon_save = vscode.Uri.joinPath(context.extensionUri, "resources", "miliastra_save_icon.svg");
         this.icon_uid = new vscode.ThemeIcon(`accounts-view-bar-icon`);
@@ -78,7 +66,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
     }
 
     async update() {
-        this.data = (await this.getUidSaves("GLOBAL")).map(uidSaves => {
+        this.data = (await this.getUidSaves(this.serverType)).map(uidSaves => {
             const saveEntries = uidSaves.saves.map(save => {
                 const saveEntry = new SaveExplorerItem(
                     `${save.name} (${save.id})`,
@@ -98,7 +86,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
             });
 
             const uidEntry = new SaveExplorerItem(
-                `${uidSaves.nickname} (${uidSaves.uid})`,
+                uidSaves.nickname ? `${uidSaves.nickname} (${uidSaves.uid})` : uidSaves.uid,
                 uidSaves.uri,
                 false,
                 vscode.TreeItemCollapsibleState.Expanded,
@@ -109,6 +97,14 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
 
             return uidEntry;
         });
+        if (this.data.length === 0) {
+            this.data.push(new SaveExplorerItem(
+                "No saves found.",
+                this.context.extensionUri,
+                false,
+                vscode.TreeItemCollapsibleState.None,
+            ))
+        }
         this.updateView();
     }
 
