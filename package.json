@@ -76,8 +76,13 @@
     "views": {
       "miliastra-toolkit": [
         {
-          "id": "mililua.save-explorer",
-          "name": "Save Explorer",
+          "id": "mililua.save-explorer-global",
+          "name": "Save Explorer (Global)",
+          "icon": "resources/miliastra_save_icon.svg"
+        },
+        {
+          "id": "mililua.save-explorer-cn",
+          "name": "Save Explorer (CN)",
           "icon": "resources/miliastra_save_icon.svg"
         }
       ]
@@ -86,7 +91,7 @@
       "view/title": [
         {
           "command": "mililua.refreshSaveExplorer",
-          "when": "view == mililua.save-explorer",
+          "when": "view == mililua.save-explorer-global",
           "group": "navigation"
         }
       ]
