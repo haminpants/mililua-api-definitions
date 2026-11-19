@@ -167,12 +167,12 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
                 const isValid = saveFiles.includes("external_lua_file") && saveFiles.includes(`${saveId}.gil`);
                 if (!isValid) { return null; }
 
-                const saveUri = vscode.Uri.joinPath(saveDirUri, `${saveId}.gil`);
-                const saveData = GilFileHeader.decode(await stripGilHeader(saveUri));
+                const gilUri = vscode.Uri.joinPath(saveDirUri, `${saveId}.gil`);
+                const saveData = GilFileHeader.decode(await stripGilHeader(gilUri));
 
                 return {
                     id: saveId,
-                    uri: saveUri,
+                    uri: saveDirUri,
                     name: saveData.name
                 }
             });
