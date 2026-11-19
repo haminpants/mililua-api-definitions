@@ -1,9 +1,4 @@
-import { Uri } from "vscode"
-
-export interface UidInfo {
-    readonly name: string,
-    readonly lastUpdate: number
-}
+import { Uri } from "vscode";
 
 export interface StageSaveData {
     id: string,

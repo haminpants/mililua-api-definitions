@@ -1,53 +1,38 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
-import { isUid } from "@/utils/string.utils";
+import { SERVER } from "@/constants/servers";
 import { COMMANDS } from "@/constants/commands";
-import { SHORT_ID } from "@/constants/extension";
 import { stripGilHeader } from "@/utils/gil.utils";
-import { EnkaResponse, UidInfo, UidSaveData } from "@/types";
 import { GilFileHeader } from "@/generated/protobufs/gil";
-import { GLOBAL_STATE_KEYS } from "@/constants/global-state-keys";
-import { getBeyondLocalSaveUri, getBeyondLocalUri } from "@/utils/uri.utils";
+import { getBeyondLocalSaveUri } from "@/utils/uri.utils";
+import { getServerTypeFromUid } from "@/utils/string.utils";
+import { ServerType, StageSaveData, UidSaveData } from "@/types";
 
-let isSaveExplorerRegistered = false;
+const serverSaveExplorers: Record<ServerType, SaveExplorerDataProvider | undefined> = {
+    GLOBAL: undefined,
+    CN: undefined
+}
 
-const uidInfoCacheLifetimeMs = 24 * 60 * 60 * 1000; // h * m * s * ms
+export function getSaveExplorer(serverType: ServerType) {
+    return serverSaveExplorers[serverType];
+}
 
-export function registerSaveExplorerTreeView(context: vscode.ExtensionContext) {
-    if (isSaveExplorerRegistered) { throw new Error("The save explorer view has alredy been registered."); }
+export function getAllSaveExplorers() {
+    return Object.values(serverSaveExplorers).filter(e => e !== undefined);
+}
 
-    const saveExplorer = new SaveExplorerDataProvider(context);
-    const saveExplorerTreeView = vscode.window.createTreeView(`${SHORT_ID}.save-explorer`, {
+export function registerSaveExplorerTreeView(context: vscode.ExtensionContext, serverType: ServerType) {
+    if (serverSaveExplorers[serverType]) { throw new Error(`A save explorer view has already been registered for server type: ${serverType}`); }
+
+    const saveExplorer = new SaveExplorerDataProvider(context, serverType);
+    const saveExplorerTreeView = vscode.window.createTreeView(SERVER[serverType].treeViewId, {
         treeDataProvider: saveExplorer,
         showCollapseAll: true,
         canSelectMany: false
     });
 
-    const refreshCommand = vscode.commands.registerCommand(COMMANDS.REFRESH_SAVE_EXPLORER, () => {
-        saveExplorer.update();
-    });
-
-    const selectCommand = vscode.commands.registerCommand(COMMANDS.SELECT_SAVE_EXPLORER_ITEM, async (item: SaveExplorerItem) => {
-        if (!item.isSave) { return; }
-        if ((vscode.workspace.workspaceFolders?.length ?? 0) > 0 || vscode.workspace.textDocuments.length > 0) {
-            const choice = await vscode.window.showInformationMessage(
-                `Are you sure you would like to open ${item.label}?\nAny unsaved changes in your current files and workspace will be lost.`,
-                { modal: true },
-                "Yes"
-            );
-
-            if (choice !== "Yes") { return; }
-        }
-        vscode.commands.executeCommand(`vscode.openFolder`, item.uri, { forceNewWindow: false })
-    })
-
-    context.subscriptions.push(
-        saveExplorerTreeView,
-        refreshCommand,
-        selectCommand
-    );
-
-    isSaveExplorerRegistered = true;
+    context.subscriptions.push(saveExplorerTreeView);
+    serverSaveExplorers[serverType] = saveExplorer;
 }
 
 export class SaveExplorerItem extends vscode.TreeItem {
@@ -72,7 +57,8 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
     private data: SaveExplorerItem[] = [];
 
     constructor(
-        private readonly context: vscode.ExtensionContext
+        private readonly context: vscode.ExtensionContext,
+        private readonly serverType: ServerType
     ) {
         this.icon_save = vscode.Uri.joinPath(context.extensionUri, "resources", "miliastra_save_icon.svg");
         this.icon_uid = new vscode.ThemeIcon(`accounts-view-bar-icon`);
@@ -80,7 +66,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
     }
 
     async update() {
-        this.data = (await this.getUidSaves()).map(uidSaves => {
+        this.data = (await this.getUidSaves(this.serverType)).map(uidSaves => {
             const saveEntries = uidSaves.saves.map(save => {
                 const saveEntry = new SaveExplorerItem(
                     `${save.name} (${save.id})`,
@@ -100,7 +86,7 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
             });
 
             const uidEntry = new SaveExplorerItem(
-                `${uidSaves.nickname} (${uidSaves.uid})`,
+                uidSaves.nickname ? `${uidSaves.nickname} (${uidSaves.uid})` : uidSaves.uid,
                 uidSaves.uri,
                 false,
                 vscode.TreeItemCollapsibleState.Expanded,
@@ -111,6 +97,14 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
 
             return uidEntry;
         });
+        if (this.data.length === 0) {
+            this.data.push(new SaveExplorerItem(
+                "No saves found.",
+                this.context.extensionUri,
+                false,
+                vscode.TreeItemCollapsibleState.None,
+            ))
+        }
         this.updateView();
     }
 
@@ -127,117 +121,67 @@ export class SaveExplorerDataProvider implements vscode.TreeDataProvider<SaveExp
         this._onDidChangeTreeData.fire();
     }
 
-    private async getUidInfo(uids: string[]): Promise<Record<string, UidInfo>> {
-        const uidInfoCache = this.context.globalState.get<Record<string, UidInfo>>(GLOBAL_STATE_KEYS.UidInfoCache, {});
-        const results: Record<string, UidInfo> = {};
-        const now = Date.now();
-        let updateGlobalState = false;
+    private async getUidSaves(serverType: ServerType): Promise<UidSaveData[]> {
+        const server = SERVER[serverType];
+        const beyondLocalUri = server.getBeyondLocalUri();
+        try {
+            const dirents = await fs.readdir(beyondLocalUri.fsPath, { withFileTypes: true });
+            const validUids = dirents
+                .filter(d => d.isDirectory() && !d.isSymbolicLink() && getServerTypeFromUid(d.name) === serverType)
+                .map(d => ({ uid: d.name, uri: vscode.Uri.joinPath(beyondLocalUri, d.name) }))
+            if (validUids.length === 0) { return []; }
 
-        const validUids = uids.filter(uid => {
-            if (!isUid(uid)) {
-                results[uid] = { name: "Invalid UID", lastUpdate: now };
-                return false;
-            }
-            return true;
-        });
-
-        const staleUids = validUids.filter(uid => {
-            const cachedUid = uidInfoCache[uid];
-            if (cachedUid && cachedUid.lastUpdate >= now - uidInfoCacheLifetimeMs) {
-                results[uid] = cachedUid;
-                return false;
-            }
-            return true;
-        });
-
-        if (staleUids.length > 0) {
-            console.log(`Querying enka.network for UIDs: ${staleUids.join(", ")}`);
-
-            const enkaUidInfoPromises = staleUids.map(async uid => {
-                const apiUrl = `https://enka.network/api/uid/${uid}/?info`;
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        headers: {
-                            "User-Agent": "MiliLua-VSCode-Extension (Discord @haminpants)"
-                        },
-                        signal: AbortSignal.timeout(5000)
-                    });
-
-                    if (!response.ok) { throw new Error(`HTTP Error - Status: ${response.status} ${response.statusText}`) }
-                    const data = await response.json() as EnkaResponse;
-                    const nickname = data?.playerInfo?.nickname;
-
-                    if (nickname) { return { uid, uidInfo: { name: data.playerInfo.nickname, lastUpdate: now }, success: true } }
-                    throw new Error(`Response body missing playerInfo.nickname for UID ${uid}`);
+            return await Promise.all(validUids.map<Promise<UidSaveData>>(async entry => {
+                const saves = await this.getSavesForUid(serverType, entry.uid);
+                return {
+                    uid: entry.uid,
+                    uri: entry.uri,
+                    saves,
+                    nickname: (await server.getUidInfo(this.context, entry.uid)).name
                 }
-                catch (err) {
-                    console.error(`Failed to fetch UID ${uid}`, err);
-                    return { uid, uidInfo: uidInfoCache[uid] ?? { name: "Unknown", lastUpdate: now }, success: false }
-                }
-            });
+            }));
 
-            for (const { uid, uidInfo, success } of await Promise.all(enkaUidInfoPromises)) {
-                results[uid] = uidInfo;
-                if (success) {
-                    uidInfoCache[uid] = uidInfo;
-                    updateGlobalState = true;
-                }
-            }
-
-            if (updateGlobalState) { await this.context.globalState.update(GLOBAL_STATE_KEYS.UidInfoCache, uidInfoCache); }
         }
-
-        return results;
+        catch (error: any) {
+            if (error?.code !== `ENOENT`) {
+                console.error(`Could not load saves for server: ${serverType}`, error);
+            }
+            return [];
+        }
     }
 
-    private async getUidSaves(): Promise<UidSaveData[]> {
-        const beyondLocalUri = getBeyondLocalUri();
-        const beyondLocalContents = await fs.readdir(beyondLocalUri.fsPath);
+    private async getSavesForUid(serverType: ServerType, uid: string): Promise<StageSaveData[]> {
+        if (getServerTypeFromUid(uid) !== serverType) {
+            console.error(`Server type mismatch for UID: ${uid} given server type: ${serverType}`);
+            return [];
+        }
 
-        const uidDirectoryPromises = beyondLocalContents.map(async uidDirectory => {
-            const stats = await fs.lstat(vscode.Uri.joinPath(beyondLocalUri, uidDirectory).fsPath);
-            return { uidDirectory, stats };
-        });
+        const uidSaveDirUri = getBeyondLocalSaveUri(serverType, uid);
+        try {
+            const saveDirents = await fs.readdir(uidSaveDirUri.fsPath, { withFileTypes: true });
+            const savePromise = saveDirents.filter(d => d.isDirectory()).map(async dirent => {
+                const saveId = dirent.name;
+                const saveDirUri = vscode.Uri.joinPath(uidSaveDirUri, saveId);
 
-        const uidDirectories = (await Promise.allSettled(uidDirectoryPromises))
-            .filter((r): r is PromiseFulfilledResult<{ uidDirectory: string, stats: any }> => {
-                return r.status === "fulfilled" && r.value.stats.isDirectory() && !r.value.stats.isSymbolicLink() && isUid(r.value.uidDirectory);
-            }).map(r => { return { uid: r.value.uidDirectory, uri: vscode.Uri.joinPath(beyondLocalUri, r.value.uidDirectory) } });
+                const saveFiles = await fs.readdir(saveDirUri.fsPath);
+                const isValid = saveFiles.includes("external_lua_file") && saveFiles.includes(`${saveId}.gil`);
+                if (!isValid) { return null; }
 
-        const uidInfoPromise = this.getUidInfo(uidDirectories.map(uidDir => uidDir.uid));
+                const gilUri = vscode.Uri.joinPath(saveDirUri, `${saveId}.gil`);
+                const saveData = GilFileHeader.decode(await stripGilHeader(gilUri));
 
-        const uidSaveDataPromises = uidDirectories.map(async uidDirectory => {
-            const uidDirSavesUri = getBeyondLocalSaveUri(uidDirectory.uid);
-            const saveDirectories = await fs.readdir(uidDirSavesUri.fsPath);
-
-            const saveContentsPromises = saveDirectories.map(async saveDirectory => {
-                const saveContents = await fs.readdir(vscode.Uri.joinPath(uidDirSavesUri, saveDirectory).fsPath);
-                const isValidSave = saveContents.includes(`external_lua_file`) && saveContents.includes(`${saveDirectory}.gil`);
-                return { saveId: saveDirectory, saveUri: vscode.Uri.joinPath(uidDirSavesUri, saveDirectory, `${saveDirectory}.gil`), isValidSave };
+                return {
+                    id: saveId,
+                    uri: saveDirUri,
+                    name: saveData.name
+                }
             });
 
-            const validSaveNamesPromises = (await Promise.allSettled(saveContentsPromises))
-                .filter((r): r is PromiseFulfilledResult<{ saveId: string, saveUri: vscode.Uri, isValidSave: boolean }> => {
-                    return r.status === "fulfilled" && r.value.isValidSave;
-                }).map(async r => {
-                    const saveData = GilFileHeader.decode(await stripGilHeader(r.value.saveUri));
-                    return { saveId: r.value.saveId, saveName: saveData.name }
-                });
-
-            const validSaves = (await Promise.allSettled(validSaveNamesPromises))
-                .filter((r): r is PromiseFulfilledResult<{ saveId: string, saveName: string }> => {
-                    return r.status === "fulfilled";
-                }).map(r => { return { id: r.value.saveId, uri: vscode.Uri.joinPath(uidDirSavesUri, r.value.saveId), name: r.value.saveName } });
-
-            return {
-                uid: uidDirectory.uid,
-                uri: uidDirectory.uri,
-                nickname: (await uidInfoPromise)[uidDirectory.uid]?.name ?? "Unknown",
-                saves: validSaves
-            }
-        });
-
-        return Promise.all(uidSaveDataPromises);
+            const results = await Promise.all(savePromise);
+            return results.filter(save => save !== null);
+        }
+        catch {
+            return [];
+        }
     }
 }

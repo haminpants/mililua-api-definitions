@@ -1,7 +1,8 @@
 import { SHORT_ID } from "./extension";
 
 export const COMMANDS = {
-    REFRESH_SAVE_EXPLORER: `${SHORT_ID}.refreshSaveExplorer`,
+    REFRESH_GLOBAL_SAVE_EXPLORER: `${SHORT_ID}.refreshGlobalSaveExplorer`,
+    REFRESH_CN_SAVE_EXPLORER: `${SHORT_ID}.refreshCnSaveExplorer`,
     SELECT_SAVE_EXPLORER_ITEM: `${SHORT_ID}.selectSaveExplorerItem`,
     OPEN_MILILUA_SETTINGS: `${SHORT_ID}.openMiliLuaSettings`,
     ENABLE_DEFINITIONS: `${SHORT_ID}.enableDefinitions`,
