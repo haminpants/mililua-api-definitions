@@ -55,7 +55,7 @@ Hover over the "Miliastra" status bar entry to diagnose common issues. Click the
 ## Miliastra Toolkit
 The Miliastra Toolkit is a view added to the activity bar, enabling quick access to saves on the local device.
 ### Save Explorer
-The Save Explorer is the primary view displayed in the Miliastra Toolkit, allowing you to quickly open  saves on your device. Clicking a stage entry will automatically open that save in VS Code. Use the refresh button to update the listed stages.
+The Save Explorer is the primary view displayed in the Miliastra Toolkit, allowing you to quickly open  saves on your device. Clicking a stage entry will automatically open that save in VS Code. The refresh button highlighted in blue can be used to update the listed stages.
 
 ![A screenshot showing an example of the Save Explorer.](/resources/readme/toolkit_save_explorer.png)
 
