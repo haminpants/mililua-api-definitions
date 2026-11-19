@@ -98,12 +98,13 @@ Snippets can be used to quickly insert commonly used blocks of code. An example 
 ## Lua API Limitations
 - Functions that return `ClientUIBaseControl` do return the exact runtime type; however, LuaLS cannot infer the correct type, so an alias containing all Client Control types is returned instead.
 - Functions that return data from the server, such as from signals or `game.GetGlobalCustomVariableValue`, will always return a type from the `ServerDataType` alias or `nil`; however, LuaLS cannot infer the correct type, so `any` is returned instead.
+    - This limitation is fixed if Gil Resource Extraction is enabled.
 - `TweenTarget` exposes all tweenable fields from all Client Control types; however, attempting to tween fields for the wrong type may cause errors at runtime.
 
 ## Privacy and Additional Notes
 - **Unless specified below, no data, files, or analytics are sent to any third-party service.**
 - **This extension does not modify `.gil` files.**
-- Genshin account names are fetched by querying the [Enka.Network](https://enka.network/) API using UIDs found in the `BeyondLocal` directory.
+- Global Genshin account names are fetched by querying the [Enka.Network](https://enka.network/) API using UIDs found in the `BeyondLocal` directory. CN Genshin accounts do not have name fetching.
 - Save names are fetched by only decoding the save name parameter in `.gil` files found in the `BeyondLocal` directory.
 - Symlinks are ignored by the Save Explorer.
 - Gil Resource Extraction can be disabled separately from Lua API support.
