@@ -1,11 +1,13 @@
 import * as os from "os";
 import * as vscode from "vscode";
+import { SHORT_ID } from "@/constants/extension";
 import { ServerEntry, ServerType } from "@/types";
 import { queryEnkaNetwork } from "@/services/enka.service";
 import { getCachedUidInfo, setCachedUidInfo } from "@/utils/uid-cache.utils";
 
 export const SERVER: Record<ServerType, ServerEntry> = {
     GLOBAL: {
+        treeViewId: `${SHORT_ID}.save-explorer-global`,
         uidRegex: new RegExp(/^(6|7|8|18|9)\d{8}$/),
         getBeyondLocalUri: () => vscode.Uri.joinPath(vscode.Uri.file(os.homedir()), "AppData", "LocalLow", "miHoYo", "Genshin Impact", "BeyondLocal"),
         getUidInfo: async (context, uid) => {
@@ -25,6 +27,7 @@ export const SERVER: Record<ServerType, ServerEntry> = {
         }
     },
     CN: {
+        treeViewId: `${SHORT_ID}.save-explorer-cn`,
         uidRegex: new RegExp(/^(1|2|3|5)\d{8}$/),
         getBeyondLocalUri: () => vscode.Uri.joinPath(vscode.Uri.file(os.homedir()), "AppData", "LocalLow", "miHoYo", "原神", "BeyondLocal"),
         getUidInfo: async (context, uid) => { return { name: "", lastUpdate: 0 } }
