@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## (Unreleased)
+## [3.7.0]
 
 ### Changed
 - Separates Save Explorer into "Save Explorer (Global)" and "Save Explorer (CN)" to resolve incompatibility with CN server accounts.
