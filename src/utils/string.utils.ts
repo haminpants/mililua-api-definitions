@@ -1,10 +1,16 @@
-const UID_REGEX = new RegExp(`^1?[1,2,3,5,6,7,8,9][0-9]{8}$`);
-const STAGE_ID_REGEX = new RegExp(`^[0-9]{10}$`);
+import { SERVER } from "@/constants/servers";
+import { ServerEntry, ServerType } from "@/types";
 
-export function isUid(value: string) {
-    return UID_REGEX.test(value);
+export function getServerTypeFromUid(value: string): ServerType | undefined {
+    for (const [key, server] of Object.entries(SERVER) as [ServerType, ServerEntry][]) {
+        if (server.uidRegex.test(value)) { return key; }
+    }
+    return undefined;
 }
 
-export function isStageId(value: string) {
-    return STAGE_ID_REGEX.test(value);
+export function getServerFromUid(value: string): ServerEntry | undefined {
+    for (const [key, server] of Object.entries(SERVER) as [ServerType, ServerEntry][]) {
+        if (server.uidRegex.test(value)) { return server; }
+    }
+    return undefined;
 }
