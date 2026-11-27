@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.7.2]
+
+### Changed
+- Fixed incorrect enum index display for enum completion suggestions.
+- Clarified which type enum completion suggestions are for.
+
 ## [3.7.0]
 
 ### Changed
