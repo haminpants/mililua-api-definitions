@@ -23,7 +23,7 @@ export class FunctionEnumSuggestor {
                 return suggestions.filter(s => s.paramIndex === paramIndex.index).map(s => {
                     const completionItem = new vscode.CompletionItem(`Enum.${s.enumName} (Expected)`, vscode.CompletionItemKind.Enum);
                     completionItem.insertText = new vscode.SnippetString(`Enum.${s.enumName}.$0`);
-                    completionItem.detail = `Argument at index ${paramIndex} must be an EnumItem from Enum.${s.enumName}.`;
+                    completionItem.detail = `Argument at index ${paramIndex.index} must be an EnumItem from Enum.${s.enumName}.`;
                     completionItem.sortText = `!000`;
                     completionItem.command = {
                         command: "editor.action.triggerSuggest",
