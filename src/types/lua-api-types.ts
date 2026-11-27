@@ -5,5 +5,6 @@ export interface FunctionDocumentation {
 
 export interface FunctionEnumCompletion {
     paramIndex: number,
-    enumName: string
+    enumName: string,
+    typeName: string
 }

@@ -3,7 +3,7 @@ import { FunctionDocumentation, FunctionEnumCompletion } from "@/types";
 import { getLuaLibraryUri } from "@/utils/uri.utils";
 import { LuaApiNamespace } from "@/constants/lua-api-registry";
 
-const functionRegex = /((?:---.*\r?\n)*)\s*(?:function\s+\w+([.:]\w+)\(([^)]*)\))/g;
+const functionRegex = /((?:---.*\r?\n)*)\s*(?:function\s+(\w+)([.:]\w+)\(([^)]*)\))/g;
 const paramAnnotationRegex = /---@param\s+(\w+)\s+EnumItem.(\w+)/g;
 
 export class LuaApiSearch {
@@ -48,7 +48,7 @@ export class LuaApiSearch {
     private parseFunctionEnumCompletions(content: string) {
         let match;
         while ((match = functionRegex.exec(content)) !== null) {
-            const [, documentation, functionSignature, paramsString] = match;
+            const [, documentation, typeName, functionSignature, paramsString] = match;
             if (!documentation) { continue; }
 
             const params = paramsString.split(",").map(p => p.trim()).filter(p => p);
@@ -57,7 +57,7 @@ export class LuaApiSearch {
                 const [, paramName, enumName] = paramMatch;
                 const paramIndex = params.indexOf(paramName);
                 if (paramIndex === -1) { continue; }
-                (this.functionEnumCompletionCache[functionSignature] ??= []).push({ enumName, paramIndex });
+                (this.functionEnumCompletionCache[functionSignature] ??= []).push({ enumName, paramIndex, typeName });
             }
         }
     }
